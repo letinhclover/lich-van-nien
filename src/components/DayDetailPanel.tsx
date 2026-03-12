@@ -11,16 +11,6 @@ interface Props {
   compact?: boolean;
 }
 
-function Stars({ score, max=5 }: { score:number; max?:number }) {
-  return (
-    <div className="flex gap-0.5">
-      {Array.from({length:max}).map((_,i) => (
-        <span key={i} className="text-xs" style={{ color: i<score ? "var(--gold)" : "var(--border-medium)" }}>★</span>
-      ))}
-    </div>
-  );
-}
-
 export function DayDetailPanel({ date, compact=false }: Props) {
   const info: DayAnalysis = useMemo(
     () => analyzeDayFull(date.getDate(), date.getMonth()+1, date.getFullYear()),
