@@ -139,41 +139,45 @@ export default function App() {
       <AnimatePresence>
         {showToast && (
           <motion.div
-            initial={{ opacity:0, y:-80, scale:0.92 }}
-            animate={{ opacity:1, y:0,   scale:1,   transition:{ type:"spring", damping:22, stiffness:260 } }}
-            exit={{    opacity:0, y:-60, scale:0.95, transition:{ duration:0.22 } }}
-            className="fixed top-4 left-1/2 -translate-x-1/2 z-50 max-w-xs w-[calc(100%-2rem)]"
+            initial={{ opacity:0, y:-100 }}
+            animate={{ opacity:1, y:0, transition:{ type:"spring", damping:26, stiffness:280 } }}
+            exit={{    opacity:0, y:-80, transition:{ duration:0.2 } }}
+            className="fixed top-3 left-3 right-3 z-50"
+            style={{ maxWidth: 420, margin: "0 auto" }}
           >
-            <div className="rounded-2xl px-4 py-3.5 flex items-start gap-3"
+            <div className="rounded-2xl overflow-hidden"
               style={{
                 background:"var(--bg-elevated)",
                 border:"1px solid var(--gold-border)",
-                boxShadow:"var(--shadow-float)",
+                boxShadow:"0 16px 48px rgba(0,0,0,0.4), 0 0 0 1px rgba(245,166,35,0.15)",
               }}>
-              <span className="text-2xl flex-shrink-0 mt-0.5">👋</span>
-              <div className="flex-1 min-w-0">
-                <p className="font-bold text-sm mb-1" style={{color:"var(--text-primary)"}}>
-                  Chào bạn mới!
-                </p>
-                <p className="text-xs leading-relaxed" style={{color:"var(--text-secondary)"}}>
-                  Cập nhật <strong>Năm Sinh</strong> ở tab Bản Mệnh để nhận thông điệp vũ trụ chính xác nhé!
-                </p>
-                <div className="flex gap-2 mt-2.5">
-                  <motion.button whileTap={{scale:0.95}} onClick={() => dismissToast(true)}
-                    className="flex-1 py-2 rounded-xl text-xs font-bold"
-                    style={{background:"#B8720A",color:"#FFFFFF"}}>
-                    👤 Cập nhật ngay
-                  </motion.button>
-                  <motion.button whileTap={{scale:0.95}} onClick={() => dismissToast(false)}
-                    className="px-3 py-2 rounded-xl text-xs font-bold"
-                    style={{background:"var(--bg-surface)",color:"var(--text-muted)"}}>
-                    Bỏ qua
-                  </motion.button>
+              <div className="h-1" style={{background:"linear-gradient(90deg,#B8720A,#F5A623)"}}/>
+              <div className="p-3.5 flex items-start gap-3">
+                <span className="text-2xl flex-shrink-0">👋</span>
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-sm mb-0.5" style={{color:"var(--text-primary)"}}>
+                    Chào bạn mới!
+                  </p>
+                  <p className="text-xs leading-relaxed" style={{color:"var(--text-secondary)"}}>
+                    Cập nhật <strong>Năm Sinh</strong> ở tab Bản Mệnh để nhận luận giải chính xác nhé!
+                  </p>
+                  <div className="flex gap-2 mt-2.5">
+                    <motion.button whileTap={{scale:0.95}} onClick={() => dismissToast(true)}
+                      className="flex-1 py-2 rounded-xl text-xs font-bold"
+                      style={{background:"#B8720A",color:"#FFF"}}>
+                      👤 Thiết lập ngay
+                    </motion.button>
+                    <motion.button whileTap={{scale:0.95}} onClick={() => dismissToast(false)}
+                      className="px-3 py-2 rounded-xl text-xs"
+                      style={{background:"var(--bg-surface)",color:"var(--text-muted)"}}>
+                      Bỏ qua
+                    </motion.button>
+                  </div>
                 </div>
+                <button onClick={() => dismissToast(false)}
+                  className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs"
+                  style={{background:"var(--bg-surface)",color:"var(--text-faint)"}}>✕</button>
               </div>
-              <button onClick={() => dismissToast(false)}
-                className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs"
-                style={{background:"var(--bg-elevated)",color:"var(--text-faint)"}}>✕</button>
             </div>
           </motion.div>
         )}
