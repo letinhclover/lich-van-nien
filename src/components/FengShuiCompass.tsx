@@ -5,7 +5,7 @@
 // UI: SVG La Bàn sang trọng với vòng Bát Quái
 // ============================================================
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence, useMotionValue, useSpring } from "framer-motion";
 
 // ─── Types ───────────────────────────────────────────────────
@@ -65,11 +65,6 @@ function headingToDir(deg: number): string {
   return DIR8[idx];
 }
 
-// Smooth angle to avoid 359→0 jump
-function smoothAngle(prev: number, next: number): number {
-  let diff = ((next - prev + 540) % 360) - 180;
-  return prev + diff * 0.2; // EMA factor
-}
 
 // ─── Main Component ───────────────────────────────────────────
 export function FengShuiCompass() {
@@ -85,20 +80,18 @@ export function FengShuiCompass() {
   // Motion value for compass heading (degrees) — drives needle rotation
   const rawHeading  = useMotionValue(0);
   const smoothHeading = useSpring(rawHeading, { stiffness:60, damping:18, mass:0.5 });
-  const prevAngleRef = useRef(0);
 
   const handleOrientation = useCallback((e: DeviceOrientationEvent) => {
     const ios = (e as DeviceOrientationEvent & {webkitCompassHeading?:number}).webkitCompassHeading;
     let heading: number | null = null;
     if (ios != null && ios >= 0) {
-      heading = ios; // iOS: direct magnetic heading, 0=North
+      heading = ios; // iOS: direct magnetic heading
     } else if (e.alpha != null) {
-      heading = (360 - e.alpha + 360) % 360; // Android: alpha is CCW, invert
+      heading = e.alpha; // Android: alpha IS the azimuth (0=North, clockwise)
     }
     if (heading == null) return;
-    const smoothed = smoothAngle(prevAngleRef.current, heading);
-    prevAngleRef.current = smoothed;
-    rawHeading.set(smoothed);
+    // Feed directly into motion value — useSpring handles smoothing
+    rawHeading.set(heading);
   }, [rawHeading]);
 
   const requestCompassPermission = useCallback(async () => {
