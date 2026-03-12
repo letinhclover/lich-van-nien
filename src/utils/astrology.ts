@@ -494,3 +494,33 @@ export function calculateDailyEnergy(userProfile: UserProfile, date: Date): Ener
 
   return { score, status, statusLabel, statusColor, headline, detail, luckyColor, avoidAction };
 }
+
+// ─── Lunar to Solar Conversion ────────────────────────────────
+// Duyệt từ đầu tháng âm lịch để tìm ngày dương lịch tương ứng
+export function lunarToSolar(
+  lunarDay: number, lunarMonth: number, lunarYear: number,
+  isLeapMonth = false
+): { day:number; month:number; year:number } | null {
+  // Search around the lunar year - start from Jan of that year
+  const startSolar = { day:1, month:1, year: lunarYear };
+  const endYear = lunarYear + 1;
+
+  for (let y = lunarYear - 1; y <= endYear; y++) {
+    for (let m = 1; m <= 12; m++) {
+      // Days in this solar month
+      const daysInMonth = new Date(y, m, 0).getDate();
+      for (let d = 1; d <= daysInMonth; d++) {
+        const lunar = solarToLunar(d, m, y);
+        if (
+          lunar.day === lunarDay &&
+          lunar.month === lunarMonth &&
+          lunar.year === lunarYear &&
+          lunar.isLeapMonth === isLeapMonth
+        ) {
+          return { day:d, month:m, year:y };
+        }
+      }
+    }
+  }
+  return null;
+}
