@@ -61,7 +61,8 @@ const DIR_EN: Record<string,string>   = {"Bắc":"N","Đông Bắc":"NE","Đông
 const BAT_QUAI_SYMBOLS = ["☵","☶","☳","☴","☲","☷","☱","☰"]; // B→ĐB→Đ→ĐN→N→TN→T→TB
 
 function headingToDir(deg: number): string {
-  const idx = Math.round(((deg % 360 + 360) % 360 + 22.5) / 45) % 8;
+  const norm = ((deg % 360) + 360) % 360;
+  const idx = Math.round(norm / 45) % 8;
   return DIR8[idx];
 }
 

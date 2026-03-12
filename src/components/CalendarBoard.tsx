@@ -39,7 +39,6 @@ function buildGrid(year:number, month:number): (Date|null)[][] {
 
 export function CalendarBoard({ currentDate, onDateChange }: CalendarBoardProps) {
   const [direction,  setDirection]  = useState(1);
-  const [showPicker, setShowPicker] = useState(false);
   const prevRef = useRef(currentDate);
 
   useEffect(() => {
@@ -133,21 +132,8 @@ export function CalendarBoard({ currentDate, onDateChange }: CalendarBoardProps)
       </div>
 
       {/* ── Mở lịch tháng ── */}
-      <motion.button whileTap={{scale:0.97}} onClick={()=>setShowPicker(v=>!v)}
-        className="flex items-center justify-between px-4 py-3 rounded-2xl font-semibold text-sm"
-        style={{background:"var(--bg-elevated)",border:"1px solid var(--border-subtle)",color:"var(--text-primary)"}}>
-        <span>📅 Chọn ngày · Quy đổi Âm/Dương</span>
-        <motion.span animate={{rotate:showPicker?180:0}} style={{display:"inline-block",lineHeight:1}}>▾</motion.span>
-      </motion.button>
-
-      <AnimatePresence>
-        {showPicker && (
-          <motion.div initial={{opacity:0,height:0}} animate={{opacity:1,height:"auto"}}
-            exit={{opacity:0,height:0}} style={{overflow:"hidden"}}>
-            <DatePicker currentDate={currentDate} onSelect={d=>{onDateChange(d);setShowPicker(false);}}/>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* ── Chọn ngày luôn hiện ── */}
+      <DatePicker currentDate={currentDate} onSelect={d=>onDateChange(d)}/>
 
       <DayDetailPanel date={currentDate}/>
     </div>
