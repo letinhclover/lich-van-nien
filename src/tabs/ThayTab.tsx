@@ -6,6 +6,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { QUE_KINH_DICH, getQueMuc, QUE_MUC_STYLE, type Que } from "../data/divinations";
+import { playGieoQue } from "../utils/sounds";
 
 // ─── Groq AI call ─────────────────────────────────────────────
 const GROQ_URL   = "https://api.groq.com/openai/v1/chat/completions";
@@ -87,6 +88,7 @@ export function ThayTab({ birthYear }: Props) {
 
   const handleGieoQue = useCallback(async () => {
     if (!cauHoi.trim()) return;
+    playGieoQue();
     setPhase("spinning");
     setError("");
     setRotation(prev => prev + 720 + Math.random() * 360);
