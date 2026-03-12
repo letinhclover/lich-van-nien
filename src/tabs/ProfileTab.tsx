@@ -309,6 +309,34 @@ export function ProfileTab({ userProfile, onProfileChange }: ProfileTabProps) {
       {shopee && activeProfile && activeMember && (
         <ShopeeCard product={shopee} element={activeProfile.element} canChi={activeProfile.canChiYear} />
       )}
+
+      {/* Author & Donate Card */}
+      <div className="mx-4 mb-6 rounded-2xl overflow-hidden"
+        style={{border:"1px solid var(--border-subtle)",background:"var(--bg-surface)"}}>
+        <div className="px-4 py-3.5 flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
+            style={{background:"var(--gold-bg)",border:"1px solid var(--gold-border)"}}>🧑‍💻</div>
+          <div className="flex-1 min-w-0">
+            <p className="font-bold text-sm" style={{color:"var(--text-primary)"}}>Phát triển bởi Lê Tỉnh</p>
+            <p className="text-xs" style={{color:"var(--text-muted)"}}>Lịch Vạn Niên AI 2026 · v1.0</p>
+          </div>
+        </div>
+        <div className="h-px mx-4" style={{background:"var(--border-subtle)"}}/>
+        <div className="px-4 py-3">
+          <p className="text-xs mb-2.5 leading-relaxed" style={{color:"var(--text-muted)"}}>
+            Nếu app có ích, mời tác giả một ly cà phê để tiếp tục phát triển thêm nhé! ☕
+          </p>
+          <a href="https://me.momo.vn/0973803789" target="_blank" rel="noopener noreferrer">
+            <motion.div whileTap={{scale:0.97}}
+              className="flex items-center justify-center gap-2.5 py-2.5 rounded-xl font-bold text-sm text-white"
+              style={{background:"linear-gradient(135deg,#ae2070,#d0226b)",boxShadow:"0 4px 16px rgba(174,32,112,0.35)"}}>
+              <span className="text-lg">☕</span>
+              <span>Mời tác giả ly café (MoMo)</span>
+            </motion.div>
+          </a>
+          <p className="text-center text-xs mt-2" style={{color:"var(--text-faint)"}}>MoMo: 0973803789</p>
+        </div>
+      </div>
     </div>
   );
 }
