@@ -91,24 +91,6 @@ export function DayDetailPanel({ date, compact=false }: Props) {
         </div>
       </div>
 
-      {/* Rating grid */}
-      <div className="card p-4">
-        <p className="section-label mb-3">Đánh Giá Theo Mục Đích</p>
-        <div className="grid grid-cols-2 gap-x-6 gap-y-2">
-          {[
-            { label:"🏗 Xây dựng",   key:"xayDung" as const },
-            { label:"💼 Kinh doanh", key:"kinhDoanh" as const },
-            { label:"💍 Cưới hỏi",   key:"cuoiHoi" as const },
-            { label:"⚱ An táng",    key:"anTang" as const },
-          ].map(({ label, key }) => (
-            <div key={key} className="flex items-center justify-between">
-              <span className="text-xs" style={{ color:"var(--text-muted)" }}>{label}</span>
-              <Stars score={info.rating[key]} />
-            </div>
-          ))}
-        </div>
-      </div>
-
     </motion.div>
   );
 }

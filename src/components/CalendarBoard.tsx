@@ -51,7 +51,8 @@ export function CalendarBoard({ currentDate, onDateChange }: CalendarBoardProps)
 
   const lunar    = solarToLunar(currentDate.getDate(), currentDate.getMonth()+1, currentDate.getFullYear());
   const isToday  = sameDay(currentDate, today0());
-  const isWeekend= currentDate.getDay()===0||currentDate.getDay()===6;
+  const isSunday  = currentDate.getDay() === 0;
+  const isSaturday= currentDate.getDay() === 6;
 
   const go = (n:number) => { playTick(); onDateChange(addDays(currentDate,n)); };
 
@@ -84,7 +85,7 @@ export function CalendarBoard({ currentDate, onDateChange }: CalendarBoardProps)
 
             <div className="relative flex items-center justify-center py-3">
               <motion.span className="font-display font-bold select-none"
-                style={{fontSize:"8.5rem",lineHeight:1,color:isWeekend?"var(--gold)":"var(--text-primary)"}}
+                style={{fontSize:"8.5rem",lineHeight:1,color:isSunday?"#dc2626":isSaturday?"var(--gold)":"var(--text-primary)"}}
                 initial={{scale:0.90}} animate={{scale:1}} transition={{type:"spring",damping:14}}>
                 {String(currentDate.getDate()).padStart(2,"0")}
               </motion.span>
@@ -219,7 +220,7 @@ function DatePicker({currentDate, onSelect}:{currentDate:Date;onSelect:(d:Date)=
           <div className="grid grid-cols-7 mb-1">
             {WD_SHORT.map((w,i)=>(
               <div key={w} className="text-center py-0.5 text-xs font-bold"
-                style={{color:i===0||i===6?"var(--gold)":"var(--text-muted)"}}>{w}</div>
+                style={{color:i===0?"#dc2626":i===6?"var(--gold)":"var(--text-muted)"}}>{w}</div>
             ))}
           </div>
 
@@ -230,7 +231,8 @@ function DatePicker({currentDate, onSelect}:{currentDate:Date;onSelect:(d:Date)=
                 if(!cell) return <div key={ci}/>;
                 const sel=sameDay(cell,currentDate);
                 const isTd=sameDay(cell,today);
-                const wknd=ci===0||ci===6;
+                const isSun = ci===0;
+                const isSat = ci===6;
                 const lun=solarToLunar(cell.getDate(),cell.getMonth()+1,cell.getFullYear());
                 return (
                   <motion.button key={ci} whileTap={{scale:0.82}} onClick={()=>{playTick();onSelect(cell);}}
@@ -240,7 +242,7 @@ function DatePicker({currentDate, onSelect}:{currentDate:Date;onSelect:(d:Date)=
                       border:isTd&&!sel?"1px solid var(--gold-border)":"1px solid transparent",
                     }}>
                     <span className="text-sm font-bold leading-tight"
-                      style={{color:sel?"white":wknd?"var(--gold)":"var(--text-primary)"}}>
+                      style={{color:sel?"white":isSun?"#dc2626":isSat?"var(--gold)":"var(--text-primary)"}}>
                       {cell.getDate()}
                     </span>
                     <span className="text-[9px] leading-none"

@@ -6,7 +6,7 @@
 // ============================================================
 
 import { useState, useEffect, useCallback } from "react";
-import { motion, AnimatePresence, useMotionValue, useSpring } from "framer-motion";
+import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from "framer-motion";
 
 // ─── Types ───────────────────────────────────────────────────
 interface CatSet  { sinhKhi:string; thienY:string; dieNien:string; phucVi:string; }
@@ -85,12 +85,12 @@ export function FengShuiCompass() {
     const ios = (e as DeviceOrientationEvent & {webkitCompassHeading?:number}).webkitCompassHeading;
     let heading: number | null = null;
     if (ios != null && ios >= 0) {
-      heading = ios; // iOS: direct magnetic heading
-    } else if (e.alpha != null) {
-      heading = e.alpha; // Android: alpha IS the azimuth (0=North, clockwise)
+      heading = ios; // iOS: true magnetic heading, 0=North clockwise
+    } else if (e.absolute && e.alpha != null) {
+      // Android deviceorientationabsolute: alpha is CCW from North, invert to CW
+      heading = (360 - e.alpha) % 360;
     }
     if (heading == null) return;
-    // Feed directly into motion value — useSpring handles smoothing
     rawHeading.set(heading);
   }, [rawHeading]);
 
@@ -112,11 +112,16 @@ export function FengShuiCompass() {
 
   useEffect(() => {
     const isIOS = typeof (DeviceOrientationEvent as unknown as {requestPermission?:unknown}).requestPermission === "function";
-    if (!isIOS && window.DeviceOrientationEvent) {
-      window.addEventListener("deviceorientation", handleOrientation, true);
+    if (!isIOS) {
+      // Android: prefer absolute event (true North reference)
+      window.addEventListener("deviceorientationabsolute" as "deviceorientation", handleOrientation, true);
+      window.addEventListener("deviceorientation", handleOrientation, true); // fallback
       setHasCompass(true);
     }
-    return () => window.removeEventListener("deviceorientation", handleOrientation, true);
+    return () => {
+      window.removeEventListener("deviceorientationabsolute" as "deviceorientation", handleOrientation, true);
+      window.removeEventListener("deviceorientation", handleOrientation, true);
+    };
   }, [handleOrientation]);
 
   const handleCalc = () => {
@@ -214,6 +219,9 @@ function LiveCompass({ smoothHeading, hasCompass, permDenied, onRequest, result 
   const R = size/2 - 8;
   const catDirs  = Object.values(result.cat);
   const hungDirs = Object.values(result.hung);
+  // Disc must rotate OPPOSITE to heading so direction labels stay fixed in space
+  // heading=90° (facing East) → disc rotates -90° so East label comes to top
+  const negHeading = useTransform(smoothHeading, h => -h);
 
   return (
     <div className="card p-4 flex flex-col items-center gap-4">
@@ -258,7 +266,7 @@ function LiveCompass({ smoothHeading, hasCompass, permDenied, onRequest, result 
         {/* Rotating disc — chứa hướng và bát quái */}
           <motion.svg
             width={size} height={size} viewBox={`0 0 ${size} ${size}`}
-            style={{ position:"absolute", top:0, left:0, rotate: smoothHeading }}
+            style={{ position:"absolute", top:0, left:0, rotate: negHeading }}
           >
             {/* Draw 8 directions */}
             {DIR8.map((dir, i) => {
