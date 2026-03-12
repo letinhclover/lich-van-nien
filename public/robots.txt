@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://huyen-co-cac.pages.dev/sitemap.xml
+Sitemap: https://lich-van-nien.pages.dev/sitemap.xml
