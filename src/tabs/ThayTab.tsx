@@ -162,7 +162,13 @@ export function ThayTab({ birthYear }: Props) {
                 </p>
               </div>
               <div className="w-full max-w-xs space-y-2 text-left">
-                {["Chuyện tình cảm đang phân vân","Quyết định quan trọng sắp tới","Công việc kinh doanh hỏi thăm"].map(s => (
+                {[
+                  "Tháng này tôi đầu tư đất đai hoặc chứng khoán có thuận lợi không?",
+                  "Công việc sắp tới của tôi có biến động gì lớn không?",
+                  "Năm nay gia đạo, tình cảm vợ chồng con cái thế nào?",
+                  "Tôi đang dự định xuất hành đi xa, xin thầy cho lời khuyên.",
+                  "Sức khỏe của tôi thời gian tới cần lưu ý điều gì?",
+                ].map(s => (
                   <button key={s} onClick={() => { setCauHoi(s); setPhase("question"); }}
                     className="w-full text-left px-3 py-2.5 rounded-xl text-sm transition-all"
                     style={{ background: "var(--bg-surface)", border: "1px solid var(--border-subtle)", color: "var(--text-secondary)" }}>
