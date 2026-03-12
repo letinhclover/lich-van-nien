@@ -178,7 +178,7 @@ export function FortuneCard({ date, userProfile, onSetupProfile }: FortuneCardPr
           <div className="w-8 h-8 rounded-xl flex items-center justify-center text-base"
             style={{ background: "var(--gold-bg)", border: "1px solid var(--gold-border)" }}>✨</div>
           <div className="flex-1">
-            <p className="section-label">AI Groq · Luận Giải</p>
+            <p className="section-label">AI Luận Giải</p>
             <p className="text-xs" style={{ color: "var(--text-muted)" }}>
               {dateLabel} · {lunar.canChiYear}
             </p>
@@ -332,8 +332,7 @@ export function FortuneCard({ date, userProfile, onSetupProfile }: FortuneCardPr
         </div>
 
         {/* Footer */}
-        <div className="px-5 pb-3 flex justify-between border-t" style={{ borderColor: "var(--border-subtle)" }}>
-          <p className="text-xs" style={{ color: "var(--text-faint)" }}>🔮 huyen-co-cac.pages.dev</p>
+        <div className="px-5 pb-3 flex justify-end border-t" style={{ borderColor: "var(--border-subtle)" }}>
           <p className="text-xs" style={{ color: "var(--text-faint)" }}>{dateLabel}</p>
         </div>
       </div>
