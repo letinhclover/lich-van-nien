@@ -156,18 +156,73 @@ export function ThayTab({ birthYear }: Props) {
           {phase === "idle" && (
             <motion.div key="idle" initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0 }}
               className="flex flex-col items-center text-center gap-5 pt-6">
-              {/* Divination symbol */}
+              {/* Thầy Lão Đại SVG avatar */}
               <div className="relative">
-                <div className="w-28 h-28 rounded-full flex items-center justify-center text-6xl"
-                  style={{ background: "var(--gold-bg)", border: "2px solid var(--gold-border)" }}>
-                  ☰
+                <div className="w-28 h-28 rounded-full overflow-hidden flex items-center justify-center"
+                  style={{ background: "linear-gradient(135deg,var(--gold-bg),var(--bg-elevated))", border: "2.5px solid var(--gold-border)", boxShadow:"0 8px 32px rgba(245,166,35,0.18)" }}>
+                  <svg viewBox="0 0 120 120" width="112" height="112" xmlns="http://www.w3.org/2000/svg" aria-label="Thầy Lão Đại">
+                    {/* Background glow */}
+                    <circle cx="60" cy="60" r="56" fill="url(#bgGrad)" opacity="0.25"/>
+                    <defs>
+                      <radialGradient id="bgGrad" cx="50%" cy="30%" r="70%">
+                        <stop offset="0%" stopColor="#F5A623"/>
+                        <stop offset="100%" stopColor="#070B17"/>
+                      </radialGradient>
+                    </defs>
+                    {/* Robe body */}
+                    <ellipse cx="60" cy="98" rx="30" ry="18" fill="#1a2240"/>
+                    <path d="M30 90 Q40 70 60 68 Q80 70 90 90 Q80 108 60 110 Q40 108 30 90Z" fill="#1e2a50"/>
+                    {/* Collar/robe front */}
+                    <path d="M50 72 Q60 78 70 72 L66 95 L60 98 L54 95Z" fill="#c8850a" opacity="0.8"/>
+                    {/* Neck */}
+                    <rect x="55" y="60" width="10" height="12" rx="4" fill="#c8956a"/>
+                    {/* Head */}
+                    <ellipse cx="60" cy="50" rx="20" ry="22" fill="#c8956a"/>
+                    {/* Forehead wrinkles */}
+                    <path d="M46 42 Q60 40 74 42" fill="none" stroke="#b07050" strokeWidth="0.8" opacity="0.5"/>
+                    <path d="M48 45 Q60 44 72 45" fill="none" stroke="#b07050" strokeWidth="0.7" opacity="0.4"/>
+                    {/* Eyebrows (long, white — elder) */}
+                    <path d="M44 44 Q52 40 58 43" fill="none" stroke="#e8e0d0" strokeWidth="2" strokeLinecap="round"/>
+                    <path d="M62 43 Q68 40 76 44" fill="none" stroke="#e8e0d0" strokeWidth="2" strokeLinecap="round"/>
+                    {/* Eyes (wise, half-closed) */}
+                    <ellipse cx="52" cy="49" rx="4.5" ry="3" fill="#2a1a0a"/>
+                    <ellipse cx="68" cy="49" rx="4.5" ry="3" fill="#2a1a0a"/>
+                    <ellipse cx="52" cy="48.5" rx="2" ry="1.5" fill="#5a3a20" opacity="0.4"/>
+                    <ellipse cx="68" cy="48.5" rx="2" ry="1.5" fill="#5a3a20" opacity="0.4"/>
+                    {/* Eye highlights */}
+                    <circle cx="54" cy="48" r="1" fill="white" opacity="0.7"/>
+                    <circle cx="70" cy="48" r="1" fill="white" opacity="0.7"/>
+                    {/* Nose */}
+                    <path d="M58 52 Q60 56 62 52" fill="none" stroke="#b07050" strokeWidth="1.2" strokeLinecap="round"/>
+                    {/* Smile — gentle, wise */}
+                    <path d="M53 59 Q60 64 67 59" fill="none" stroke="#8a5a3a" strokeWidth="1.5" strokeLinecap="round"/>
+                    {/* Mustache + beard (white) */}
+                    <path d="M50 58 Q56 60 60 58 Q64 60 70 58" fill="none" stroke="#e0d8c8" strokeWidth="2.5" strokeLinecap="round" opacity="0.9"/>
+                    <path d="M52 62 Q56 66 60 65 Q64 66 68 62" fill="none" stroke="#d8d0c0" strokeWidth="1.5" strokeLinecap="round" opacity="0.8"/>
+                    <path d="M54 66 Q60 72 66 66" fill="none" stroke="#d0c8b8" strokeWidth="1.2" strokeLinecap="round" opacity="0.6"/>
+                    {/* Traditional hat (Khăn đầu rìu) */}
+                    <ellipse cx="60" cy="30" rx="24" ry="6" fill="#c8850a" opacity="0.9"/>
+                    <rect x="42" y="18" width="36" height="14" rx="2" fill="#1e2a50"/>
+                    <rect x="44" y="19" width="32" height="12" rx="2" fill="#2a3a6a"/>
+                    {/* Hat decoration - gold band */}
+                    <rect x="42" y="28" width="36" height="3" rx="1" fill="#c8850a"/>
+                    {/* Gold ornament on hat */}
+                    <circle cx="60" cy="20" r="3" fill="#F5A623" opacity="0.9"/>
+                    <text x="60" y="21.5" textAnchor="middle" fontSize="4" fill="#070B17" fontFamily="serif">☯</text>
+                    {/* Ear rings */}
+                    <circle cx="40" cy="52" r="2.5" fill="#c8850a" opacity="0.7"/>
+                    <circle cx="80" cy="52" r="2.5" fill="#c8850a" opacity="0.7"/>
+                    {/* Staff hint at side */}
+                    <line x1="88" y1="68" x2="92" y2="110" stroke="#8a6a3a" strokeWidth="3" strokeLinecap="round" opacity="0.7"/>
+                    <circle cx="90" cy="67" r="4" fill="#c8850a" opacity="0.6"/>
+                  </svg>
                 </div>
-                <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center text-xs"
-                  style={{ background: "var(--gold)", color: "white" }}>✦</div>
+                <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full flex items-center justify-center text-sm"
+                  style={{ background: "var(--gold)", color: "white", boxShadow:"0 2px 8px rgba(245,166,35,0.4)" }}>✦</div>
               </div>
               <div>
-                <h3 className="text-xl font-display font-bold mb-2" style={{ color: "var(--text-primary)" }}>
-                  Thưa Thầy một điều
+                <h3 className="text-xl font-display font-bold mb-2" style={{ color: "var(--gold)" }}>
+                  Thầy Lão Đại
                 </h3>
                 <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
                   Thành tâm đặt câu hỏi trong lòng,<br/>rồi gieo quẻ để thầy luận giải.

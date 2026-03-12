@@ -57,6 +57,7 @@ export function ProfileTab({ userProfile, onProfileChange }: ProfileTabProps) {
   const [fMonth,    setFMonth]    = useState("");
   const [fError,    setFError]    = useState("");
   const [justSaved, setJustSaved] = useState(false);
+  const [editMemberId, setEditMemberId] = useState<string|null>(null);
 
   const activeMember = members.find(m => m.id === activeMemberId) ?? members[0] ?? null;
   const activeProfile = activeMember ? buildUserProfile(activeMember.birthYear) : null;
@@ -82,20 +83,32 @@ export function ProfileTab({ userProfile, onProfileChange }: ProfileTabProps) {
     setShowDropdown(false);
   };
 
+  const startEditMember = (m: Member) => {
+    setFName(m.name); setFRelation(m.relation); setFYear(String(m.birthYear));
+    setFDay(m.birthDay ? String(m.birthDay) : ""); setFMonth(m.birthMonth ? String(m.birthMonth) : "");
+    setEditMemberId(m.id); setShowAdd(true);
+  };
+
   const handleAdd = () => {
     const y = parseInt(fYear, 10);
     if (!fName.trim()) { setFError("Vui lòng nhập tên"); return; }
     if (isNaN(y) || y < 1900 || y > 2020) { setFError("Năm sinh không hợp lệ (1900–2020)"); return; }
     setFError("");
-    const id = Date.now().toString();
-    const member: Member = {
-      id, name: fName.trim(), relation: fRelation, birthYear: y,
-      birthDay: parseInt(fDay)||undefined, birthMonth: parseInt(fMonth)||undefined,
-    };
-    const updated = [...members, member];
-    setMembers(updated); saveMembers(updated);
-    setActiveMemberId(id);
-    try { localStorage.setItem(ACTIVE_KEY, id); } catch {}
+    if (editMemberId) {
+      // Edit mode
+      const member: Member = { id: editMemberId, name: fName.trim(), relation: fRelation, birthYear: y, birthDay: parseInt(fDay)||undefined, birthMonth: parseInt(fMonth)||undefined };
+      const updated = members.map(m => m.id===editMemberId ? member : m);
+      setMembers(updated); saveMembers(updated);
+      setEditMemberId(null);
+    } else {
+      // Add mode
+      const id = Date.now().toString();
+      const member: Member = { id, name: fName.trim(), relation: fRelation, birthYear: y, birthDay: parseInt(fDay)||undefined, birthMonth: parseInt(fMonth)||undefined };
+      const updated = [...members, member];
+      setMembers(updated); saveMembers(updated);
+      setActiveMemberId(id);
+      try { localStorage.setItem(ACTIVE_KEY, id); } catch {}
+    }
     setFName("Bản thân"); setFRelation("Bản thân"); setFYear(""); setFDay(""); setFMonth("");
     setShowAdd(false);
     playChime();
@@ -137,21 +150,25 @@ export function ProfileTab({ userProfile, onProfileChange }: ProfileTabProps) {
               className="absolute top-full left-0 right-0 mt-1 z-50 card overflow-hidden"
               style={{boxShadow:"var(--shadow-float)"}}>
               {members.map(m => (
-                <button key={m.id} onClick={()=>switchMember(m.id)}
-                  className="w-full flex items-center justify-between px-4 py-3 border-b text-left"
-                  style={{borderColor:"var(--border-subtle)",
-                    background:m.id===activeMemberId?"var(--gold-bg)":"transparent",
-                    color:m.id===activeMemberId?"var(--gold)":"var(--text-primary)"}}>
-                  <span className="font-medium">{m.name} <span className="text-xs opacity-60">({m.relation})</span></span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs" style={{color:"var(--text-faint)"}}>{m.birthYear}</span>
+                <div key={m.id} className="flex items-center border-b"
+                  style={{borderColor:"var(--border-subtle)",background:m.id===activeMemberId?"var(--gold-bg)":"transparent"}}>
+                  <button onClick={()=>switchMember(m.id)}
+                    className="flex-1 flex items-center px-4 py-3 text-left min-w-0"
+                    style={{color:m.id===activeMemberId?"var(--gold)":"var(--text-primary)"}}>
+                    <span className="font-medium truncate">{m.name} <span className="text-xs opacity-60">({m.relation})</span></span>
+                    <span className="text-xs ml-2 flex-shrink-0" style={{color:"var(--text-faint)"}}>{m.birthYear}</span>
+                  </button>
+                  <div className="flex items-center gap-1 pr-3">
+                    <button onClick={e=>{e.stopPropagation();setShowDropdown(false);startEditMember(m);}}
+                      className="w-7 h-7 rounded-lg flex items-center justify-center text-xs"
+                      style={{background:"var(--gold-bg)",color:"var(--gold)"}}>✏️</button>
                     {members.length>1 && (
-                      <span onClick={e=>{e.stopPropagation();handleDelete(m.id);}}
-                        className="w-6 h-6 rounded-md flex items-center justify-center text-xs"
-                        style={{background:"rgba(248,113,113,0.12)",color:"var(--accent-red)"}}>✕</span>
+                      <button onClick={e=>{e.stopPropagation();handleDelete(m.id);}}
+                        className="w-7 h-7 rounded-lg flex items-center justify-center text-xs"
+                        style={{background:"rgba(248,113,113,0.12)",color:"var(--accent-red)"}}>🗑</button>
                     )}
                   </div>
-                </button>
+                </div>
               ))}
               <button onClick={()=>{setShowDropdown(false);setShowAdd(true);}}
                 className="w-full flex items-center gap-2 px-4 py-3 text-sm font-bold"
@@ -169,7 +186,7 @@ export function ProfileTab({ userProfile, onProfileChange }: ProfileTabProps) {
           <motion.div initial={{opacity:0,height:0}} animate={{opacity:1,height:"auto"}}
             exit={{opacity:0,height:0}} style={{overflow:"hidden"}}>
             <div className="card p-4 flex flex-col gap-3">
-              <p className="font-bold" style={{color:"var(--text-primary)"}}>➕ Thêm Thành Viên</p>
+              <p className="font-bold" style={{color:"var(--text-primary)"}}>{editMemberId ? "✏️ Sửa Thành Viên" : "➕ Thêm Thành Viên"}</p>
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
