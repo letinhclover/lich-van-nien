@@ -263,17 +263,9 @@ function LiveCompass({ smoothHeading, hasCompass, permDenied, onRequest, result 
         </svg>
 
         {/* Rotating disc — chứa hướng và bát quái */}
-        <motion.div
-          style={{
-            position:"absolute", top:0, left:0,
-            width:size, height:size,
-            rotate: smoothHeading.get ? smoothHeading : 0,
-          }}
-          // framer-motion animates this div's rotate based on smoothHeading
-        >
           <motion.svg
             width={size} height={size} viewBox={`0 0 ${size} ${size}`}
-            style={{ rotate: smoothHeading }}
+            style={{ position:"absolute", top:0, left:0, rotate: smoothHeading }}
           >
             {/* Draw 8 directions */}
             {DIR8.map((dir, i) => {
@@ -337,7 +329,6 @@ function LiveCompass({ smoothHeading, hasCompass, permDenied, onRequest, result 
               );
             })}
           </motion.svg>
-        </motion.div>
 
         {/* Fixed needle — always points North (up) */}
         <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}
