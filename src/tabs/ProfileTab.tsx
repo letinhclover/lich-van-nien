@@ -288,19 +288,83 @@ export function ProfileTab({ userProfile, onProfileChange }: ProfileTabProps) {
         </AnimatePresence>
       ) : null}
 
-      {/* Shopee recommendation */}
-      {shopee && activeProfile && (
-        <a href={shopee.url} target="_blank" rel="noopener noreferrer"
-          className="card p-4 flex items-center gap-3 no-underline">
-          <span className="text-2xl">{shopee.emoji}</span>
-          <div className="flex-1">
-            <p className="section-label mb-0.5">Vật phẩm hợp mệnh</p>
-            <p className="font-semibold text-sm" style={{color:"var(--text-primary)"}}>{shopee.name}</p>
-          </div>
-          <span className="text-xs px-2 py-1 rounded-lg font-bold"
-            style={{background:"var(--gold-bg)",color:"var(--gold)"}}>Xem →</span>
-        </a>
+      {/* Premium Shopee Affiliate Card */}
+      {shopee && activeProfile && activeMember && (
+        <ShopeeCard product={shopee} element={activeProfile.element} canChi={activeProfile.canChiYear} />
       )}
     </div>
+  );
+}
+
+// ─── Shopee Affiliate Card ────────────────────────────────────
+const ELEMENT_BG: Record<string,string> = {
+  kim:"rgba(148,163,184,0.10)", moc:"rgba(34,197,94,0.10)",
+  thuy:"rgba(59,130,246,0.10)", hoa:"rgba(239,68,68,0.10)", tho:"rgba(245,158,11,0.10)"
+};
+const ELEMENT_BORDER: Record<string,string> = {
+  kim:"rgba(148,163,184,0.25)", moc:"rgba(34,197,94,0.22)",
+  thuy:"rgba(59,130,246,0.22)", hoa:"rgba(239,68,68,0.20)", tho:"rgba(245,158,11,0.22)"
+};
+const ELEMENT_PERSUADE: Record<string,string> = {
+  kim:"Người mệnh Kim mang vật phẩm này giúp tăng uy quyền, bảo vệ tài lộc và hóa giải vận xui năm 2026.",
+  moc:"Người mệnh Mộc đeo vật phẩm này sẽ tăng sức sống, thu hút cơ hội phát triển sự nghiệp năm 2026.",
+  thuy:"Người mệnh Thủy mang vật phẩm này giúp tâm trí bình ổn, trực giác nhạy bén, hanh thông tài lộc.",
+  hoa:"Người mệnh Hỏa mang vật phẩm này giúp cân bằng cảm xúc, thu hút quý nhân và tài lộc năm 2026.",
+  tho:"Người mệnh Thổ đeo vật phẩm này giúp vững chắc tâm lý, quyết định khôn ngoan và ổn định gia đạo.",
+};
+
+function ShopeeCard({ product, element, canChi }: {
+  product: ReturnType<typeof getShopeeProduct>; element: string; canChi: string;
+}) {
+  if (!product) return null;
+  const elBg     = ELEMENT_BG[element]     ?? "rgba(245,158,11,0.10)";
+  const elBorder = ELEMENT_BORDER[element] ?? "rgba(245,158,11,0.22)";
+  const persuade = ELEMENT_PERSUADE[element] ?? product.description;
+
+  return (
+    <a href={product.url} target="_blank" rel="noopener noreferrer"
+      className="block no-underline rounded-3xl overflow-hidden"
+      style={{ background: elBg, border: `1.5px solid ${elBorder}` }}>
+      <div className="p-4">
+        {/* Header */}
+        <div className="flex items-center gap-2 mb-3">
+          <span className="text-lg">✨</span>
+          <p className="font-bold text-sm" style={{ color:"var(--gold)" }}>
+            Vật phẩm trợ mệnh cho tuổi {canChi}
+          </p>
+        </div>
+
+        {/* Product row */}
+        <div className="flex items-center gap-3 mb-3">
+          {/* Icon */}
+          <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-4xl flex-shrink-0"
+            style={{ background:"rgba(0,0,0,0.15)", border:`1px solid ${elBorder}` }}>
+            {product.emoji}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-bold text-base leading-tight mb-1" style={{ color:"var(--text-primary)" }}>
+              {product.name}
+            </p>
+            <p className="text-xs leading-relaxed" style={{ color:"var(--text-secondary)" }}>
+              {persuade}
+            </p>
+          </div>
+        </div>
+
+        {/* Price + CTA */}
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-sm font-semibold" style={{ color:"var(--text-muted)" }}>
+            {product.price}
+          </p>
+          <motion.div
+            animate={{ scale: [1, 1.04, 1] }}
+            transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-2xl font-bold text-sm text-white flex-shrink-0"
+            style={{ background:"#EE4D2D", boxShadow:"0 4px 14px rgba(238,77,45,0.4)" }}>
+            🛒 Thỉnh trên Shopee
+          </motion.div>
+        </div>
+      </div>
+    </a>
   );
 }

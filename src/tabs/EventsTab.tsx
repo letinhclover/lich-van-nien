@@ -271,33 +271,6 @@ export function EventsTab() {
         )}
       </div>
 
-      {/* Lịch Lễ Việt Nam */}
-      <div>
-        <p className="section-label mb-2.5 px-1">🇻🇳 Lịch Lễ Việt Nam</p>
-        <div className="card overflow-hidden">
-          {holidayItems.map((h,i)=>(
-            <div key={h.name} className={`px-4 py-3 flex items-center gap-3 ${i<holidayItems.length-1?"border-b":""}`}
-              style={{borderColor:"var(--border-subtle)"}}>
-              <span className="text-xl w-8 text-center flex-shrink-0">{h.emoji}</span>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold" style={{color:"var(--text-primary)"}}>{h.name}</p>
-                <p className="text-xs" style={{color:"var(--text-muted)"}}>
-                  {h.desc}
-                  {h.type==="lunar" ? " · Âm lịch" : ""}
-                </p>
-              </div>
-              <div className="flex-shrink-0 text-right">
-                {h.next && <p className="text-xs" style={{color:"var(--text-faint)"}}>{formatNextDate(h.next)}</p>}
-                {h.days !== null && (
-                  h.days===0
-                    ? <p className="text-xs font-bold" style={{color:"var(--gold)"}}>Hôm nay!</p>
-                    : <p className="text-xs font-bold" style={{color:"var(--text-secondary)"}}>còn {h.days}d</p>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }
