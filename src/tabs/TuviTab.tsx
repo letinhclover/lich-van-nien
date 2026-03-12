@@ -20,7 +20,7 @@ async function askAiTuvi(canChiYear: string, gender: "nam"|"nu", horoContent: st
   if (!apiKey) throw new Error("Chưa có API key");
 
   const genderLabel = gender==="nam" ? "nam" : "nữ";
-  const prompt = `Bạn là thầy tướng số thân thiện, nói ngôn ngữ đời thường như người Việt Nam bình thường. KHÔNG dùng từ Hán Việt phức tạp.
+  const prompt = `Bạn là thầy tướng số thân thiện, nói ngôn ngữ đời thường như người Việt Nam bình thường. TUYỆT ĐỐI KHÔNG dùng từ Hán Việt khó hiểu (không viết: "tiên thiên", "phúc đức", "cát hung", "âm dương ngũ hành"...). Hãy đổi sang lời nói dân dã thay thế.
 
 Đây là thông tin tử vi cổ của người sinh năm ${canChiYear}, ${genderLabel} mạng:
 ---
@@ -41,7 +41,7 @@ SECTION:❤️ Tình duyên & Gia đình
 SECTION:💡 Lời khuyên sống
 [2-3 câu lời khuyên thực tế, tích cực, hành động cụ thể để cải vận]
 
-Viết ngắn gọn, ấm áp, truyền cảm hứng. Gọi người đọc là "bạn".`;
+Viết ngắn gọn, ấm áp, truyền cảm hứng. Sử dụng ngôn ngữ đời thường, không dùng từ Hán Việt khó hiểu. Gọi người đọc là "bạn".`;
 
   const res = await fetch(GROQ_URL, {
     method: "POST",
@@ -188,12 +188,12 @@ export function TuviTab({ birthYear }: Props) {
             </div>
 
             {sections.map(({emoji,label,content})=>(
-              <div key={label} className="card p-4">
+              <div key={label} className="card p-5">
                 <div className="flex items-center gap-2 mb-3">
                   <span className="text-2xl">{emoji}</span>
                   <p className="font-bold text-base" style={{color:"var(--text-primary)"}}>{label}</p>
                 </div>
-                <p className="text-sm leading-relaxed" style={{color:"var(--text-secondary)",lineHeight:"1.85"}}>
+                <p className="text-sm" style={{color:"var(--text-secondary)",lineHeight:"2",letterSpacing:"0.01em"}}>
                   {content}
                 </p>
               </div>

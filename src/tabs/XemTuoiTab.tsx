@@ -169,8 +169,8 @@ export function XemTuoiTab({ birthYear }: Props) {
       <div className="px-4 py-4 flex flex-col gap-3">
         {/* Year pickers */}
         <div className="grid grid-cols-2 gap-3">
-          <YearPicker label={mode==="capdoi" ? "👨 Chàng / Người 1" : "👤 Người 1"} value={yearA} onChange={setYearA} />
-          <YearPicker label={mode==="capdoi" ? "👩 Nàng / Người 2" : "👥 Người 2"} value={yearB} onChange={setYearB} />
+          <YearPicker label={mode==="capdoi" ? "👨 Chàng" : "👤 Bản thân"} value={yearA} onChange={setYearA} />
+          <YearPicker label={mode==="capdoi" ? "👩 Nàng" : "👥 Đối tác"} value={yearB} onChange={setYearB} />
         </div>
 
         {/* Ngũ hành */}
