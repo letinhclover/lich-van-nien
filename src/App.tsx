@@ -128,7 +128,7 @@ export default function App() {
                 <div className="mx-4 mb-2 mt-4"><SectionLabel label="Tử Vi Trọn Đời" /></div>
                 <TuviTab birthYear={profile?.birthYear} />
                 <div className="mx-4 mb-2 mt-4"><SectionLabel label="AI Luận Giải" /></div>
-                <AiTab date={viewDate} userProfile={profile} onSetupProfile={() => {}} />
+                <AiTab date={viewDate} userProfile={profile} onSetupProfile={() => changeTab("profile")} />
               </div>
             )}
           </motion.div>
@@ -161,7 +161,7 @@ export default function App() {
                 <div className="flex gap-2 mt-2.5">
                   <motion.button whileTap={{scale:0.95}} onClick={() => dismissToast(true)}
                     className="flex-1 py-2 rounded-xl text-xs font-bold"
-                    style={{background:"var(--gold)",color:"white"}}>
+                    style={{background:"#B8720A",color:"#FFFFFF"}}>
                     👤 Cập nhật ngay
                   </motion.button>
                   <motion.button whileTap={{scale:0.95}} onClick={() => dismissToast(false)}
