@@ -3,6 +3,7 @@
 // ============================================================
 
 import { useState, useMemo } from "react";
+import { shareXemTuoiImage } from "../utils/shareImage";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   NGU_HANH_CHI, TUONG_SINH, TUONG_KHAC,
@@ -239,6 +240,24 @@ export function XemTuoiTab({ birthYear }: Props) {
                 <p className="section-label mb-2">Kết Luận</p>
                 <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>{ketLuan.ket_luan}</p>
               </div>
+
+              {/* Share button */}
+              <motion.button whileTap={{ scale: 0.97 }}
+                onClick={() => shareXemTuoiImage({
+                  mode,
+                  canChiA: getCanChiYear(yearA),
+                  canChiB: getCanChiYear(yearB),
+                  labelA: mode === "capdoi" ? "👨 Chàng" : "👤 Bản thân",
+                  labelB: mode === "capdoi" ? "👩 Nàng" : "👥 Đối tác",
+                  diem: diem * 10,
+                  danhGia: ketLuan.danh_gia,
+                  tongQuan: ketLuan.tong_quan,
+                  ketLuan: ketLuan.ket_luan,
+                })}
+                className="w-full py-3 rounded-2xl text-sm font-semibold flex items-center justify-center gap-2"
+                style={{ background: "var(--bg-elevated)", border: "1px solid var(--border-subtle)", color: "var(--text-secondary)" }}>
+                📤 Chia sẻ kết quả
+              </motion.button>
 
             </motion.div>
           )}

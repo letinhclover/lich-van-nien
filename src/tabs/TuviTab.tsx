@@ -4,12 +4,13 @@
 // ============================================================
 
 import { useState, useEffect } from "react";
+import { shareTuviImage } from "../utils/shareImage";
 import { motion, AnimatePresence } from "framer-motion";
 import { getHoroscope, getCanChiYear } from "../data/horoscopes";
 
 const GROQ_URL   = "https://api.groq.com/openai/v1/chat/completions";
 const GROQ_MODEL = "llama-3.1-8b-instant";
-const CACHE_PREFIX = "hcc_tuvi_";
+const CACHE_PREFIX = "hcc_tuvi_v2_";
 
 interface Props { birthYear?: number; }
 
@@ -207,13 +208,23 @@ export function TuviTab({ birthYear }: Props) {
               </div>
             ))}
 
-            <button onClick={()=>{
-              try { localStorage.removeItem(cacheKey(year,gender)); } catch {}
-              setAiText(""); setTimeout(handleAsk, 100);
-            }} className="w-full py-3 rounded-2xl text-sm font-semibold"
-              style={{background:"var(--bg-elevated)",border:"1px solid var(--border-subtle)",color:"var(--text-muted)"}}>
-              🔄 Luận Giải Lại
-            </button>
+            <div className="flex gap-2">
+              <button onClick={()=>{
+                try { localStorage.removeItem(cacheKey(year,gender)); } catch {}
+                setAiText(""); setTimeout(handleAsk, 100);
+              }} className="flex-1 py-3 rounded-2xl text-sm font-semibold"
+                style={{background:"var(--bg-elevated)",border:"1px solid var(--border-subtle)",color:"var(--text-muted)"}}>
+                🔄 Luận Giải Lại
+              </button>
+              <button onClick={()=>shareTuviImage({
+                canChiYear: cc,
+                gender,
+                sections,
+              })} className="flex-1 py-3 rounded-2xl text-sm font-semibold flex items-center justify-center gap-1.5"
+                style={{background:"var(--bg-elevated)",border:"1px solid var(--border-subtle)",color:"var(--text-secondary)"}}>
+                📤 Chia sẻ
+              </button>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
