@@ -1,5 +1,6 @@
 // ============================================================
-// FengShuiCompass.tsx — La Bàn Phong Thủy Bát Trạch v2
+// FengShuiCompass.tsx
+import { shareFengShuiImage } from "../utils/shareImage"; — La Bàn Phong Thủy Bát Trạch v2
 // Cảm biến: webkitCompassHeading (iOS) + 360-alpha (Android)
 // Animation: framer-motion spring — không giật
 // UI: SVG La Bàn sang trọng với vòng Bát Quái
@@ -513,5 +514,29 @@ function DirectionCards({ result }: { result: KuaInfo }) {
         </div>
       </div>
     </div>
+
+      {/* Share */}
+      <button
+        onClick={() => shareFengShuiImage({
+          kua: result.kua,
+          cung: result.cung,
+          tractName: result.tractName,
+          catDirs: [
+            { label:"Sinh Khí",  dir:result.cat.sinhKhi,  badge:"✨ Tốt nhất" },
+            { label:"Thiên Y",   dir:result.cat.thienY,   badge:"💚 Rất tốt" },
+            { label:"Diên Niên", dir:result.cat.dieNien,  badge:"👍 Tốt" },
+            { label:"Phục Vị",   dir:result.cat.phucVi,   badge:"😌 Bình an" },
+          ],
+          hungDirs: [
+            { label:"Tuyệt Mệnh", dir:result.hung.tuyetMenh, badge:"🚫 Rất xấu" },
+            { label:"Ngũ Quỷ",   dir:result.hung.nguQuy,    badge:"⛔ Xấu nặng" },
+            { label:"Lục Sát",   dir:result.hung.lucSat,    badge:"⚠️ Xấu" },
+            { label:"Họa Hại",   dir:result.hung.hoaHai,    badge:"😬 Xấu nhẹ" },
+          ],
+        })}
+        className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-semibold mt-1"
+        style={{ background:"var(--bg-elevated)", border:"1px solid var(--border-subtle)", color:"var(--text-secondary)" }}>
+        📤 Chia sẻ Cung Mệnh
+      </button>
   );
 }
