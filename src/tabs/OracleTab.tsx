@@ -3,6 +3,7 @@
 // ============================================================
 
 import { useState, useCallback } from "react";
+import { shareEnergyImage } from "../utils/shareImage";
 import { motion, AnimatePresence } from "framer-motion";
 import { ORACLE_MESSAGES, OracleMessage } from "../data/fortunes";
 // Nhãn tiếng Việt cho category
@@ -18,7 +19,13 @@ const CAT_LABEL: Record<string, string> = {
 
 type OracleState = "idle" | "shaking" | "done";
 
-export function OracleTab() {
+interface OracleProps {
+  canChiYear?: string;
+  elementName?: string;
+  todayCanChi?: string;
+}
+
+export function OracleTab({ canChiYear, elementName, todayCanChi }: OracleProps = {}) {
   const [state,   setState]   = useState<OracleState>("idle");
   const [oracle,  setOracle]  = useState<OracleMessage | null>(null);
   const [usedIds, setUsedIds] = useState<Set<number>>(new Set());
@@ -98,6 +105,25 @@ export function OracleTab() {
               </div>
             </div>
           </motion.div>
+        )}
+
+        {/* Share button — shown when result is ready */}
+        {state === "done" && oracle && (
+          <motion.button whileTap={{ scale:0.97 }}
+            initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:0.3 }}
+            onClick={() => shareEnergyImage({
+              canChiYear: canChiYear || "—",
+              elementName: elementName || "—",
+              todayCanChi: todayCanChi || "—",
+              category: CAT_LABEL[oracle.category ?? ""] ?? oracle.category ?? "Năng Lượng",
+              content: `${oracle.title}
+
+${oracle.message}`,
+            })}
+            className="w-full flex items-center justify-center gap-1.5 py-3 rounded-2xl text-sm font-semibold mt-1"
+            style={{ background:"var(--bg-elevated)", border:"1px solid var(--border-subtle)", color:"var(--text-secondary)" }}>
+            📤 Chia sẻ Thẻ Năng Lượng
+          </motion.button>
         )}
       </AnimatePresence>
     </div>
