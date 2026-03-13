@@ -3,7 +3,7 @@
 // Dùng AI giải thích bằng ngôn ngữ đời thường, dễ hiểu
 // ============================================================
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getHoroscope, getCanChiYear } from "../data/horoscopes";
 
@@ -73,6 +73,14 @@ export function TuviTab({ birthYear }: Props) {
   const [aiText, setAiText] = useState("");
   const [loading,setLoading]= useState(false);
   const [error,  setError]  = useState("");
+
+  // Sync khi thành viên thay đổi
+  useEffect(() => {
+    if (birthYear && birthYear !== year) {
+      setYear(birthYear);
+      setAiText(""); setError("");
+    }
+  }, [birthYear]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const cc   = getCanChiYear(year);
   const horo = getHoroscope(year, gender);

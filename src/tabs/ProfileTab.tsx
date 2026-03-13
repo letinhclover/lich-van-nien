@@ -311,8 +311,8 @@ export function ProfileTab({ userProfile, onProfileChange }: ProfileTabProps) {
       )}
 
       {/* Author & Donate Card */}
-      <div className="mx-4 mb-6 rounded-2xl overflow-hidden"
-        style={{border:"1px solid var(--border-subtle)",background:"var(--bg-surface)"}}>
+      <div className="mt-2 mb-0 overflow-hidden"
+        style={{borderTop:"1px solid var(--border-subtle)",borderBottom:"1px solid var(--border-subtle)",background:"var(--bg-surface)"}}>
         <div className="px-4 py-3.5 flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
             style={{background:"var(--gold-bg)",border:"1px solid var(--gold-border)"}}>🧑‍💻</div>
@@ -326,7 +326,7 @@ export function ProfileTab({ userProfile, onProfileChange }: ProfileTabProps) {
           <p className="text-xs mb-2.5 leading-relaxed" style={{color:"var(--text-muted)"}}>
             Nếu app có ích, mời tác giả một ly cà phê để tiếp tục phát triển thêm nhé! ☕
           </p>
-          <a href="https://me.momo.vn/0973803789" target="_blank" rel="noopener noreferrer">
+          <a href="https://me.momo.vn/dev0973803789" target="_blank" rel="noopener noreferrer">
             <motion.div whileTap={{scale:0.97}}
               className="flex items-center justify-center gap-2.5 py-2.5 rounded-xl font-bold text-sm text-white"
               style={{background:"linear-gradient(135deg,#ae2070,#d0226b)",boxShadow:"0 4px 16px rgba(174,32,112,0.35)"}}>
@@ -334,7 +334,17 @@ export function ProfileTab({ userProfile, onProfileChange }: ProfileTabProps) {
               <span>Mời tác giả ly café (MoMo)</span>
             </motion.div>
           </a>
-          <p className="text-center text-xs mt-2" style={{color:"var(--text-faint)"}}>MoMo: 0973803789</p>
+          <p className="text-center text-xs mt-2" style={{color:"var(--text-faint)"}}>MoMo: <strong>0973803789</strong></p>
+        </div>
+        <div className="h-px mx-4" style={{background:"var(--border-subtle)"}}/>
+        <div className="px-4 py-3">
+          <motion.button whileTap={{scale:0.97}} onClick={()=>{
+            if(navigator.share){navigator.share({title:"Lịch Vạn Niên AI 2026",text:"Ứng dụng lịch âm, phong thủy, tử vi miễn phí!",url:"https://lich-van-nien.pages.dev"}).catch(()=>{});}
+            else{navigator.clipboard.writeText("https://lich-van-nien.pages.dev").then(()=>alert("Đã sao chép link!")).catch(()=>{});}
+          }} className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-semibold text-sm"
+            style={{background:"var(--bg-elevated)",border:"1px solid var(--border-medium)",color:"var(--text-secondary)"}}>
+            <span>🔗</span><span>Chia sẻ app cho bạn bè</span>
+          </motion.button>
         </div>
       </div>
     </div>

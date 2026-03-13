@@ -5,6 +5,16 @@
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ORACLE_MESSAGES, OracleMessage } from "../data/fortunes";
+// Nhãn tiếng Việt cho category
+const CAT_LABEL: Record<string, string> = {
+  work:       "Công Việc",
+  love:       "Tình Cảm",
+  money:      "Tài Lộc",
+  healing:    "Chữa Lành",
+  motivation: "Động Lực",
+  friendship: "Bạn Bè",
+};
+
 
 type OracleState = "idle" | "shaking" | "done";
 
@@ -80,7 +90,7 @@ export function OracleTab() {
                 <span className="text-3xl flex-shrink-0">{oracle.emoji || "🌟"}</span>
                 <div>
                   <p className="text-xs font-semibold mb-1" style={{ color: CAT_COLOR[oracle.category]||"var(--gold)" }}>
-                    {oracle.category?.toUpperCase()}
+                    {CAT_LABEL[oracle.category ?? ""] ?? oracle.category}
                   </p>
                   <p className="text-sm leading-relaxed font-medium" style={{ color:"var(--text-primary)" }}>{oracle.title}</p>
                   <p className="text-xs mt-1 leading-relaxed" style={{ color:"var(--text-secondary)" }}>{oracle.message}</p>
