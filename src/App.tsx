@@ -128,7 +128,7 @@ export default function App() {
                 <div className="mx-4 mb-2 mt-4"><SectionLabel label="Tử Vi Trọn Đời" /></div>
                 <TuviTab birthYear={profile?.birthYear} />
                 <div className="mx-4 mb-2 mt-4"><SectionLabel label="AI Luận Giải" /></div>
-                <AiTab date={viewDate} userProfile={profile} onSetupProfile={() => changeTab("profile")} />
+                <AiTab date={viewDate} userProfile={profile} onSetupProfile={() => window.scrollTo({top:0,behavior:"smooth"})} />
               </div>
             )}
           </motion.div>
