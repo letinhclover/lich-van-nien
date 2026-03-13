@@ -436,6 +436,26 @@ function DirectionCards({ result }: { result: KuaInfo }) {
     {key:"hoaHai",   label:"Họa Hại",    badge:"😬 Xấu nhẹ",  desc:"Họa Hại (Xấu nhẹ - Gây rắc rối) — tranh chấp nhỏ, phiền phức"},
   ];
 
+  const handleShare = () => {
+    shareFengShuiImage({
+      kua: result.kua,
+      cung: result.cung,
+      tractName: result.tractName,
+      catDirs: [
+        { label:"Sinh Khí",   dir:result.cat.sinhKhi,   badge:"✨ Tốt nhất" },
+        { label:"Thiên Y",    dir:result.cat.thienY,    badge:"💚 Rất tốt"  },
+        { label:"Diên Niên",  dir:result.cat.dieNien,   badge:"👍 Tốt"      },
+        { label:"Phục Vị",    dir:result.cat.phucVi,    badge:"😌 Bình an"  },
+      ],
+      hungDirs: [
+        { label:"Tuyệt Mệnh", dir:result.hung.tuyetMenh, badge:"Rất xấu"  },
+        { label:"Ngũ Quỷ",    dir:result.hung.nguQuy,    badge:"Xấu nặng" },
+        { label:"Lục Sát",    dir:result.hung.lucSat,    badge:"Xấu"      },
+        { label:"Họa Hại",    dir:result.hung.hoaHai,    badge:"Xấu nhẹ"  },
+      ],
+    });
+  };
+
   return (
     <div className="flex flex-col gap-2.5">
       <div className="card overflow-hidden">
@@ -514,31 +534,14 @@ function DirectionCards({ result }: { result: KuaInfo }) {
           ))}
         </div>
       </div>
-    </div>
 
       {/* Share button */}
-      <button
-        onClick={() => shareFengShuiImage({
-          kua: result.kua,
-          cung: result.cung,
-          tractName: result.tractName,
-          catDirs: [
-            { label:"Sinh Khí",  dir:result.cat.sinhKhi,  badge:"✨ Tốt nhất" },
-            { label:"Thiên Y",   dir:result.cat.thienY,   badge:"💚 Rất tốt" },
-            { label:"Diên Niên", dir:result.cat.dieNien,  badge:"👍 Tốt" },
-            { label:"Phục Vị",   dir:result.cat.phucVi,   badge:"😌 Bình an" },
-          ],
-          hungDirs: [
-            { label:"Tuyệt Mệnh", dir:result.hung.tuyetMenh, badge:"🚫 Rất xấu" },
-            { label:"Ngũ Quỷ",   dir:result.hung.nguQuy,    badge:"⛔ Xấu nặng" },
-            { label:"Lục Sát",   dir:result.hung.lucSat,    badge:"⚠️ Xấu" },
-            { label:"Họa Hại",   dir:result.hung.hoaHai,    badge:"😬 Xấu nhẹ" },
-          ],
-        })}
-        className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-semibold mt-1"
+      <button onClick={handleShare}
+        className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-semibold"
         style={{ background:"var(--bg-elevated)", border:"1px solid var(--border-subtle)", color:"var(--text-secondary)" }}>
         📤 Chia sẻ Cung Mệnh
       </button>
+    </div>
   );
 }
 
