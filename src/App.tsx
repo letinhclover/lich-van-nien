@@ -16,6 +16,8 @@ import { TuviTab }          from "./tabs/TuviTab";
 import { UtilityTab }       from "./tabs/UtilityTab";
 import { EventsTab }        from "./tabs/EventsTab";
 import { buildUserProfile, UserProfile } from "./utils/astrology";
+import { ErrorBoundary } from "./components/ErrorBoundary";
+import { tryDailyNotification, tryEventReminders, requestNotificationPermission, getNotificationPermission } from "./utils/notifications";
 
 type TabId = "calendar" | "thay" | "events" | "tienich" | "profile";
 
@@ -65,6 +67,27 @@ export default function App() {
       if (!isNaN(y)) setProfile(buildUserProfile(y));
     }
   }, []);
+
+  // Notification: request permission + send daily + event reminders
+  useEffect(() => {
+    const perm = getNotificationPermission();
+    if (perm === "unsupported") return;
+
+    // Auto-request permission after 10s if never asked
+    const hasAsked = !!localStorage.getItem("hcc_notif_asked");
+    if (!hasAsked && perm === "default") {
+      const t = setTimeout(async () => {
+        try { localStorage.setItem("hcc_notif_asked", "1"); } catch {}
+        await requestNotificationPermission();
+      }, 10_000);
+      return () => clearTimeout(t);
+    }
+
+    // Try daily + event notifications on open
+    if (perm === "granted") {
+      tryEventReminders();
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Onboarding toast — show once if no birth year saved
   useEffect(() => {
@@ -119,16 +142,20 @@ export default function App() {
               </div>
             )}
 
-            {tab === "thay"    && <ThayTab birthYear={profile?.birthYear} />}
+            {tab === "thay" && (
+              <ErrorBoundary name="Hỏi Thầy">
+                <ThayTab birthYear={profile?.birthYear} />
+              </ErrorBoundary>
+            )}
             {tab === "events"  && <EventsTab />}
             {tab === "tienich" && <UtilityTab birthYear={profile?.birthYear} />}
             {tab === "profile" && (
               <div>
                 <ProfileTab userProfile={profile} onProfileChange={setProfile} />
                 <div className="mx-4 mb-2 mt-4"><SectionLabel label="Tử Vi Trọn Đời" /></div>
-                <TuviTab birthYear={profile?.birthYear} />
+                <ErrorBoundary name="Tử Vi"><TuviTab birthYear={profile?.birthYear} /></ErrorBoundary>
                 <div className="mx-4 mb-2 mt-4"><SectionLabel label="AI Luận Giải" /></div>
-                <AiTab date={viewDate} userProfile={profile} onSetupProfile={() => window.scrollTo({top:0,behavior:"smooth"})} />
+                <ErrorBoundary name="AI Luận Giải"><AiTab date={viewDate} userProfile={profile} onSetupProfile={() => window.scrollTo({top:0,behavior:"smooth"})} /></ErrorBoundary>
 
                 {/* Author & Donate Card — dưới cùng */}
                 <div className="mt-4 overflow-hidden"
