@@ -164,15 +164,20 @@ export function FengShuiCompass() {
         {result && (
           <motion.div initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} className="flex flex-col gap-3">
             {/* Kua result */}
-            <div className="card p-4 flex items-center justify-between">
-              <div>
-                <p className="section-label mb-1">Cung Mệnh của bạn</p>
-                <p className="text-3xl font-bold font-display" style={{color:"var(--gold)"}}>
-                  {result.kua} — {result.cung}
-                </p>
+            <div className="card p-4">
+              <div className="flex items-start justify-between gap-2 mb-1">
+                <div className="flex-1 min-w-0">
+                  <p className="section-label mb-1">Cung Mệnh của bạn</p>
+                  <p className="text-3xl font-bold font-display" style={{color:"var(--gold)"}}>
+                    {result.kua} — {result.cung}
+                  </p>
+                </div>
+                <button onClick={()=>setResult(null)}
+                  className="w-7 h-7 rounded-full flex items-center justify-center text-xs flex-shrink-0 mt-0.5"
+                  style={{background:"var(--bg-surface)",color:"var(--text-faint)"}}>✕</button>
               </div>
-              <div className="flex flex-col items-end gap-1">
-                <span className="text-sm px-3 py-1.5 rounded-full font-semibold"
+              <div className="flex items-center gap-2 mt-2 flex-wrap">
+                <span className="text-sm px-3 py-1 rounded-full font-semibold"
                   style={{
                     background:result.trach==="dong"?"rgba(74,222,128,0.12)":"rgba(251,146,60,0.12)",
                     color:result.trach==="dong"?"var(--accent-emerald)":"#f97316",
@@ -180,7 +185,7 @@ export function FengShuiCompass() {
                   }}>
                   {result.tractName}
                 </span>
-                <p className="text-[10px] text-right" style={{color:"var(--text-faint)"}}>
+                <p className="text-xs" style={{color:"var(--text-faint)"}}>
                   {result.trach==="dong"?"Phù hợp Đông Tứ Mệnh":"Phù hợp Tây Tứ Mệnh"}
                 </p>
               </div>
