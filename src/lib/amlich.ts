@@ -873,8 +873,3 @@ export function runUnitTests(): void {
   console.log(`║  Kết quả: ${pass} PASS | ${fail} FAIL  ${status}`.padEnd(51) + "║");
   console.log("╚══════════════════════════════════════════════════╝\n");
 }
-
-// Tự chạy khi thực thi trực tiếp bằng Node/tsx
-if (typeof process !== "undefined" && process.argv?.[1]?.match(/amlich\.(ts|js)$/)) {
-  runUnitTests();
-}
