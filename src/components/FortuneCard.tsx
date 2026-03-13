@@ -9,6 +9,8 @@ import {
   FORTUNE_TOPICS, type GeminiError, type FortuneTopic,
 } from "../utils/gemini";
 import { UserProfile, solarToLunar, getCanChiDay, toJDN } from "../utils/astrology";
+import { shareFortuneImage } from "../utils/shareImage";
+import { tryDailyNotification } from "../utils/notifications";
 
 interface FortuneCardProps {
   date: Date;
@@ -118,6 +120,11 @@ export function FortuneCard({ date, userProfile, onSetupProfile }: FortuneCardPr
       );
       setCachedFortune(key, { ...r, cached: false });
       setOv({ s: "typing", text: r.text, err: null });
+      tryDailyNotification({
+        todayLabel: `Ngày ${todayCanChi}`,
+        quality: "Mở app xem luận giải hôm nay",
+        tip: r.text.slice(0, 80),
+      });
     } catch (e) {
       calling.current = false;
       setOv({ s: "error", text: "", err: e as GeminiError });
@@ -290,8 +297,8 @@ export function FortuneCard({ date, userProfile, onSetupProfile }: FortuneCardPr
                   )}
                 </AnimatePresence>
 
-                {/* Reset */}
-                <div className="flex justify-end pt-1 border-t" style={{ borderColor: "var(--border-subtle)" }}>
+                {/* Reset + Share */}
+                <div className="flex items-center justify-between pt-1 border-t" style={{ borderColor: "var(--border-subtle)" }}>
                   <motion.button whileTap={{ scale: 0.95 }}
                     onClick={() => {
                       if (cacheKey) try { localStorage.removeItem(cacheKey); } catch { /**/ }
@@ -301,6 +308,18 @@ export function FortuneCard({ date, userProfile, onSetupProfile }: FortuneCardPr
                     }}
                     className="text-xs" style={{ color: "var(--text-faint)" }}>
                     ↻ Luận giải lại
+                  </motion.button>
+                  <motion.button whileTap={{ scale: 0.95 }}
+                    onClick={() => shareFortuneImage({
+                      dateLabel,
+                      canChiDay: todayCanChi,
+                      topic: topic ?? "Tổng Quan",
+                      content: topic && tp.s === "done" && tp.text ? tp.text : ov.text,
+                      canChiYear: userProfile.canChiYear,
+                    })}
+                    className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg"
+                    style={{ background: "var(--bg-elevated)", border: "1px solid var(--border-subtle)", color: "var(--text-secondary)" }}>
+                    📤 Chia sẻ
                   </motion.button>
                 </div>
               </motion.div>

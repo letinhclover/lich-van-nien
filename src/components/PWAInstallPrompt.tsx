@@ -15,7 +15,10 @@ function isIOS() {
   return /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as unknown as {MSStream?:unknown}).MSStream;
 }
 function isSafari() {
-  return /Safari/.test(navigator.userAgent) && !/CriOS|Chrome|FxiOS/.test(navigator.userAgent);
+  return /Safari/.test(navigator.userAgent) && !/CriOS|Chrome|FxiOS|CocCoc/.test(navigator.userAgent);
+}
+function isCocCoc() {
+  return /coc_coc_browser/.test(navigator.userAgent.toLowerCase());
 }
 function isStandalone() {
   return window.matchMedia("(display-mode: standalone)").matches ||
@@ -85,6 +88,35 @@ export function PWAInstallPrompt() {
             {/* Gold stripe */}
             <div className="h-1" style={{ background:"linear-gradient(90deg,var(--gold),var(--gold-light))" }}/>
             <div className="px-4 py-3" style={{ background:"var(--bg-elevated)" }}>
+
+              {/* Cốc Cốc - suggest Chrome */}
+              {platform === ("coccoc" as "android") && (
+                <>
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center text-2xl"
+                      style={{ background: "var(--bg-surface)", border: "1.5px solid var(--gold-border)" }}>🌐</div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-sm" style={{ color: "var(--text-primary)" }}>Cài đặt nhanh hơn với Chrome</p>
+                      <p className="text-xs" style={{ color: "var(--text-muted)" }}>Mở link này trên Chrome để cài app</p>
+                    </div>
+                    <button onClick={dismiss}
+                      className="w-7 h-7 rounded-full flex items-center justify-center text-xs flex-shrink-0"
+                      style={{ background: "var(--bg-surface)", color: "var(--text-faint)" }}>✕</button>
+                  </div>
+                  <div className="flex gap-2">
+                    <button onClick={dismiss}
+                      className="flex-1 py-2.5 rounded-xl text-sm font-semibold"
+                      style={{ background: "var(--bg-surface)", color: "var(--text-muted)" }}>
+                      Bỏ qua
+                    </button>
+                    <a href="intent://lich-van-nien.pages.dev#Intent;scheme=https;package=com.android.chrome;end"
+                      className="flex-[2] py-2.5 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2 no-underline"
+                      style={{ background: "linear-gradient(135deg,#1a73e8,#4285f4)" }}>
+                      🌐 Mở Chrome
+                    </a>
+                  </div>
+                </>
+              )}
 
               {/* Android */}
               {platform === "android" && (
