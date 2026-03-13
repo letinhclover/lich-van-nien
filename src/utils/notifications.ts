@@ -53,9 +53,8 @@ export function tryDailyNotification(data: DailyNotifData): void {
       icon: "/pwa-192x192.png",
       badge: "/pwa-192x192.png",
       tag: "daily-fortune",
-      renotify: false,
       silent: false,
-    });
+    } as NotificationOptions);
     localStorage.setItem(LAST_DAILY_KEY, today);
   } catch {}
 }
@@ -121,9 +120,8 @@ export function tryEventReminders(): void {
       body: `${label} — ${first.day}/${first.month}\n${upcoming.length > 1 ? `Còn ${upcoming.length - 1} sự kiện khác sắp đến` : ""}`,
       icon: "/pwa-192x192.png",
       tag: "event-reminder",
-      renotify: true,
       silent: false,
-    });
+    } as NotificationOptions);
     localStorage.setItem(LAST_EVENT_KEY, today);
   } catch {}
 }
