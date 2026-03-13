@@ -160,6 +160,8 @@ export default function App() {
                 {/* Author & Donate Card — dưới cùng */}
                 <div className="mt-4 overflow-hidden"
                   style={{borderTop:"1px solid var(--border-subtle)",borderBottom:"1px solid var(--border-subtle)",background:"var(--bg-surface)"}}>
+
+                  {/* Header */}
                   <div className="px-4 py-3.5 flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
                       style={{background:"var(--gold-bg)",border:"1px solid var(--gold-border)"}}>🧑‍💻</div>
@@ -168,28 +170,50 @@ export default function App() {
                       <p className="text-xs" style={{color:"var(--text-muted)"}}>Lịch Vạn Niên AI 2026 · v1.0</p>
                     </div>
                   </div>
+
                   <div className="h-px mx-4" style={{background:"var(--border-subtle)"}}/>
-                  <div className="px-4 py-3">
-                    <p className="text-xs mb-2.5 leading-relaxed" style={{color:"var(--text-muted)"}}>
-                      Nếu app có ích, mời tác giả một ly cà phê để tiếp tục phát triển thêm nhé! ☕
+
+                  {/* Donate info */}
+                  <div className="px-4 pt-3 pb-2">
+                    <p className="text-sm leading-relaxed text-center" style={{color:"var(--text-secondary)"}}>
+                      Nếu app có ích, hãy chia sẻ và mời tác giả một ly cà phê để tiếp tục phát triển thêm nhé! ☕
                     </p>
-                    <a href="https://me.momo.vn/dev0973803789" target="_blank" rel="noopener noreferrer">
-                      <div className="flex items-center justify-center gap-2.5 py-2.5 rounded-xl font-bold text-sm text-white"
-                        style={{background:"linear-gradient(135deg,#ae2070,#d0226b)",boxShadow:"0 4px 16px rgba(174,32,112,0.35)"}}>
-                        <span className="text-lg">☕</span>
-                        <span>Mời tác giả ly café (MoMo)</span>
+                    <div className="mt-2.5 rounded-xl px-4 py-2.5"
+                      style={{background:"var(--bg-elevated)",border:"1px solid var(--border-subtle)"}}>
+                      <p className="text-xs text-center mb-1" style={{color:"var(--text-muted)"}}>
+                        Ủng hộ qua
+                      </p>
+                      <div className="flex items-center justify-center gap-3 flex-wrap">
+                        <span className="text-sm font-bold" style={{color:"#ae2070"}}>MoMo</span>
+                        <span style={{color:"var(--border-medium)"}}>·</span>
+                        <span className="text-sm font-bold" style={{color:"#0068FF"}}>ZaloPay</span>
+                        <span style={{color:"var(--border-medium)"}}>·</span>
+                        <span className="text-sm font-bold" style={{color:"#006D38"}}>VCB</span>
+                        <span style={{color:"var(--border-medium)"}}>·</span>
+                        <span className="text-sm font-bold" style={{color:"var(--gold)"}}>0973803789</span>
                       </div>
-                    </a>
-                    <p className="text-center text-xs mt-2" style={{color:"var(--text-faint)"}}>MoMo: <strong>0973803789</strong></p>
+                    </div>
                   </div>
-                  <div className="h-px mx-4" style={{background:"var(--border-subtle)"}}/>
-                  <div className="px-4 py-3 pb-6">
+
+                  {/* 2 buttons side by side */}
+                  <div className="px-4 pb-6 pt-1 flex gap-2">
+                    <a href="https://me.momo.vn/dev0973803789" target="_blank" rel="noopener noreferrer"
+                      className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl font-semibold text-sm text-white no-underline"
+                      style={{background:"linear-gradient(135deg,#ae2070,#d0226b)"}}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+                      </svg>
+                      Ủng hộ tác giả
+                    </a>
                     <button onClick={()=>{
-                      if(navigator.share){navigator.share({title:"Lịch Vạn Niên AI 2026",text:"Ứng dụng lịch âm, phong thủy, tử vi miễn phí!",url:"https://lich-van-nien.pages.dev"}).catch(()=>{});}
+                      if(navigator.share){navigator.share({title:"Lịch Vạn Niên AI 2026",text:"Ứng dụng lịch âm, xem ngày tốt, phong thủy, tử vi AI hoàn toàn miễn phí! 🔮",url:"https://lich-van-nien.pages.dev"}).catch(()=>{});}
                       else{navigator.clipboard.writeText("https://lich-van-nien.pages.dev").then(()=>alert("Đã sao chép link!")).catch(()=>{});}
-                    }} className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-semibold text-sm"
+                    }} className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl font-semibold text-sm"
                       style={{background:"var(--bg-elevated)",border:"1px solid var(--border-medium)",color:"var(--text-secondary)"}}>
-                      <span>🔗</span><span>Chia sẻ app cho bạn bè</span>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>
+                      </svg>
+                      Chia sẻ app
                     </button>
                   </div>
                 </div>
