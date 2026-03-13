@@ -1,6 +1,7 @@
 // ============================================================
 // FengShuiCompass.tsx
-import { shareFengShuiImage } from "../utils/shareImage"; — La Bàn Phong Thủy Bát Trạch v2
+import { shareFengShuiImage } from "../utils/shareImage";
+// — La Bàn Phong Thủy Bát Trạch v2
 // Cảm biến: webkitCompassHeading (iOS) + 360-alpha (Android)
 // Animation: framer-motion spring — không giật
 // UI: SVG La Bàn sang trọng với vòng Bát Quái
@@ -515,7 +516,7 @@ function DirectionCards({ result }: { result: KuaInfo }) {
       </div>
     </div>
 
-      {/* Share */}
+      {/* Share button */}
       <button
         onClick={() => shareFengShuiImage({
           kua: result.kua,
@@ -540,3 +541,4 @@ function DirectionCards({ result }: { result: KuaInfo }) {
       </button>
   );
 }
+
