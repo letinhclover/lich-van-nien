@@ -206,8 +206,8 @@ export default function App() {
                       Ủng hộ tác giả
                     </a>
                     <button onClick={()=>{
-                      if(navigator.share){navigator.share({title:"Lịch Vạn Niên AI 2026",text:"Ứng dụng lịch âm, xem ngày tốt, phong thủy, tử vi AI hoàn toàn miễn phí! 🔮",url:"https://lich-van-nien.pages.dev"}).catch(()=>{});}
-                      else{navigator.clipboard.writeText("https://lich-van-nien.pages.dev").then(()=>alert("Đã sao chép link!")).catch(()=>{});}
+                      if(navigator.share){navigator.share({title:"Lịch Vạn Niên AI 2026",text:"Ứng dụng lịch âm, xem ngày tốt, phong thủy, tử vi AI hoàn toàn miễn phí! 🔮",url:"https://lichvannien.io.vn"}).catch(()=>{});}
+                      else{navigator.clipboard.writeText("https://lichvannien.io.vn").then(()=>alert("Đã sao chép link!")).catch(()=>{});}
                     }} className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl font-semibold text-sm"
                       style={{background:"var(--bg-elevated)",border:"1px solid var(--border-medium)",color:"var(--text-secondary)"}}>
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
