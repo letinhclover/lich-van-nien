@@ -18,7 +18,7 @@ export default defineConfig({
         display_override: ["standalone", "minimal-ui"],
         orientation: "portrait",
         scope: "/",
-        start_url: "/?source=pwa",
+        start_url: "https://lichvannien.io.vn/?source=pwa",
         lang: "vi",
         categories: ["lifestyle", "utilities"],
         dir: "ltr",
