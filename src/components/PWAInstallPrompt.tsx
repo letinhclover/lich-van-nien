@@ -109,7 +109,7 @@ export function PWAInstallPrompt() {
                       style={{ background: "var(--bg-surface)", color: "var(--text-muted)" }}>
                       Bỏ qua
                     </button>
-                    <a href="intent://lich-van-nien.pages.dev#Intent;scheme=https;package=com.android.chrome;end"
+                    <a href="intent://lichvannien.io.vn#Intent;scheme=https;package=com.android.chrome;end"
                       className="flex-[2] py-2.5 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2 no-underline"
                       style={{ background: "linear-gradient(135deg,#1a73e8,#4285f4)" }}>
                       🌐 Mở Chrome
