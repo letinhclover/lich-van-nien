@@ -2,8 +2,8 @@
 // shareImage.ts — Ảnh chia sẻ SÁNG - SẠCH - ĐẸP
 // Palette sáng: kem trắng + vàng gold + chữ đen
 // ============================================================
-const APP_URL  = "lich-van-nien.pages.dev";
-const APP_FULL = "https://lich-van-nien.pages.dev";
+const APP_URL  = "lichvannien.io.vn";
+const APP_FULL = "https://lichvannien.io.vn";
 const APP_NAME = "Lịch Vạn Niên AI 2026";
 const APP_INVITE = "✨ Dùng miễn phí tại " + APP_URL;
 const BG    = "#FEFBF3"; const CARD  = "#FFFFFF";
