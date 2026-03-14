@@ -1,0 +1,5 @@
+# Redirect domain cũ sang domain mới (301 permanent)
+https://lich-van-nien.pages.dev/* https://lichvannien.io.vn/:splat 301
+
+# www redirect (nếu có)
+https://www.lichvannien.io.vn/* https://lichvannien.io.vn/:splat 301

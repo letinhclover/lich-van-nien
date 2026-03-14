@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://lich-van-nien.pages.dev/sitemap.xml
+Sitemap: https://lichvannien.io.vn/sitemap.xml
