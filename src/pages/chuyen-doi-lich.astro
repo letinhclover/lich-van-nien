@@ -67,8 +67,7 @@ const schema = {
   </div>
 
   <script>
-    import { solarToLunar, toJDN } from '../lib/amlich';
-    import { THIEN_CAN, DIA_CHI } from '../lib/constants';
+    import { solarToLunar, getCanChi } from '../lib/amlich';
 
     document.getElementById('btn-convert')?.addEventListener('click', () => {
       const d = parseInt((document.getElementById('inp-day') as HTMLInputElement)?.value ?? '');
@@ -78,11 +77,9 @@ const schema = {
         alert('Vui lòng nhập đầy đủ ngày, tháng, năm.');
         return;
       }
-      const lunar = solarToLunar(d, m, y);
-      const jdn   = toJDN(d, m, y);
-      const canChi = `${THIEN_CAN[(jdn + 9) % 10]} ${DIA_CHI[(jdn + 1) % 12]}`;
-      const canChiYear = `${THIEN_CAN[(y + 6) % 10]} ${DIA_CHI[(y + 8) % 12]}`;
-      const lunarStr = `${lunar.isLeapMonth ? 'Nhuận ' : ''}${lunar.day}/${lunar.month}/${lunar.year} (${canChiYear}) · Can chi ngày: ${canChi}`;
+      const lunar  = solarToLunar(d, m, y);
+      const canChi = getCanChi(d, m, y);
+      const lunarStr = `${lunar.leap ? 'Nhuận ' : ''}${lunar.day}/${lunar.month}/${lunar.year} (${canChi.nam.display}) · Can chi ngày: ${canChi.ngay.display}`;
       const resultText = document.getElementById('result-text');
       const resultLink = document.getElementById('result-link') as HTMLAnchorElement;
       const resultDiv  = document.getElementById('result-solar');

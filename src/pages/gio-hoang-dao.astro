@@ -3,117 +3,80 @@
 
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { todayVN, buildSolarDate } from '../lib/dateUtils';
-import { solarToLunar, toJDN } from '../lib/amlich';
-import { SITE, DIA_CHI, THIEN_CAN, GIO_HOANG_DAO, TEN_GIO_AM } from '../lib/constants';
+import { solarToLunar, getCanChi, getHoangDao } from '../lib/amlich';
+import { SITE } from '../lib/constants';
 
 const { day, month, year } = todayVN();
-const solar  = buildSolarDate(day, month, year);
-const lunar  = solarToLunar(day, month, year);
-const jdn    = toJDN(day, month, year);
-const chiDay = DIA_CHI[(jdn + 1) % 12] ?? 'Tý';
-const canDay = THIEN_CAN[(jdn + 9) % 10] ?? 'Giáp';
+const solar   = buildSolarDate(day, month, year);
+const lunar   = solarToLunar(day, month, year);
+const canChi  = getCanChi(day, month, year);
+const hours   = getHoangDao(day, month, year);
 
-// Giờ hoàng đạo: map 12 chi → hoàng đạo / hắc đạo
-const gioData = GIO_HOANG_DAO[chiDay] ?? Array(12).fill(false);
+const hoangDaoGio = hours.filter(h => h.isHoangDao);
 
-const hours = TEN_GIO_AM.map((tenGio, i) => {
-  const isHoangDao = gioData[i] === true;
-  // Can của giờ: (2*chiIndex + canDayOffset) % 10
-  const canGio = THIEN_CAN[((i * 2) + [0,0,2,2,4,4,6,6,8,8].indexOf((jdn + 9) % 10 % 10)) % 10] ?? THIEN_CAN[0]!;
-  return {
-    index:       i,
-    tenGio,
-    canChi:      `${canGio} ${DIA_CHI[i] ?? 'Tý'}`,
-    isHoangDao,
-    startHour:   (i * 2 + 23) % 24,
-    endHour:     (i * 2 + 1)  % 24 + 1,
-  };
-});
-
-const title       = `Giờ Hoàng Đạo Hôm Nay ${day}/${month}/${year} — Ngày ${canDay} ${chiDay} | Lịch Vạn Niên`;
-const description = `Giờ hoàng đạo hôm nay ${day}/${month}/${year} (ngày ${canDay} ${chiDay} âm lịch). Xem đầy đủ giờ tốt, giờ xấu, giờ hoàng đạo hắc đạo theo ngày can chi.`;
+const title       = `Giờ Hoàng Đạo Hôm Nay ${day}/${month}/${year} — Ngày ${canChi.ngay.display} | Lịch Vạn Niên`.slice(0, 60);
+const description = `Giờ hoàng đạo ngày ${day}/${month}/${year} (ngày ${canChi.ngay.display}): ${hoangDaoGio.map(h=>h.tenGio).join(', ')}. Xem giờ tốt xấu theo âm lịch Việt Nam.`.slice(0, 160);
 const canonical   = `${SITE.baseUrl}/gio-hoang-dao`;
 ---
 
 <BaseLayout {title} {description} {canonical}>
 
-  <nav class="flex items-center gap-1 text-xs mb-4" style="color: var(--text-3);">
-    <a href="/" class="no-underline hover:underline" style="color: var(--text-3);">🏠 Trang chủ</a>
+  <nav class="flex items-center gap-1 text-xs mb-4" style="color:var(--text-3);">
+    <a href="/" class="no-underline hover:underline" style="color:var(--text-3);">🏠 Trang chủ</a>
     <span>›</span>
-    <span style="color: var(--text-1); font-weight: 600;">Giờ Hoàng Đạo</span>
+    <span style="color:var(--text-1);font-weight:600;">Giờ Hoàng Đạo</span>
   </nav>
 
-  <h1 class="font-display font-bold text-2xl mb-1" style="color: var(--text-1);">
-    ⏰ Giờ Hoàng Đạo Hôm Nay
-  </h1>
-  <p class="text-sm mb-1" style="color: var(--text-3);">
-    {solar.weekdayLabel} {day}/{month}/{year} · Ngày {canDay} {chiDay} âm lịch
+  <h1 class="font-display font-bold text-2xl mb-1" style="color:var(--text-1);">⏰ Giờ Hoàng Đạo Hôm Nay</h1>
+  <p class="text-sm mb-1" style="color:var(--text-3);">
+    {solar.weekdayLabel} {day}/{month}/{year} · Ngày {canChi.ngay.display}
   </p>
-  <p class="text-xs mb-4" style="color: var(--text-3);">
-    Âm lịch: {lunar.day}/{lunar.month}{lunar.isLeapMonth ? ' nhuận' : ''} năm {THIEN_CAN[(year+6)%10]} {DIA_CHI[(year+8)%12]}
+  <p class="text-xs mb-5" style="color:var(--text-3);">
+    Âm lịch: {lunar.day}/{lunar.month}{lunar.leap ? ' nhuận' : ''} năm {canChi.nam.display}
   </p>
 
-  <!-- Legend -->
-  <div class="flex gap-3 mb-4 text-xs">
-    <span class="flex items-center gap-1.5">
-      <span class="w-3 h-3 rounded-full" style="background: var(--green);"></span>
-      <span style="color: var(--text-2);">Giờ Hoàng Đạo (tốt)</span>
-    </span>
-    <span class="flex items-center gap-1.5">
-      <span class="w-3 h-3 rounded-full" style="background: var(--red);"></span>
-      <span style="color: var(--text-2);">Giờ Hắc Đạo (xấu)</span>
-    </span>
+  <!-- Summary hoàng đạo -->
+  <div class="card p-4 mb-4" style="border-color:rgba(29,158,117,0.3);background:var(--green-pale);">
+    <p class="font-bold text-sm mb-2" style="color:var(--green);">✅ Giờ Hoàng Đạo hôm nay</p>
+    <div class="flex flex-wrap gap-2">
+      {hoangDaoGio.map(h => (
+        <span class="badge-green">{h.tenGio}</span>
+      ))}
+    </div>
   </div>
 
-  <!-- Danh sách giờ -->
+  <!-- Danh sách đầy đủ -->
   <div class="flex flex-col gap-2 mb-4">
-    {hours.map(({ tenGio, canChi, isHoangDao, startHour }) => {
-      const now = new Date();
-      const isNow = now.getHours() === startHour || (startHour === 23 && now.getHours() === 23);
-      return (
-        <div
-          class="card p-3.5 flex items-center justify-between"
-          style={isHoangDao
-            ? 'border-color: var(--green); background: var(--green-pale);'
-            : 'opacity: 0.7;'}
-        >
-          <div class="flex items-center gap-3">
-            <div
-              class="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold"
-              style={isHoangDao
-                ? 'background: var(--green); color: white;'
-                : 'background: var(--bg-elevated); color: var(--text-3);'}
-            >
-              {isHoangDao ? '✓' : '✗'}
-            </div>
-            <div>
-              <p class="font-semibold text-sm leading-none mb-0.5" style="color: var(--text-1);">
-                {tenGio}
-                {isNow && <span class="badge-red ml-1 text-[9px]">Hiện tại</span>}
-              </p>
-              <p class="text-xs" style="color: var(--text-3);">{canChi}</p>
-            </div>
+    {hours.map(h => (
+      <div class="card p-3.5 flex items-center justify-between"
+        style={h.isHoangDao ? 'border-color:rgba(29,158,117,0.3);' : 'opacity:0.65;'}>
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold shrink-0"
+            style={h.isHoangDao
+              ? 'background:var(--green);color:white;'
+              : 'background:var(--bg-surface);color:var(--text-3);'}>
+            {h.isHoangDao ? '✓' : '✗'}
           </div>
-          <span
-            class="text-xs font-bold px-2 py-1 rounded-lg"
-            style={isHoangDao
-              ? 'color: var(--green); background: var(--green-pale);'
-              : 'color: var(--text-3); background: var(--bg-surface);'}
-          >
-            {isHoangDao ? 'Hoàng Đạo' : 'Hắc Đạo'}
-          </span>
+          <div>
+            <p class="font-semibold text-sm" style="color:var(--text-1);">{h.tenGio}</p>
+            <p class="text-xs" style="color:var(--text-3);">Chi: {h.chi}</p>
+          </div>
         </div>
-      );
-    })}
+        <span class="text-xs font-bold px-2.5 py-1 rounded-lg"
+          style={h.isHoangDao
+            ? 'color:var(--green);background:var(--green-pale);'
+            : 'color:var(--text-3);background:var(--bg-surface);'}>
+          {h.isHoangDao ? 'Hoàng Đạo' : 'Hắc Đạo'}
+        </span>
+      </div>
+    ))}
   </div>
 
-  <!-- Giải thích -->
-  <div class="card p-4 mb-4">
-    <h2 class="font-bold text-sm mb-2" style="color: var(--text-1);">📖 Giờ Hoàng Đạo là gì?</h2>
-    <p class="text-sm leading-relaxed" style="color: var(--text-2);">
-      Giờ Hoàng Đạo là những khung giờ được coi là may mắn, thuận lợi trong ngày theo quan niệm của lịch pháp phương Đông.
-      Ngược lại, Giờ Hắc Đạo là những giờ không thuận lợi. Việc chọn giờ tốt để làm việc quan trọng giúp
-      công việc diễn ra suôn sẻ hơn theo quan niệm dân gian.
+  <div class="card p-4">
+    <h2 class="font-bold text-sm mb-2" style="color:var(--text-1);">📖 Giờ Hoàng Đạo là gì?</h2>
+    <p class="text-sm leading-relaxed" style="color:var(--text-2);">
+      Giờ Hoàng Đạo là những khung giờ được coi là may mắn, thuận lợi theo lịch pháp phương Đông.
+      Chọn giờ tốt để xuất hành, ký hợp đồng, khai trương sẽ giúp công việc suôn sẻ hơn theo quan niệm dân gian Việt Nam.
     </p>
   </div>
 
