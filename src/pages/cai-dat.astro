@@ -1,0 +1,214 @@
+---
+// src/pages/cai-dat.astro — Trang cài đặt
+
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { SITE } from '../lib/constants';
+
+const title       = 'Cài Đặt — Lịch Vạn Niên AI';
+const description = 'Cài đặt ứng dụng Lịch Vạn Niên AI: giao diện sáng/tối, cỡ chữ, thông báo, cài PWA.';
+const canonical   = `${SITE.baseUrl}/cai-dat`;
+---
+
+<BaseLayout {title} {description} {canonical} noindex={true}>
+
+  <nav class="flex items-center gap-1 text-xs mb-4" style="color: var(--text-3);">
+    <a href="/" class="no-underline hover:underline" style="color: var(--text-3);">🏠 Trang chủ</a>
+    <span>›</span>
+    <span style="color: var(--text-1); font-weight: 600;">Cài Đặt</span>
+  </nav>
+
+  <h1 class="font-display font-bold text-2xl mb-5" style="color: var(--text-1);">
+    ⚙️ Cài Đặt
+  </h1>
+
+  <!-- Giao diện -->
+  <div class="card overflow-hidden mb-4">
+    <div class="px-4 py-3 border-b" style="border-color: var(--border);">
+      <p class="font-bold text-sm" style="color: var(--text-1);">🎨 Giao diện</p>
+    </div>
+    <div class="p-4 flex flex-col gap-4">
+
+      <!-- Dark mode -->
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="font-semibold text-sm" style="color: var(--text-1);">Chế độ tối</p>
+          <p class="text-xs mt-0.5" style="color: var(--text-3);">Bảo vệ mắt ban đêm</p>
+        </div>
+        <button
+          id="toggle-dark"
+          role="switch"
+          aria-checked="false"
+          class="w-12 h-6 rounded-full transition-all relative"
+          style="background: var(--bg-elevated); border: 1px solid var(--border-med);"
+        >
+          <span id="toggle-dark-thumb"
+            class="absolute top-0.5 left-0.5 w-5 h-5 rounded-full transition-all"
+            style="background: var(--text-3);"
+          ></span>
+        </button>
+      </div>
+
+      <!-- Font size -->
+      <div>
+        <p class="font-semibold text-sm mb-2" style="color: var(--text-1);">Cỡ chữ</p>
+        <div class="flex gap-2">
+          {[
+            { id:'small',  label:'Nhỏ',     size:'14px' },
+            { id:'medium', label:'Vừa',     size:'16px' },
+            { id:'large',  label:'Lớn',     size:'18px' },
+            { id:'xlarge', label:'Rất lớn', size:'20px' },
+          ].map(({ id, label, size }) => (
+            <button
+              data-font={id}
+              data-size={size}
+              class="font-btn flex-1 py-2 rounded-xl text-sm font-medium border transition-all"
+              style="background: var(--bg-surface); border-color: var(--border); color: var(--text-2);"
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cài PWA -->
+  <div class="card overflow-hidden mb-4">
+    <div class="px-4 py-3 border-b" style="border-color: var(--border);">
+      <p class="font-bold text-sm" style="color: var(--text-1);">📱 Cài Ứng Dụng (PWA)</p>
+    </div>
+    <div class="p-4">
+      <p class="text-sm mb-3" style="color: var(--text-2);">
+        Cài Lịch Vạn Niên AI lên màn hình chính để dùng như ứng dụng thật, không cần mở trình duyệt.
+      </p>
+      <button id="btn-install-pwa" class="btn-primary w-full">
+        📲 Cài lên màn hình chính
+      </button>
+      <p class="text-xs text-center mt-2" style="color: var(--text-3);">
+        iOS: Safari → Chia sẻ → Thêm vào màn hình chính
+      </p>
+    </div>
+  </div>
+
+  <!-- Thông tin app -->
+  <div class="card overflow-hidden mb-4">
+    <div class="px-4 py-3 border-b" style="border-color: var(--border);">
+      <p class="font-bold text-sm" style="color: var(--text-1);">ℹ️ Thông tin</p>
+    </div>
+    <div class="p-4 flex flex-col gap-2">
+      {[
+        { label: 'Phiên bản',     value: '1.0.0' },
+        { label: 'Domain',        value: SITE.domain },
+        { label: 'Thuật toán',    value: 'Hồ Ngọc Đức (Ho Ngoc Duc)' },
+        { label: 'Múi giờ',       value: 'Asia/Ho_Chi_Minh (UTC+7)' },
+        { label: 'Framework',     value: 'Astro 4.x SSG + Cloudflare Pages' },
+      ].map(({ label, value }) => (
+        <div class="flex justify-between items-center py-1.5 border-b" style="border-color: var(--border);">
+          <span class="text-sm" style="color: var(--text-3);">{label}</span>
+          <span class="text-sm font-medium" style="color: var(--text-1);">{value}</span>
+        </div>
+      ))}
+    </div>
+  </div>
+
+  <!-- Xóa cache -->
+  <div class="card p-4 mb-4">
+    <p class="font-bold text-sm mb-2" style="color: var(--text-1);">🗑️ Dữ liệu & Cache</p>
+    <p class="text-sm mb-3" style="color: var(--text-3);">Xóa toàn bộ cài đặt và cache về mặc định.</p>
+    <button id="btn-clear-cache" class="btn-secondary w-full border" style="border-color: var(--red); color: var(--red);">
+      Xóa dữ liệu
+    </button>
+  </div>
+
+  <script>
+    // ─── Dark mode toggle ─────────────────────────────────────
+    const toggleBtn   = document.getElementById('toggle-dark');
+    const toggleThumb = document.getElementById('toggle-dark-thumb');
+
+    function getTheme() {
+      try { return localStorage.getItem('lvn_theme') ?? 'light'; } catch { return 'light'; }
+    }
+    function setTheme(t: string) {
+      try { localStorage.setItem('lvn_theme', t); } catch {}
+      document.documentElement.classList.toggle('dark', t === 'dark');
+      if (toggleBtn)   toggleBtn.setAttribute('aria-checked', String(t === 'dark'));
+      if (toggleThumb) {
+        toggleThumb.style.transform   = t === 'dark' ? 'translateX(24px)' : 'translateX(0)';
+        toggleThumb.style.background  = t === 'dark' ? 'var(--gold)' : 'var(--text-3)';
+      }
+      if (toggleBtn) toggleBtn.style.background = t === 'dark' ? 'var(--red-pale)' : 'var(--bg-elevated)';
+    }
+
+    // Init
+    setTheme(getTheme());
+    toggleBtn?.addEventListener('click', () => {
+      setTheme(getTheme() === 'dark' ? 'light' : 'dark');
+    });
+
+    // ─── Font size ────────────────────────────────────────────
+    const savedFont = (() => { try { return localStorage.getItem('lvn_font') ?? 'medium'; } catch { return 'medium'; } })();
+
+    document.querySelectorAll<HTMLElement>('.font-btn').forEach(btn => {
+      const id = btn.dataset['font'] ?? '';
+      if (id === savedFont) {
+        btn.style.background   = 'var(--red-pale)';
+        btn.style.borderColor  = 'var(--red)';
+        btn.style.color        = 'var(--red)';
+        btn.style.fontWeight   = '700';
+      }
+      btn.addEventListener('click', () => {
+        const size = btn.dataset['size'] ?? '16px';
+        document.documentElement.style.fontSize = size;
+        try { localStorage.setItem('lvn_font', id); } catch {}
+        document.querySelectorAll<HTMLElement>('.font-btn').forEach(b => {
+          b.style.background   = 'var(--bg-surface)';
+          b.style.borderColor  = 'var(--border)';
+          b.style.color        = 'var(--text-2)';
+          b.style.fontWeight   = '500';
+        });
+        btn.style.background   = 'var(--red-pale)';
+        btn.style.borderColor  = 'var(--red)';
+        btn.style.color        = 'var(--red)';
+        btn.style.fontWeight   = '700';
+      });
+    });
+
+    // Apply saved font size
+    const fontSizeMap: Record<string, string> = { small:'14px', medium:'16px', large:'18px', xlarge:'20px' };
+    if (fontSizeMap[savedFont]) {
+      document.documentElement.style.fontSize = fontSizeMap[savedFont]!;
+    }
+
+    // ─── PWA Install ─────────────────────────────────────────
+    let deferredPrompt: BeforeInstallPromptEvent | null = null;
+    type BeforeInstallPromptEvent = Event & { prompt(): Promise<void>; userChoice: Promise<{ outcome: string }> };
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e as BeforeInstallPromptEvent;
+    });
+
+    document.getElementById('btn-install-pwa')?.addEventListener('click', async () => {
+      if (deferredPrompt) {
+        await deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') alert('Đã cài thành công! Tìm Lịch Vạn Niên AI trên màn hình chính.');
+        deferredPrompt = null;
+      } else {
+        alert('Trình duyệt của bạn không hỗ trợ hoặc đã cài rồi.\niOS: Safari → Chia sẻ → Thêm vào màn hình chính.');
+      }
+    });
+
+    // ─── Clear cache ─────────────────────────────────────────
+    document.getElementById('btn-clear-cache')?.addEventListener('click', () => {
+      if (!confirm('Xóa toàn bộ dữ liệu cài đặt?')) return;
+      try {
+        localStorage.clear();
+        caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
+      } catch {}
+      alert('Đã xóa. Trang sẽ tải lại.');
+      location.reload();
+    });
+  </script>
+
+</BaseLayout>

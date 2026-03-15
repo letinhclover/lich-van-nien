@@ -1,17 +1,17 @@
 // src/pages/sitemap.xml.ts
-// Tự động generate sitemap với 1825+ URLs
-// Thay thế public/sitemap.xml tĩnh
+// Dynamic sitemap: trang chủ + 1825 trang ngày + static pages
+// Cloudflare Pages sẽ serve file này như /sitemap.xml
 
 import type { APIRoute } from 'astro';
-import { SITE_CONFIG } from '../lib/config';
+import { SITE, SSG_START_YEAR, SSG_END_YEAR } from '../lib/constants';
 
-const BASE = SITE_CONFIG.baseUrl;
+const BASE = SITE.baseUrl;
 
-function fmtDate(d: Date): string {
+function fmt(d: Date): string {
   return d.toISOString().split('T')[0]!;
 }
 
-function urlEntry(
+function url(
   loc: string,
   priority: string,
   changefreq: string,
@@ -19,7 +19,7 @@ function urlEntry(
 ): string {
   return `  <url>
     <loc>${loc}</loc>
-    <lastmod>${lastmod ?? fmtDate(new Date())}</lastmod>
+    <lastmod>${lastmod ?? fmt(new Date())}</lastmod>
     <changefreq>${changefreq}</changefreq>
     <priority>${priority}</priority>
   </url>`;
@@ -27,45 +27,67 @@ function urlEntry(
 
 export const GET: APIRoute = () => {
   const entries: string[] = [];
+  const today = fmt(new Date());
+  const weekAgo = fmt(new Date(Date.now() - 7 * 86400000));
 
-  // Trang chủ
-  entries.push(urlEntry(BASE + '/', '1.0', 'daily'));
+  // ── Trang chủ ───────────────────────────────────────────────
+  entries.push(url(`${BASE}/`, '1.0', 'daily', today));
 
-  // Static pages
-  const staticPages = [
-    { path: '/thang',       priority: '0.8', freq: 'daily'   },
-    { path: '/chuyen-doi',  priority: '0.7', freq: 'monthly' },
-    { path: '/ai',          priority: '0.8', freq: 'daily'   },
-    { path: '/cai-dat',     priority: '0.4', freq: 'monthly' },
+  // ── Trang tính năng ─────────────────────────────────────────
+  const statics = [
+    { path:'/gio-hoang-dao',   p:'0.85', f:'daily'   },
+    { path:'/tu-van',          p:'0.80', f:'daily'   },
+    { path:'/chon-ngay-cuoi',  p:'0.80', f:'weekly'  },
+    { path:'/chuyen-doi-lich', p:'0.75', f:'monthly' },
+    { path:'/lich/thang',      p:'0.80', f:'daily'   },
   ];
-  for (const p of staticPages) {
-    entries.push(urlEntry(BASE + p.path, p.priority, p.freq));
+  for (const s of statics) {
+    entries.push(url(`${BASE}${s.path}`, s.p, s.f, today));
   }
 
-  // 1825 trang ngày: 2024-01-01 đến 2028-12-31
-  const start = new Date(2024, 0, 1);
-  const end   = new Date(2028, 11, 31);
-  const today = fmtDate(new Date());
+  // ── 1825 trang ngày ─────────────────────────────────────────
+  const start = new Date(SSG_START_YEAR, 0, 1);
+  const end   = new Date(SSG_END_YEAR, 11, 31);
 
-  for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+  for (const d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
     const y  = d.getFullYear();
     const mo = String(d.getMonth() + 1).padStart(2, '0');
     const dy = String(d.getDate()).padStart(2, '0');
-    const isToday    = fmtDate(d) === today;
-    const isPastWeek = d >= new Date(Date.now() - 7*24*60*60*1000);
-    const priority   = isToday ? '0.9' : isPastWeek ? '0.7' : '0.6';
-    const freq       = isToday ? 'daily' : 'weekly';
-    entries.push(urlEntry(`${BASE}/lich/${y}/${mo}/${dy}`, priority, freq, fmtDate(d)));
+    const dateStr = `${y}-${mo}-${dy}`;
+
+    const isToday    = dateStr === today;
+    const isRecentWk = dateStr >= weekAgo;
+    const p = isToday ? '0.95' : isRecentWk ? '0.80' : '0.65';
+    const f = isToday ? 'daily' : 'weekly';
+
+    entries.push(url(`${BASE}/lich/${y}/${mo}/${dy}`, p, f, dateStr));
+  }
+
+  // ── Trang tháng ─────────────────────────────────────────────
+  for (let y = SSG_START_YEAR; y <= SSG_END_YEAR; y++) {
+    for (let m = 1; m <= 12; m++) {
+      const mo = String(m).padStart(2, '0');
+      const isThisMonth = `${y}-${mo}` === today.slice(0, 7);
+      entries.push(url(
+        `${BASE}/lich/thang/${y}/${mo}`,
+        isThisMonth ? '0.90' : '0.70',
+        isThisMonth ? 'daily' : 'monthly',
+        `${y}-${mo}-01`
+      ));
+    }
   }
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+          http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
 ${entries.join('\n')}
 </urlset>`;
 
   return new Response(xml, {
     headers: {
-      'Content-Type': 'application/xml; charset=utf-8',
+      'Content-Type':  'application/xml; charset=utf-8',
       'Cache-Control': 'public, max-age=86400',
     },
   });

@@ -1,0 +1,172 @@
+---
+// src/pages/chon-ngay-cuoi.astro — Trang chọn ngày cưới
+
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { SITE } from '../lib/constants';
+
+const title       = 'Chọn Ngày Cưới Theo Tuổi 2025–2026 — Ngày Tốt Để Kết Hôn | Lịch Vạn Niên';
+const description = 'Tìm ngày cưới đẹp theo tuổi vợ chồng. Xem ngày tốt để kết hôn năm 2025, 2026 theo âm lịch Việt Nam, tránh ngày xấu, ngày tam nương, ngày sát chủ.';
+const canonical   = `${SITE.baseUrl}/chon-ngay-cuoi`;
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'Ngày nào tốt để kết hôn năm 2026?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Ngày tốt để kết hôn cần tránh ngày Tam Nương (3,7,13,18,22,27 âm lịch), ngày Nguyệt Kỵ (5,14,23 âm lịch). Ưu tiên chọn ngày có trực Thành, Khai, Định, Thu và không có sao xấu chiếu.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Tuổi Kim Lâu có cưới được không?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Tuổi Kim Lâu (tuổi có số cuối 1,3,6,8) cần cúng giải trước khi làm lễ. Có thể kết hôn nhưng nên nhờ thầy hướng dẫn thêm.',
+      },
+    },
+  ],
+};
+---
+
+<BaseLayout {title} {description} {canonical} {schema}>
+
+  <nav class="flex items-center gap-1 text-xs mb-4" style="color: var(--text-3);">
+    <a href="/" class="no-underline hover:underline" style="color: var(--text-3);">🏠 Trang chủ</a>
+    <span>›</span>
+    <span style="color: var(--text-1); font-weight: 600;">Chọn Ngày Cưới</span>
+  </nav>
+
+  <h1 class="font-display font-bold text-2xl mb-1" style="color: var(--text-1);">
+    💍 Chọn Ngày Cưới Theo Tuổi
+  </h1>
+  <p class="text-sm mb-5" style="color: var(--text-3);">
+    Tìm ngày đẹp cho đám cưới theo âm lịch Việt Nam
+  </p>
+
+  <!-- Form -->
+  <div class="card p-4 mb-4">
+    <h2 class="font-bold text-sm mb-3" style="color: var(--text-1);">📝 Nhập thông tin</h2>
+    <div class="flex flex-col gap-3">
+      <div>
+        <label class="section-label mb-1 block">Năm sinh chú rể</label>
+        <input id="nam-re" type="number" min="1950" max="2010" placeholder="VD: 1995" class="input-base" />
+      </div>
+      <div>
+        <label class="section-label mb-1 block">Năm sinh cô dâu</label>
+        <input id="nam-dau" type="number" min="1950" max="2010" placeholder="VD: 1997" class="input-base" />
+      </div>
+      <div>
+        <label class="section-label mb-1 block">Tháng muốn cưới</label>
+        <select id="thang-cuoi" class="input-base">
+          {Array.from({length:12},(_,i)=>(
+            <option value={i+1}>Tháng {i+1}</option>
+          ))}
+        </select>
+      </div>
+      <div>
+        <label class="section-label mb-1 block">Năm</label>
+        <select id="nam-cuoi" class="input-base">
+          <option value="2025">2025</option>
+          <option value="2026" selected>2026</option>
+          <option value="2027">2027</option>
+        </select>
+      </div>
+      <button id="btn-xem" class="btn-primary">Tìm ngày cưới đẹp →</button>
+    </div>
+  </div>
+
+  <!-- Result placeholder -->
+  <div id="result-cuoi" class="hidden">
+    <div class="card p-4 mb-4">
+      <h2 class="font-bold text-sm mb-3" style="color: var(--text-1);">✅ Ngày cưới đề xuất</h2>
+      <div id="ngay-dep-list" class="flex flex-col gap-2"></div>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="card p-4 mb-4">
+    <h2 class="font-bold text-sm mb-3" style="color: var(--text-1);">❓ Câu hỏi thường gặp</h2>
+    <div class="flex flex-col gap-3">
+      <div>
+        <p class="font-semibold text-sm" style="color: var(--text-1);">Ngày nào tốt để kết hôn?</p>
+        <p class="text-sm mt-0.5" style="color: var(--text-2);">
+          Ưu tiên ngày có trực <strong>Thành, Khai, Định</strong>. Tránh ngày Tam Nương (3,7,13,18,22,27 âm lịch)
+          và Nguyệt Kỵ (5,14,23 âm lịch).
+        </p>
+      </div>
+      <div class="divider"></div>
+      <div>
+        <p class="font-semibold text-sm" style="color: var(--text-1);">Tuổi Kim Lâu có cưới được không?</p>
+        <p class="text-sm mt-0.5" style="color: var(--text-2);">
+          Tuổi Kim Lâu (số cuối 1,3,6,8) cần cúng giải trước. Có thể kết hôn bình thường sau khi cúng.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    import { solarToLunar, toJDN } from '../lib/amlich';
+    import { TRUC_INFO, DIA_CHI, DUONG_CONG, VANG_VONG } from '../lib/constants';
+
+    document.getElementById('btn-xem')?.addEventListener('click', () => {
+      const namRe   = parseInt((document.getElementById('nam-re')   as HTMLInputElement)?.value ?? '');
+      const namDau  = parseInt((document.getElementById('nam-dau')  as HTMLInputElement)?.value ?? '');
+      const thang   = parseInt((document.getElementById('thang-cuoi') as HTMLSelectElement)?.value ?? '');
+      const nam     = parseInt((document.getElementById('nam-cuoi')   as HTMLSelectElement)?.value ?? '');
+
+      if (isNaN(namRe) || isNaN(namDau)) { alert('Nhập năm sinh cả hai nhé!'); return; }
+
+      const daysInMonth = new Date(nam, thang, 0).getDate();
+      const goodDays: number[] = [];
+
+      for (let d = 1; d <= daysInMonth; d++) {
+        const lunar = solarToLunar(d, thang, nam);
+        const jdn   = toJDN(d, thang, nam);
+        const chiDay = DIA_CHI[(jdn + 1) % 12] ?? 'Tý';
+
+        // Tránh ngày xấu
+        if ([5,14,23].includes(lunar.day)) continue;
+        if ([3,7,13,18,22,27].includes(lunar.day)) continue;
+        if ((DUONG_CONG[lunar.month] ?? []).includes(lunar.day)) continue;
+        if (VANG_VONG[lunar.month] === chiDay) continue;
+        if (VANG_VONG[lunar.month] === chiDay) continue;
+
+        const chiDayIdx   = ((jdn+1)%12+12)%12;
+        const chiMonthIdx = ((lunar.month+1)%12+12)%12;
+        const trucIdx     = ((chiDayIdx-chiMonthIdx)%12+12)%12;
+        const truc        = TRUC_INFO[trucIdx];
+
+        if (truc && ['Thành','Khai','Định','Thu','Bình'].includes(truc.ten) && truc.cuoiHoi >= 4) {
+          goodDays.push(d);
+        }
+      }
+
+      const list = document.getElementById('ngay-dep-list');
+      const container = document.getElementById('result-cuoi');
+      if (!list || !container) return;
+
+      container.classList.remove('hidden');
+      if (goodDays.length === 0) {
+        list.innerHTML = '<p class="text-sm" style="color:var(--text-3);">Không tìm thấy ngày đẹp phù hợp. Thử tháng khác nhé.</p>';
+        return;
+      }
+
+      list.innerHTML = goodDays.slice(0, 6).map(d => {
+        const path = `/lich/${nam}/${String(thang).padStart(2,'0')}/${String(d).padStart(2,'0')}`;
+        const wd = ['CN','T2','T3','T4','T5','T6','T7'][new Date(nam,thang-1,d).getDay()] ?? '';
+        return `<a href="${path}" class="card-surface p-3 no-underline flex items-center justify-between hover:shadow-md transition-shadow">
+          <div>
+            <p class="font-bold text-sm" style="color:var(--text-1);">${wd} ${d}/${thang}/${nam}</p>
+            <p class="text-xs" style="color:var(--text-3);">Ngày tốt để kết hôn</p>
+          </div>
+          <span class="badge-green">Xem chi tiết</span>
+        </a>`;
+      }).join('');
+    });
+  </script>
+
+</BaseLayout>

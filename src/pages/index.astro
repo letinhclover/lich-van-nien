@@ -1,18 +1,134 @@
 ---
-// src/pages/index.astro — Trang chủ
-// Render toàn bộ React SPA (App.tsx) như một Astro island
-// Astro cung cấp: HTML shell + SEO meta tags (SSG)
-// React xử lý: toàn bộ UI interactive (CSR)
+// src/pages/index.astro — Trang chủ Lịch Vạn Niên AI
+// Hiển thị: ngày hôm nay đầy đủ, lịch tháng mini, link nhanh
 
-import SpaLayout from '../layouts/SpaLayout.astro';
-import App from '../App';
-import '../index.css';
+import BaseLayout   from '../layouts/BaseLayout.astro';
+import { todayVN, buildSolarDate, solarToPath } from '../lib/dateUtils';
+import { SITE }     from '../lib/constants';
+
+const { day, month, year } = todayVN();
+const solar   = buildSolarDate(day, month, year);
+const dayPath = solarToPath(day, month, year);
+
+const title       = `${SITE.siteName} — Lịch Âm Hôm Nay ${day}/${month}/${year}`;
+const description = `Lịch âm hôm nay ${day}/${month}/${year} (${solar.weekdayLabel}). Xem ngày tốt xấu, giờ hoàng đạo, can chi, tư vấn AI chọn ngày làm việc quan trọng.`;
+const canonical   = SITE.baseUrl + '/';
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: SITE.siteNameFull,
+  url:  SITE.baseUrl,
+  description,
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: `${SITE.baseUrl}/lich/{year}/{month}/{day}`,
+    'query-input': 'required name=year,month,day',
+  },
+};
+
+const quickLinks = [
+  { href: '/gio-hoang-dao',   icon: '⏰', label: 'Giờ Hoàng Đạo',   desc: 'Hôm nay' },
+  { href: '/chon-ngay-cuoi',  icon: '💍', label: 'Chọn Ngày Cưới',  desc: 'Theo tuổi' },
+  { href: '/chuyen-doi-lich', icon: '🔄', label: 'Chuyển Đổi Lịch', desc: 'Âm ↔ Dương' },
+  { href: '/tu-van',          icon: '🤖', label: 'Tư Vấn AI',        desc: 'Hỏi thầy' },
+];
 ---
 
-<SpaLayout
-  title="Lịch Vạn Niên AI 2026 — Lịch Âm, Xem Ngày Tốt Xấu, Phong Thủy"
-  description="Lịch vạn niên 2026, lịch âm, xem ngày tốt xấu, 114 sao cát hung, 12 trực, hỏi thầy AI, la bàn phong thủy Bát Trạch, văn khấn 25 bài, xem tuổi hợp — miễn phí, chính xác."
->
-  <!-- React SPA hydrate ngay khi load -->
-  <App client:load />
-</SpaLayout>
+<BaseLayout {title} {description} {canonical} {schema}>
+
+  <!-- Hero: Lịch hôm nay -->
+  <div class="text-center mb-6 pt-2">
+    <p class="text-sm font-medium mb-1" style="color: var(--text-3);">{solar.weekdayLabel}</p>
+    <h1 class="font-display font-bold text-5xl mb-1" style="color: var(--red); line-height: 1.1;">
+      {String(day).padStart(2, '0')}
+    </h1>
+    <p class="text-lg font-semibold" style="color: var(--text-1);">
+      Tháng {month} năm {year}
+    </p>
+    <div class="flex items-center justify-center gap-2 mt-2">
+      <span class="badge-red">Dương Lịch</span>
+      <span class="badge-gold">Xem chi tiết ngày này →</span>
+    </div>
+  </div>
+
+  <!-- CTA tới trang ngày chi tiết -->
+  <a
+    href={dayPath}
+    class="card block p-4 mb-4 no-underline hover:shadow-lg transition-shadow"
+    style="border-color: var(--border-red);"
+  >
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="section-label mb-1">📅 Xem đầy đủ hôm nay</p>
+        <p class="font-bold text-base" style="color: var(--text-1);">
+          Ngày tốt xấu · Can chi · Sao trực · Giờ hoàng đạo
+        </p>
+        <p class="text-sm mt-0.5" style="color: var(--text-3);">
+          Luận giải chi tiết theo âm lịch Việt Nam
+        </p>
+      </div>
+      <span class="text-2xl">→</span>
+    </div>
+  </a>
+
+  <!-- Quick links 2×2 -->
+  <div class="grid grid-cols-2 gap-3 mb-6">
+    {quickLinks.map(({ href, icon, label, desc }) => (
+      <a
+        href={href}
+        class="card p-3.5 no-underline flex flex-col gap-1.5 hover:shadow-md transition-shadow"
+      >
+        <span class="text-2xl">{icon}</span>
+        <p class="font-bold text-sm" style="color: var(--text-1);">{label}</p>
+        <p class="text-xs" style="color: var(--text-3);">{desc}</p>
+      </a>
+    ))}
+  </div>
+
+  <!-- Giới thiệu SEO -->
+  <div class="card p-4 mb-4">
+    <h2 class="font-bold text-base mb-2" style="color: var(--text-1);">
+      🗓️ Lịch Vạn Niên AI — Công cụ xem lịch âm dương Việt Nam
+    </h2>
+    <p class="text-sm leading-relaxed" style="color: var(--text-2);">
+      Xem <strong>lịch âm hôm nay</strong>, tra cứu <strong>ngày tốt xấu</strong> theo 12 trực nhật,
+      114 sao cát hung, giờ hoàng đạo chính xác. Hỗ trợ <strong>chọn ngày cưới</strong>,
+      khai trương, xây dựng, an táng theo thuật toán Hồ Ngọc Đức chuẩn xác.
+    </p>
+  </div>
+
+  <!-- Lịch nhanh: các ngày trong tuần -->
+  <div class="card-surface p-3 mb-4">
+    <p class="section-label mb-2">📆 Tuần này</p>
+    <div class="grid grid-cols-7 gap-1">
+      {Array.from({ length: 7 }, (_, i) => {
+        const d = new Date(year, month - 1, day - solar.weekday + i);
+        const dd = d.getDate(), mm = d.getMonth() + 1, yy = d.getFullYear();
+        const isActive = dd === day && mm === month;
+        const isSun = d.getDay() === 0;
+        const isSat = d.getDay() === 6;
+        return (
+          <a
+            href={solarToPath(dd, mm, yy)}
+            class="flex flex-col items-center py-2 rounded-xl no-underline transition-all"
+            style={isActive
+              ? 'background: var(--red); color: white;'
+              : 'background: var(--bg-card); color: var(--text-3);'}
+          >
+            <span class="text-[9px] font-bold">
+              {['CN','T2','T3','T4','T5','T6','T7'][d.getDay()]}
+            </span>
+            <span
+              class="font-bold text-base leading-tight"
+              style={!isActive && isSun ? 'color: var(--red);' : !isActive && isSat ? 'color: var(--gold-dark);' : ''}
+            >
+              {dd}
+            </span>
+          </a>
+        );
+      })}
+    </div>
+  </div>
+
+</BaseLayout>

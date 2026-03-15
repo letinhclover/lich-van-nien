@@ -1,0 +1,209 @@
+---
+// src/pages/tu-van.astro — Trang tư vấn AI
+
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { SITE } from '../lib/constants';
+import { todayVN } from '../lib/dateUtils';
+
+const { day, month, year } = todayVN();
+
+const title       = 'Tư Vấn AI Lịch Vạn Niên — Hỏi Thầy Phong Thủy AI | Lịch Vạn Niên';
+const description = 'Hỏi thầy AI về phong thủy, ngày tốt xấu, chọn ngày làm việc quan trọng. AI luận giải theo âm lịch, can chi, ngũ hành cá nhân hóa miễn phí.';
+const canonical   = `${SITE.baseUrl}/tu-van`;
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: 'Tư Vấn AI Lịch Vạn Niên',
+  url: canonical,
+  description,
+  applicationCategory: 'LifestyleApplication',
+  operatingSystem: 'Any',
+  inLanguage: 'vi',
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'VND' },
+};
+
+const TOPICS = [
+  { id: 'ngay-tot',  icon: '📅', label: 'Ngày Tốt Hôm Nay',     desc: 'Làm gì được, tránh gì' },
+  { id: 'xuat-hanh', icon: '🚗', label: 'Xuất Hành',              desc: 'Hướng tốt theo tuổi'   },
+  { id: 'kinh-doanh',icon: '💼', label: 'Khai Trương / Kinh Doanh',desc:'Ngày giờ tốt nhất'     },
+  { id: 'cuoi-hoi',  icon: '💍', label: 'Cưới Hỏi',               desc: 'Chọn ngày, xem tuổi'  },
+  { id: 'xay-nha',   icon: '🏗️', label: 'Xây Dựng / Mua Nhà',    desc: 'Động thổ, nhập trạch'  },
+  { id: 'suc-khoe',  icon: '🌿', label: 'Sức Khỏe / Vận Trình',  desc: 'Theo năm sinh'          },
+];
+---
+
+<BaseLayout {title} {description} {canonical} {schema}>
+
+  <nav class="flex items-center gap-1 text-xs mb-4" style="color: var(--text-3);">
+    <a href="/" class="no-underline hover:underline" style="color: var(--text-3);">🏠 Trang chủ</a>
+    <span>›</span>
+    <span style="color: var(--text-1); font-weight: 600;">Tư Vấn AI</span>
+  </nav>
+
+  <div class="text-center mb-5">
+    <div
+      class="inline-flex items-center justify-center w-16 h-16 rounded-2xl text-3xl mb-3"
+      style="background: linear-gradient(135deg, var(--red), var(--red-dark)); box-shadow: var(--shadow-do);"
+    >
+      🤖
+    </div>
+    <h1 class="font-display font-bold text-2xl mb-1" style="color: var(--text-1);">
+      Tư Vấn AI Phong Thủy
+    </h1>
+    <p class="text-sm" style="color: var(--text-3);">
+      Hỏi thầy AI về ngày tốt xấu, phong thủy, can chi — cá nhân hóa theo năm sinh
+    </p>
+  </div>
+
+  <!-- Chọn chủ đề -->
+  <div class="card-surface p-3 mb-4">
+    <p class="section-label mb-2">Chọn chủ đề tư vấn</p>
+    <div class="grid grid-cols-2 gap-2">
+      {TOPICS.map(({ id, icon, label, desc }) => (
+        <button
+          data-topic={id}
+          class="topic-btn card p-3 text-left transition-all hover:shadow-md cursor-pointer border-transparent"
+          style="background: var(--bg-card);"
+        >
+          <span class="text-xl block mb-1">{icon}</span>
+          <p class="font-semibold text-xs leading-tight" style="color: var(--text-1);">{label}</p>
+          <p class="text-[10px] mt-0.5" style="color: var(--text-3);">{desc}</p>
+        </button>
+      ))}
+    </div>
+  </div>
+
+  <!-- Nhập năm sinh -->
+  <div class="card p-4 mb-4">
+    <p class="section-label mb-2">Thông tin của bạn (để cá nhân hóa)</p>
+    <div class="flex gap-2">
+      <input
+        id="inp-birth-year"
+        type="number"
+        min="1940"
+        max="2010"
+        placeholder="Năm sinh (VD: 1990)"
+        class="input-base flex-1"
+      />
+      <select id="inp-gender" class="input-base w-28">
+        <option value="nam">Nam</option>
+        <option value="nu">Nữ</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Câu hỏi tự nhập -->
+  <div class="card p-4 mb-4">
+    <p class="section-label mb-2">Câu hỏi của bạn</p>
+    <textarea
+      id="inp-question"
+      rows="3"
+      placeholder="VD: Tôi muốn khai trương shop vào tháng 3/2026, ngày nào tốt nhất?"
+      class="input-base resize-none"
+    ></textarea>
+    <button id="btn-ask" class="btn-primary w-full mt-3">
+      🤖 Hỏi Thầy AI →
+    </button>
+  </div>
+
+  <!-- Kết quả AI -->
+  <div id="ai-result" class="hidden mb-4">
+    <div class="card overflow-hidden">
+      <div class="h-1" style="background: linear-gradient(90deg, var(--red), var(--gold));"></div>
+      <div class="p-4">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="text-xl">🤖</span>
+          <p class="font-bold text-sm" style="color: var(--text-1);">Thầy AI trả lời</p>
+          <span id="ai-loading" class="text-xs px-2 py-0.5 rounded-full hidden" style="background: var(--gold-pale); color: var(--gold-dark);">
+            Đang suy nghĩ...
+          </span>
+        </div>
+        <div id="ai-answer" class="text-sm leading-relaxed" style="color: var(--text-2);">
+          <!-- AI response sẽ điền vào đây -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Disclaimer -->
+  <p class="text-xs text-center mb-4" style="color: var(--text-4);">
+    ⚠️ Nội dung mang tính tham khảo theo quan niệm dân gian. Không thay thế tư vấn chuyên gia.
+  </p>
+
+  <script define:vars={{ day, month, year }}>
+    // Topic selection
+    let selectedTopic = '';
+    document.querySelectorAll('.topic-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.topic-btn').forEach(b => {
+          (b as HTMLElement).style.borderColor = 'transparent';
+          (b as HTMLElement).style.background = 'var(--bg-card)';
+        });
+        (btn as HTMLElement).style.borderColor = 'var(--red)';
+        (btn as HTMLElement).style.background = 'var(--red-pale)';
+        selectedTopic = (btn as HTMLElement).dataset['topic'] ?? '';
+      });
+    });
+
+    document.getElementById('btn-ask')?.addEventListener('click', async () => {
+      const birthYear = (document.getElementById('inp-birth-year') as HTMLInputElement)?.value;
+      const gender    = (document.getElementById('inp-gender')     as HTMLSelectElement)?.value;
+      const question  = (document.getElementById('inp-question')   as HTMLTextAreaElement)?.value?.trim();
+
+      if (!question) { alert('Bạn chưa nhập câu hỏi!'); return; }
+
+      const resultDiv  = document.getElementById('ai-result');
+      const answerDiv  = document.getElementById('ai-answer');
+      const loadingEl  = document.getElementById('ai-loading');
+      if (!resultDiv || !answerDiv || !loadingEl) return;
+
+      resultDiv.classList.remove('hidden');
+      loadingEl.classList.remove('hidden');
+      answerDiv.innerHTML = '';
+
+      const context = [
+        `Hôm nay: ${day}/${month}/${year}`,
+        birthYear ? `Người hỏi sinh năm ${birthYear} (${gender === 'nu' ? 'Nữ' : 'Nam'})` : '',
+        selectedTopic ? `Chủ đề: ${selectedTopic}` : '',
+      ].filter(Boolean).join('. ');
+
+      const prompt = `Bạn là chuyên gia tư vấn lịch pháp và phong thủy Việt Nam. ${context}.\n\nCâu hỏi: "${question}"\n\nTrả lời bằng tiếng Việt, ngắn gọn 3-5 câu, dựa trên lịch pháp âm dương. Không dùng markdown.`;
+
+      try {
+        const apiKey = (window as unknown as { GROQ_API_KEY?: string }).GROQ_API_KEY
+          || import.meta.env?.PUBLIC_GROQ_API_KEY
+          || '';
+
+        if (!apiKey) {
+          loadingEl.classList.add('hidden');
+          answerDiv.innerHTML = '<p style="color:var(--text-3)">Chức năng AI đang được cập nhật. Vui lòng thử lại sau.</p>';
+          return;
+        }
+
+        const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            model: 'llama-3.1-8b-instant',
+            messages: [{ role: 'user', content: prompt }],
+            temperature: 0.7,
+            max_tokens: 400,
+          }),
+        });
+
+        const data = await res.json() as { choices?: { message?: { content?: string } }[] };
+        const text = data?.choices?.[0]?.message?.content?.trim() ?? 'Xin lỗi, không thể kết nối AI lúc này.';
+        loadingEl.classList.add('hidden');
+        answerDiv.innerHTML = text.split('\n').map(p => p ? `<p class="mb-2">${p}</p>` : '').join('');
+      } catch {
+        loadingEl.classList.add('hidden');
+        answerDiv.innerHTML = '<p style="color:var(--red)">Lỗi kết nối. Vui lòng thử lại.</p>';
+      }
+    });
+  </script>
+
+</BaseLayout>

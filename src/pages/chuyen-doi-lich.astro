@@ -1,0 +1,95 @@
+---
+// src/pages/chuyen-doi-lich.astro — Trang chuyển đổi lịch âm↔dương
+
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { SITE } from '../lib/constants';
+
+const title       = 'Chuyển Đổi Lịch Âm Dương — Tra Cứu Ngày Âm Lịch | Lịch Vạn Niên';
+const description = 'Công cụ chuyển đổi lịch âm dương trực tuyến miễn phí. Nhập ngày dương lịch để biết ngày âm lịch, hoặc ngược lại. Chính xác theo thuật toán Hồ Ngọc Đức.';
+const canonical   = `${SITE.baseUrl}/chuyen-doi-lich`;
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: 'Chuyển Đổi Lịch Âm Dương',
+  url: canonical,
+  description,
+  applicationCategory: 'LifestyleApplication',
+  operatingSystem: 'Any',
+  inLanguage: 'vi',
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'VND' },
+};
+---
+
+<BaseLayout {title} {description} {canonical} {schema}>
+
+  <nav class="flex items-center gap-1 text-xs mb-4" style="color: var(--text-3);">
+    <a href="/" class="no-underline hover:underline" style="color: var(--text-3);">🏠 Trang chủ</a>
+    <span>›</span>
+    <span style="color: var(--text-1); font-weight: 600;">Chuyển Đổi Lịch</span>
+  </nav>
+
+  <h1 class="font-display font-bold text-2xl mb-1" style="color: var(--text-1);">
+    🔄 Chuyển Đổi Lịch Âm Dương
+  </h1>
+  <p class="text-sm mb-5" style="color: var(--text-3);">
+    Tra cứu ngày âm lịch từ dương lịch và ngược lại
+  </p>
+
+  <!-- Form nhập dương → âm -->
+  <div class="card p-4 mb-4">
+    <h2 class="font-bold text-sm mb-3" style="color: var(--text-1);">📅 Dương lịch → Âm lịch</h2>
+    <div class="flex gap-2 mb-3">
+      <input id="inp-day"   type="number" min="1" max="31" placeholder="Ngày"   class="input-base w-20" />
+      <input id="inp-month" type="number" min="1" max="12" placeholder="Tháng"  class="input-base w-24" />
+      <input id="inp-year"  type="number" min="1900" max="2100" placeholder="Năm" class="input-base flex-1" />
+    </div>
+    <button id="btn-convert" class="btn-primary w-full">Chuyển đổi →</button>
+    <div id="result-solar" class="mt-3 hidden">
+      <div class="card-surface p-3">
+        <p class="section-label mb-1">KẾT QUẢ ÂM LỊCH</p>
+        <p id="result-text" class="font-bold text-base" style="color: var(--text-1);"></p>
+        <a id="result-link" href="#" class="text-sm mt-1 inline-block" style="color: var(--red);">
+          Xem chi tiết ngày này →
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Giới thiệu -->
+  <div class="card p-4 mb-4">
+    <h2 class="font-bold text-sm mb-2" style="color: var(--text-1);">📖 Về lịch âm dương Việt Nam</h2>
+    <p class="text-sm leading-relaxed" style="color: var(--text-2);">
+      Lịch âm dương Việt Nam (còn gọi là âm lịch) là hệ thống lịch kết hợp chu kỳ Mặt Trăng và Mặt Trời.
+      Mỗi tháng âm có 29 hoặc 30 ngày, và cứ vài năm có thêm một tháng nhuận để đồng bộ với dương lịch.
+      Công cụ này dùng thuật toán Hồ Ngọc Đức — chuẩn nhất Việt Nam hiện nay.
+    </p>
+  </div>
+
+  <script>
+    import { solarToLunar, toJDN } from '../lib/amlich';
+    import { THIEN_CAN, DIA_CHI } from '../lib/constants';
+
+    document.getElementById('btn-convert')?.addEventListener('click', () => {
+      const d = parseInt((document.getElementById('inp-day') as HTMLInputElement)?.value ?? '');
+      const m = parseInt((document.getElementById('inp-month') as HTMLInputElement)?.value ?? '');
+      const y = parseInt((document.getElementById('inp-year') as HTMLInputElement)?.value ?? '');
+      if (isNaN(d) || isNaN(m) || isNaN(y)) {
+        alert('Vui lòng nhập đầy đủ ngày, tháng, năm.');
+        return;
+      }
+      const lunar = solarToLunar(d, m, y);
+      const jdn   = toJDN(d, m, y);
+      const canChi = `${THIEN_CAN[(jdn + 9) % 10]} ${DIA_CHI[(jdn + 1) % 12]}`;
+      const canChiYear = `${THIEN_CAN[(y + 6) % 10]} ${DIA_CHI[(y + 8) % 12]}`;
+      const lunarStr = `${lunar.isLeapMonth ? 'Nhuận ' : ''}${lunar.day}/${lunar.month}/${lunar.year} (${canChiYear}) · Can chi ngày: ${canChi}`;
+      const resultText = document.getElementById('result-text');
+      const resultLink = document.getElementById('result-link') as HTMLAnchorElement;
+      const resultDiv  = document.getElementById('result-solar');
+      if (resultText) resultText.textContent = lunarStr;
+      if (resultLink) resultLink.href = `/lich/${y}/${String(m).padStart(2,'0')}/${String(d).padStart(2,'0')}`;
+      if (resultDiv)  resultDiv.classList.remove('hidden');
+    });
+  </script>
+
+</BaseLayout>
