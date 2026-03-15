@@ -1,5 +1,8 @@
 User-agent: *
 Allow: /
 
+# Không index trang cài đặt
+Disallow: /cai-dat
+
 # Sitemap
 Sitemap: https://lichvannien.io.vn/sitemap.xml
