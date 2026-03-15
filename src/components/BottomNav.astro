@@ -1,0 +1,60 @@
+---
+// src/components/BottomNav.astro
+// Bottom navigation bar — chỉ hiển thị trên mobile (md:hidden)
+// Active state tự động theo currentPath
+
+const NAV = [
+  { href: '/',               label: 'Hôm Nay',  icon: '🗓',  key: 'home'    },
+  { href: '/lich/thang',     label: 'Tháng',    icon: '📅',  key: 'thang'   },
+  { href: '/chuyen-doi-lich',label: 'Đổi Lịch', icon: '🔄',  key: 'chuyen'  },
+  { href: '/tu-van',         label: 'AI',        icon: '🤖',  key: 'tuvan'   },
+  { href: '/cai-dat',        label: 'Cài Đặt',  icon: '⚙️',  key: 'caidat'  },
+];
+
+const currentPath = Astro.url.pathname;
+---
+
+<nav
+  class="md:hidden fixed bottom-0 left-0 right-0 z-50"
+  aria-label="Điều hướng chính"
+  style="
+    background: var(--nav-bg);
+    border-top: 1px solid var(--nav-border);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  "
+>
+  <div class="flex items-stretch h-14">
+    {NAV.map(({ href, label, icon, key }) => {
+      const isActive = href === '/'
+        ? currentPath === '/'
+        : currentPath.startsWith(href);
+      return (
+        <a
+          href={href}
+          data-nav={key}
+          aria-label={label}
+          aria-current={isActive ? 'page' : undefined}
+          class="flex-1 flex flex-col items-center justify-center gap-0.5 no-underline relative transition-all"
+          style={isActive ? 'color: var(--red);' : 'color: var(--text-3);'}
+        >
+          {/* Active indicator line */}
+          {isActive && (
+            <span
+              class="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full"
+              style="background: var(--red);"
+            />
+          )}
+          <span style="font-size: 1.35rem; line-height: 1;">{icon}</span>
+          <span
+            class="text-[9px] font-semibold leading-none"
+            style={isActive ? 'color: var(--red);' : 'color: var(--text-3);'}
+          >
+            {label}
+          </span>
+        </a>
+      );
+    })}
+  </div>
+</nav>
