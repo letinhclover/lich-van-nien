@@ -1,1 +1,193 @@
+---
+// src/pages/lich/thang/[year]/[month].astro
+// Trang lịch tháng — grid 7 cột × N hàng
+// Hiển thị: ngày dương, ngày âm, đánh dấu tốt/xấu cơ bản
 
+import BaseLayout from '../../../../layouts/BaseLayout.astro';
+import { getAllMonthParams, buildMonthCalendar, solarToPath, prevMonth, nextMonth } from '../../../../lib/dateUtils';
+import { solarToLunar } from '../../../../lib/amlich';
+import { SITE, TRUC_INFO, DIA_CHI, THIEN_CAN, VANG_VONG, DUONG_CONG, THU_SHORT } from '../../../../lib/constants';
+
+// ─── SSG ─────────────────────────────────────────────────────
+export function getStaticPaths() {
+  return getAllMonthParams();
+}
+
+const { year, month } = Astro.params;
+const y = parseInt(year!);
+const m = parseInt(month!);
+
+const calendar = buildMonthCalendar(y, m);
+const prev     = prevMonth(m, y);
+const next     = nextMonth(m, y);
+
+// Pre-compute lunar + rating cho mỗi ngày trong tháng
+const dayData = Array.from({ length: calendar.totalDays }, (_, i) => {
+  const d = i + 1;
+  const lunar = solarToLunar(d, m, y);
+  const jdn   = Math.floor(new Date(y, m-1, d).getTime() / 86400000) + 2440588;
+  const chiDay = DIA_CHI[(jdn + 1) % 12] ?? 'Tý';
+
+  const ngayXau: string[] = [];
+  if ([5,14,23].includes(lunar.day))         ngayXau.push('Nguyệt Kỵ');
+  if ([3,7,13,18,22,27].includes(lunar.day)) ngayXau.push('Tam Nương');
+  if ((DUONG_CONG[lunar.month] ?? []).includes(lunar.day)) ngayXau.push('Dương Công');
+  if (VANG_VONG[lunar.month] === chiDay)      ngayXau.push('Vãng Vong');
+
+  const chiDayIdx   = ((jdn + 1) % 12 + 12) % 12;
+  const chiMonthIdx = ((lunar.month + 1) % 12 + 12) % 12;
+  const trucIdx     = ((chiDayIdx - chiMonthIdx) % 12 + 12) % 12;
+  const truc        = TRUC_INFO[trucIdx];
+  const isTot       = truc?.dinhGia === 'tốt' && ngayXau.length === 0;
+  const isXau       = truc?.dinhGia === 'xấu' || ngayXau.length >= 2;
+
+  return {
+    d, lunar, isTot, isXau, ngayXau,
+    canChiNgay: `${THIEN_CAN[(jdn + 9) % 10]} ${DIA_CHI[(jdn + 1) % 12]}`,
+  };
+});
+
+// ─── SEO ─────────────────────────────────────────────────────
+const title = `Lịch Tháng ${m} Năm ${y} — Lịch Âm Dương Đầy Đủ | Lịch Vạn Niên`.slice(0, 60);
+const description = `Lịch tháng ${m}/${y}: xem ngày tốt xấu, ngày âm lịch từng ngày, trực nhật, giờ hoàng đạo. Bảng lịch âm dương tháng ${m} năm ${y} chính xác.`.slice(0, 160);
+const canonical = `${SITE.baseUrl}/lich/thang/${year}/${month}`;
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type':'ListItem', position:1, name:'Trang chủ', item: SITE.baseUrl },
+    { '@type':'ListItem', position:2, name:`Tháng ${m} năm ${y}`, item: canonical },
+  ],
+};
+---
+
+<BaseLayout {title} {description} {canonical} {schema}>
+
+  <!-- Breadcrumb -->
+  <nav class="flex items-center gap-1 text-xs mb-4" style="color: var(--text-3);">
+    <a href="/" class="no-underline hover:underline" style="color: var(--text-3);">🏠 Trang chủ</a>
+    <span>›</span>
+    <span style="color: var(--text-1); font-weight: 600;">Tháng {m}/{y}</span>
+  </nav>
+
+  <!-- Header tháng + Prev/Next -->
+  <div class="flex items-center justify-between mb-4">
+    <a
+      href={`/lich/thang/${prev.year}/${String(prev.month).padStart(2,'0')}`}
+      class="btn-secondary py-2 px-3 text-sm"
+    >
+      ← T{prev.month}/{prev.year}
+    </a>
+
+    <h1 class="font-display font-bold text-xl text-center" style="color: var(--text-1);">
+      Tháng {m} · {y}
+    </h1>
+
+    <a
+      href={`/lich/thang/${next.year}/${String(next.month).padStart(2,'0')}`}
+      class="btn-secondary py-2 px-3 text-sm"
+    >
+      T{next.month}/{next.year} →
+    </a>
+  </div>
+
+  <!-- Legend -->
+  <div class="flex gap-3 mb-3 text-xs">
+    <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full inline-block" style="background: var(--green);"></span> Ngày tốt</span>
+    <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full inline-block" style="background: var(--red);"></span> Ngày xấu</span>
+    <span class="flex items-center gap-1"><span style="color: var(--red);">CN</span> Chủ nhật</span>
+  </div>
+
+  <!-- Grid lịch -->
+  <div class="card overflow-hidden mb-4">
+
+    <!-- Header thứ -->
+    <div class="grid grid-cols-7" style="background: var(--bg-surface); border-bottom: 1px solid var(--border);">
+      {THU_SHORT.map((t, i) => (
+        <div
+          class="py-2 text-center text-xs font-bold"
+          style={i === 0 ? 'color: var(--red);' : i === 6 ? 'color: var(--gold-dark);' : 'color: var(--text-3);'}
+        >
+          {t}
+        </div>
+      ))}
+    </div>
+
+    <!-- Rows -->
+    {calendar.grid.map((row) => (
+      <div class="grid grid-cols-7" style="border-bottom: 1px solid var(--border);">
+        {row.map((cell) => {
+          if (!cell) {
+            return <div class="p-2 min-h-[60px]" style="background: var(--bg-surface); opacity: 0.3;"></div>;
+          }
+          const data = dayData[cell.day - 1];
+          const isSun = cell.weekday === 0;
+          const isSat = cell.weekday === 6;
+          return (
+            <a
+              href={solarToPath(cell.day, m, y)}
+              class="p-1.5 min-h-[60px] flex flex-col no-underline transition-all hover:bg-[var(--bg-surface)] relative"
+              style="border-right: 1px solid var(--border);"
+            >
+              {/* Indicator tốt/xấu */}
+              {data?.isTot && (
+                <span class="absolute top-1 right-1 w-1.5 h-1.5 rounded-full" style="background: var(--green);"></span>
+              )}
+              {data?.isXau && !data.isTot && (
+                <span class="absolute top-1 right-1 w-1.5 h-1.5 rounded-full" style="background: var(--red);"></span>
+              )}
+
+              {/* Ngày dương */}
+              <span
+                class="font-bold text-base leading-none"
+                style={
+                  isSun ? 'color: var(--red);' :
+                  isSat ? 'color: var(--gold-dark);' :
+                  'color: var(--text-1);'
+                }
+              >
+                {cell.day}
+              </span>
+
+              {/* Ngày âm */}
+              {data && (
+                <span class="text-[9px] mt-0.5 leading-none" style="color: var(--text-3);">
+                  {data.lunar.day === 1 ? `M${data.lunar.month}` : data.lunar.day}
+                </span>
+              )}
+
+              {/* Can chi rút gọn */}
+              {data && (
+                <span class="text-[8px] leading-none mt-auto" style="color: var(--text-4);">
+                  {data.canChiNgay.split(' ')[0]}
+                </span>
+              )}
+            </a>
+          );
+        })}
+      </div>
+    ))}
+  </div>
+
+  <!-- Danh sách ngày tốt trong tháng -->
+  <div class="card p-4 mb-4">
+    <h2 class="font-bold text-sm mb-3" style="color: var(--text-1);">✅ Ngày tốt tháng {m}/{y}</h2>
+    <div class="flex flex-wrap gap-2">
+      {dayData
+        .filter(d => d.isTot)
+        .map(d => (
+          <a
+            href={solarToPath(d.d, m, y)}
+            class="badge-green text-xs no-underline hover:opacity-80"
+          >
+            {d.d}/{m}
+          </a>
+        ))}
+    </div>
+    {dayData.filter(d => d.isTot).length === 0 && (
+      <p class="text-sm" style="color: var(--text-3);">Tháng này không có ngày tốt đặc biệt.</p>
+    )}
+  </div>
+
+</BaseLayout>
