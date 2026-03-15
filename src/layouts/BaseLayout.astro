@@ -29,6 +29,10 @@ interface Props {
   /** Alias để tương thích với pages hiện tại (dùng schema=...) */
   schema?:              object | object[];
   noindex?:             boolean;
+  /** rel=prev URL cho SEO pagination */
+  prevUrl?:             string;
+  /** rel=next URL cho SEO pagination */
+  nextUrl?:             string;
 }
 
 const {
@@ -41,6 +45,8 @@ const {
   jsonLd,
   schema,
   noindex           = false,
+  prevUrl,
+  nextUrl,
 } = Astro.props;
 
 // jsonLd và schema là alias — ưu tiên jsonLd
@@ -148,6 +154,8 @@ function isActive(href: string): boolean {
   <title>{safeTitle}</title>
   <meta name="description" content={safeDesc} />
   <link rel="canonical" href={canonicalUrl} />
+  {prevUrl && <link rel="prev" href={prevUrl} />}
+  {nextUrl && <link rel="next" href={nextUrl} />}
   <meta name="robots" content={noindex ? 'noindex, nofollow' : 'index, follow'} />
   <meta name="author" content={SITE.siteName} />
   {pageDate && <meta name="revised" content={pageDate} />}
