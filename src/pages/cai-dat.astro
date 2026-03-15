@@ -126,10 +126,10 @@ const canonical   = `${SITE.baseUrl}/cai-dat`;
     const toggleThumb = document.getElementById('toggle-dark-thumb');
 
     function getTheme() {
-      try { return localStorage.getItem('lvn_theme') ?? 'light'; } catch { return 'light'; }
+      try { return localStorage.getItem('theme') ?? 'light'; } catch { return 'light'; }
     }
     function setTheme(t: string) {
-      try { localStorage.setItem('lvn_theme', t); } catch {}
+      try { localStorage.setItem('theme', t); } catch {}
       document.documentElement.classList.toggle('dark', t === 'dark');
       if (toggleBtn)   toggleBtn.setAttribute('aria-checked', String(t === 'dark'));
       if (toggleThumb) {
