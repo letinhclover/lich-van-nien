@@ -4,17 +4,13 @@
 // ============================================================
 
 import { defineConfig } from 'astro/config';
-import cloudflare      from '@astrojs/cloudflare';
 import sitemap         from '@astrojs/sitemap';
 import tailwind        from '@astrojs/tailwind';
 
 export default defineConfig({
   site:   'https://lichvannien.io.vn',
   output: 'static',
-
-  adapter: cloudflare({
-    platformProxy: { enabled: true },
-  }),
+  // Không cần adapter cho SSG — Cloudflare Pages serve static files trực tiếp
 
   integrations: [
     tailwind({
