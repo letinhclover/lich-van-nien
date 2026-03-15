@@ -1,15 +1,6 @@
 # ============================================================
 # wrangler.toml — Cloudflare Pages config
 # Lịch Vạn Niên AI (lichvannien.io.vn)
-#
-# SETUP LẦN ĐẦU:
-#   1. wrangler kv:namespace create AI_CACHE
-#      → Copy id + preview_id paste vào [[kv_namespaces]] bên dưới
-#
-#   2. wrangler d1 create lich-van-nien-db
-#      → Copy database_id paste vào [[d1_databases]] bên dưới
-#
-#   3. Sau đó xóa placeholder YOUR_KV_ID_HERE, YOUR_D1_ID_HERE
 # ============================================================
 
 name                   = "lich-van-nien"
@@ -17,21 +8,16 @@ compatibility_date     = "2024-09-23"
 compatibility_flags    = ["nodejs_compat"]
 pages_build_output_dir = "dist"
 
-# ── KV Namespace: cache AI responses (TTL 24h) ───────────────
-[[kv_namespaces]]
-binding    = "AI_CACHE"
-id         = "YOUR_KV_ID_HERE"
-preview_id = "YOUR_KV_PREVIEW_ID"
-
-# ── D1 Database: analytics (optional) ────────────────────────
-[[d1_databases]]
-binding       = "DB"
-database_name = "lich-van-nien-db"
-database_id   = "YOUR_D1_ID_HERE"
-
 # ── Environment variables ─────────────────────────────────────
 [vars]
 ENVIRONMENT = "production"
 BASE_URL    = "https://lichvannien.io.vn"
 SITE_NAME   = "Lịch Vạn Niên AI"
-# GROQ_API_KEY set qua Cloudflare Dashboard → Environment variables
+
+# ── Ghi chú cho sau này ───────────────────────────────────────
+# Khi cần cache AI responses → thêm lại:
+# [[kv_namespaces]]
+# binding    = "AI_CACHE"
+# id         = "..."  ← wrangler kv:namespace create AI_CACHE
+#
+# GROQ_API_KEY đã set trong Cloudflare Dashboard → không cần ở đây
