@@ -1,1 +1,305 @@
+/* ============================================================
+   global.css — Lịch Vạn Niên AI Design System
+   Màu: Đỏ #C0392B · Vàng #F1C40F · Xanh #1D9E75
+   Light mode mặc định + .dark class cho dark mode
+   ============================================================ */
 
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── CSS Design Tokens ──────────────────────────────────────── */
+:root {
+  /* Brand */
+  --red:          #C0392B;
+  --red-dark:     #962d22;
+  --red-light:    #E74C3C;
+  --red-pale:     rgba(192, 57, 43, 0.08);
+  --gold:         #F1C40F;
+  --gold-dark:    #D4AC0D;
+  --gold-pale:    rgba(241, 196, 15, 0.12);
+  --green:        #1D9E75;
+  --green-pale:   rgba(29, 158, 117, 0.10);
+
+  /* Light mode backgrounds */
+  --bg:           #FFFDF9;
+  --bg-surface:   #F7F2EA;
+  --bg-card:      #FFFFFF;
+  --bg-elevated:  #EEE9E0;
+
+  /* Borders */
+  --border:       rgba(0, 0, 0, 0.10);
+  --border-med:   rgba(0, 0, 0, 0.16);
+  --border-red:   rgba(192, 57, 43, 0.20);
+
+  /* Text */
+  --text-1:       #1A0E08;
+  --text-2:       #3D2E26;
+  --text-3:       #7A6558;
+  --text-4:       #B09888;
+
+  /* Shadows */
+  --shadow-sm:    0 1px 3px rgba(26, 14, 8, 0.08);
+  --shadow-md:    0 4px 16px rgba(26, 14, 8, 0.10);
+  --shadow-lg:    0 8px 32px rgba(26, 14, 8, 0.14);
+  --shadow-card:  0 1px 3px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.06);
+
+  /* Nav */
+  --nav-bg:       rgba(255, 253, 249, 0.92);
+  --nav-border:   rgba(192, 57, 43, 0.12);
+
+  /* Component-specific */
+  --card-bg:      var(--bg-card);
+  --input-bg:     var(--bg-card);
+}
+
+.dark {
+  --bg:           #110805;
+  --bg-surface:   #1C0D09;
+  --bg-card:      #231009;
+  --bg-elevated:  #2E1410;
+
+  --border:       rgba(255, 255, 255, 0.08);
+  --border-med:   rgba(255, 255, 255, 0.14);
+  --border-red:   rgba(192, 57, 43, 0.30);
+
+  --text-1:       #F5EDE5;
+  --text-2:       #C9A98E;
+  --text-3:       #8B6B55;
+  --text-4:       #5A3D2B;
+
+  --red-pale:     rgba(192, 57, 43, 0.15);
+  --gold:         #F5A623;
+  --gold-pale:    rgba(245, 166, 35, 0.15);
+  --green-pale:   rgba(29, 158, 117, 0.12);
+
+  --shadow-sm:    0 1px 3px rgba(0, 0, 0, 0.35);
+  --shadow-md:    0 4px 16px rgba(0, 0, 0, 0.45);
+  --shadow-lg:    0 8px 32px rgba(0, 0, 0, 0.55);
+  --shadow-card:  0 1px 0 rgba(255,255,255,0.04), 0 8px 32px rgba(0,0,0,0.45);
+
+  --nav-bg:       rgba(17, 8, 5, 0.95);
+  --nav-border:   rgba(192, 57, 43, 0.25);
+
+  --card-bg:      var(--bg-card);
+  --input-bg:     var(--bg-surface);
+}
+
+/* ── Base Reset ─────────────────────────────────────────────── */
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    font-size: 16px;
+    line-height: 1.6;
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--bg);
+    color:            var(--text-1);
+    font-family: 'Be Vietnam Pro', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing:  antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overscroll-behavior:     none;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    line-height: 1.3;
+    font-weight: 700;
+    color: var(--text-1);
+  }
+
+  a {
+    color: var(--red);
+    text-decoration: none;
+  }
+  a:hover { text-decoration: underline; }
+
+  img { max-width: 100%; height: auto; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg-surface); }
+  ::-webkit-scrollbar-thumb { background: var(--red); border-radius: 2px; }
+
+  /* Focus ring */
+  :focus-visible {
+    outline: 2px solid var(--red);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+}
+
+/* ── Component Utilities ────────────────────────────────────── */
+@layer components {
+
+  /* Card */
+  .card {
+    background:    var(--bg-card);
+    border:        1px solid var(--border);
+    border-radius: 1rem;
+    box-shadow:    var(--shadow-card);
+  }
+
+  .card-surface {
+    background:    var(--bg-surface);
+    border:        1px solid var(--border);
+    border-radius: 1rem;
+  }
+
+  /* Badges */
+  .badge-red {
+    display:          inline-flex;
+    align-items:      center;
+    padding:          2px 10px;
+    border-radius:    999px;
+    font-size:        0.7rem;
+    font-weight:      600;
+    background:       var(--red-pale);
+    color:            var(--red);
+    border:           1px solid var(--border-red);
+  }
+
+  .badge-gold {
+    display:          inline-flex;
+    align-items:      center;
+    padding:          2px 10px;
+    border-radius:    999px;
+    font-size:        0.7rem;
+    font-weight:      600;
+    background:       var(--gold-pale);
+    color:            var(--gold-dark);
+    border:           1px solid rgba(241,196,15,0.30);
+  }
+
+  .badge-green {
+    display:          inline-flex;
+    align-items:      center;
+    padding:          2px 10px;
+    border-radius:    999px;
+    font-size:        0.7rem;
+    font-weight:      600;
+    background:       var(--green-pale);
+    color:            var(--green);
+    border:           1px solid rgba(29,158,117,0.25);
+  }
+
+  /* Buttons */
+  .btn-primary {
+    display:          inline-flex;
+    align-items:      center;
+    justify-content:  center;
+    gap:              0.4rem;
+    padding:          0.6rem 1.2rem;
+    border-radius:    0.75rem;
+    font-size:        0.875rem;
+    font-weight:      700;
+    background:       var(--red);
+    color:            white;
+    border:           none;
+    cursor:           pointer;
+    transition:       background 0.15s, transform 0.1s;
+    box-shadow:       var(--shadow-sm);
+  }
+  .btn-primary:hover  { background: var(--red-dark); }
+  .btn-primary:active { transform: scale(0.97); }
+
+  .btn-secondary {
+    display:          inline-flex;
+    align-items:      center;
+    justify-content:  center;
+    gap:              0.4rem;
+    padding:          0.6rem 1.2rem;
+    border-radius:    0.75rem;
+    font-size:        0.875rem;
+    font-weight:      600;
+    background:       var(--bg-surface);
+    color:            var(--text-2);
+    border:           1px solid var(--border-med);
+    cursor:           pointer;
+    transition:       background 0.15s, transform 0.1s;
+  }
+  .btn-secondary:hover  { background: var(--bg-elevated); }
+  .btn-secondary:active { transform: scale(0.97); }
+
+  /* Section label */
+  .section-label {
+    font-size:      0.65rem;
+    font-weight:    700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color:          var(--text-3);
+  }
+
+  /* Input */
+  .input-base {
+    width:         100%;
+    padding:       0.6rem 0.9rem;
+    border-radius: 0.75rem;
+    border:        1px solid var(--border-med);
+    background:    var(--input-bg);
+    color:         var(--text-1);
+    font-size:     0.875rem;
+    outline:       none;
+    transition:    border-color 0.15s;
+  }
+  .input-base:focus {
+    border-color: var(--red);
+    box-shadow:   0 0 0 3px var(--red-pale);
+  }
+
+  /* Divider */
+  .divider {
+    height:     1px;
+    background: var(--border);
+    margin:     0.75rem 0;
+  }
+
+  /* Rating stars */
+  .stars-good { color: #16a34a; }
+  .stars-ok   { color: var(--gold-dark); }
+  .stars-bad  { color: var(--red); }
+
+  /* Bottom nav safe area */
+  .pb-nav {
+    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* ── Astro page transitions (minimal) ────────────────────────── */
+@layer utilities {
+  .font-display { font-family: 'Playfair Display', Georgia, serif; }
+
+  .text-red   { color: var(--red); }
+  .text-gold  { color: var(--gold); }
+  .text-green { color: var(--green); }
+
+  .bg-red-pale   { background: var(--red-pale); }
+  .bg-gold-pale  { background: var(--gold-pale); }
+  .bg-green-pale { background: var(--green-pale); }
+
+  .border-red-soft { border-color: var(--border-red); }
+
+  /* Gradient đỏ truyền thống */
+  .gradient-do {
+    background: linear-gradient(135deg, var(--red) 0%, var(--red-dark) 100%);
+  }
+
+  .gradient-gold {
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+  }
+
+  /* Touch targets tối thiểu 44px */
+  .touch-target {
+    min-width:  44px;
+    min-height: 44px;
+  }
+}
