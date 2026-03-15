@@ -11,9 +11,8 @@
     "sync":    "astro sync"
   },
   "dependencies": {
-    "@astrojs/sitemap":    "^3.2.0",
-    "@astrojs/tailwind":   "^5.1.0",
-    "astro":               "^4.16.0"
+    "@astrojs/tailwind": "^5.1.0",
+    "astro":             "^4.16.0"
   },
   "devDependencies": {
     "@types/node":   "^22.0.0",
