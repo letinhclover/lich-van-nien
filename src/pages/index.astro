@@ -1,134 +1,374 @@
 ---
+// ============================================================
 // src/pages/index.astro — Trang chủ Lịch Vạn Niên AI
-// Hiển thị: ngày hôm nay đầy đủ, lịch tháng mini, link nhanh
+// Dữ liệu tính tại BUILD TIME (Astro SSG — không cần JS để render)
+// ============================================================
 
-import BaseLayout   from '../layouts/BaseLayout.astro';
-import { todayVN, buildSolarDate, solarToPath } from '../lib/dateUtils';
-import { SITE }     from '../lib/constants';
+import BaseLayout       from '../layouts/BaseLayout.astro';
+import { getVietnamNow, buildSolarDate, solarToPath,
+         prevDayPath, nextDayPath, formatDateVN, THU_SHORT } from '../lib/dateUtils';
+import { solarToLunar, getCanChi, getDayQuality, getHoangDao } from '../lib/amlich';
+import { SITE }         from '../lib/constants';
 
-const { day, month, year } = todayVN();
-const solar   = buildSolarDate(day, month, year);
-const dayPath = solarToPath(day, month, year);
+// ─── Dữ liệu hôm nay (build-time, UTC+7) ─────────────────────
+const now    = getVietnamNow();
+const { day: d, month: m, year: y, hour: currentHour } = now;
 
-const title       = `${SITE.siteName} — Lịch Âm Hôm Nay ${day}/${month}/${year}`;
-const description = `Lịch âm hôm nay ${day}/${month}/${year} (${solar.weekdayLabel}). Xem ngày tốt xấu, giờ hoàng đạo, can chi, tư vấn AI chọn ngày làm việc quan trọng.`;
+const solar   = buildSolarDate(d, m, y);
+const lunar   = solarToLunar(d, m, y);
+const canChi  = getCanChi(d, m, y);
+const quality = getDayQuality(d, m, y);
+const hours   = getHoangDao(d, m, y);
+
+// Paths điều hướng
+const todayPath    = solarToPath(d, m, y);
+const prevPath     = prevDayPath(d, m, y);
+const nextPath     = nextDayPath(d, m, y);
+const thangPath    = `/lich/thang/${y}/${String(m).padStart(2,'0')}`;
+
+// Giờ đang diễn ra: giờ Tý bắt đầu từ 23h
+const currentGioIdx = ((currentHour + 1) % 24) < 2
+  ? 0
+  : Math.floor(((currentHour + 1) % 24) / 2);
+
+// Lunar display
+const lunarLabel = `${lunar.leap ? 'Nhuận ' : ''}${lunar.day} tháng ${lunar.month} năm ${lunar.yearName}`;
+
+// Score hiển thị
+const scoreDots = Array.from({ length: 5 }, (_, i) => i < quality.score);
+const scoreLabel = quality.score >= 4 ? 'NGÀY TỐT' : quality.score === 3 ? 'BÌNH THƯỜNG' : 'NGÀY XẤU';
+const scoreBadgeStyle = quality.score >= 4
+  ? 'background:var(--green-pale);color:var(--green);border:1px solid rgba(29,158,117,0.3);'
+  : quality.score === 3
+    ? 'background:var(--gold-pale);color:var(--gold-dark);border:1px solid rgba(241,196,15,0.3);'
+    : 'background:var(--red-pale);color:var(--red);border:1px solid var(--border-red);';
+
+// Lịch tuần: 7 ngày từ CN đến T7 của tuần hiện tại
+const weekDays = Array.from({ length: 7 }, (_, i) => {
+  const ms = Date.UTC(y, m - 1, d) + (i - solar.weekday) * 86400000;
+  const dt = new Date(ms);
+  return {
+    dd: dt.getUTCDate(),
+    mm: dt.getUTCMonth() + 1,
+    yy: dt.getUTCFullYear(),
+    dow: dt.getUTCDay(),
+    isToday: dt.getUTCDate() === d && dt.getUTCMonth() + 1 === m,
+  };
+});
+
+// ─── SEO ──────────────────────────────────────────────────────
+const title       = `Lịch âm hôm nay ${d}/${m}/${y} — ${scoreLabel} | Lịch Vạn Niên AI`;
+const description = `Lịch âm hôm nay ${solar.weekdayLabel} ${d}/${m}/${y}: ngày ${lunarLabel}. Can chi ${canChi.ngay.display}. ${quality.label}. Xem giờ hoàng đạo, tứ trụ, ngày tốt xấu đầy đủ.`.slice(0, 160);
 const canonical   = SITE.baseUrl + '/';
 
-const schema = {
-  '@context': 'https://schema.org',
-  '@type': 'WebSite',
-  name: SITE.siteNameFull,
-  url:  SITE.baseUrl,
-  description,
-  potentialAction: {
-    '@type': 'SearchAction',
-    target: `${SITE.baseUrl}/lich/{year}/{month}/{day}`,
-    'query-input': 'required name=year,month,day',
-  },
-};
+// ─── FAQPage JSON-LD ──────────────────────────────────────────
+const todayJDN = (() => {
+  let yy = y, mm = m;
+  if (mm <= 2) { yy--; mm += 12; }
+  const A = Math.floor(yy / 100);
+  const B = 2 - A + Math.floor(A / 4);
+  return Math.floor(365.25 * (yy + 4716)) + Math.floor(30.6001 * (mm + 1)) + d + B - 1524;
+})();
 
-const quickLinks = [
-  { href: '/gio-hoang-dao',   icon: '⏰', label: 'Giờ Hoàng Đạo',   desc: 'Hôm nay' },
-  { href: '/chon-ngay-cuoi',  icon: '💍', label: 'Chọn Ngày Cưới',  desc: 'Theo tuổi' },
-  { href: '/chuyen-doi-lich', icon: '🔄', label: 'Chuyển Đổi Lịch', desc: 'Âm ↔ Dương' },
-  { href: '/tu-van',          icon: '🤖', label: 'Tư Vấn AI',        desc: 'Hỏi thầy' },
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type':    'WebSite',
+    name:       SITE.siteNameFull,
+    url:        SITE.baseUrl,
+    potentialAction: {
+      '@type':       'SearchAction',
+      target:        `${SITE.baseUrl}/lich/{year}/{month}/{day}`,
+      'query-input': 'required name=year,month,day',
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type':    'FAQPage',
+    mainEntity: [
+      {
+        '@type':  'Question',
+        name:     `Hôm nay ${d}/${m}/${y} âm lịch là ngày mấy?`,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text:    `Hôm nay ${d}/${m}/${y} (${solar.weekdayLabel}) âm lịch là ngày ${lunarLabel}. Can chi ngày: ${canChi.ngay.display}.`,
+        },
+      },
+      {
+        '@type':  'Question',
+        name:     `Ngày ${d}/${m}/${y} có tốt không?`,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text:    `Ngày ${d}/${m}/${y}: ${quality.label} (${quality.score}/5 điểm). ${quality.goodFor.length > 0 ? 'Nên làm: ' + quality.goodFor.slice(0,3).join(', ') + '.' : ''}`,
+        },
+      },
+      {
+        '@type':  'Question',
+        name:     `Giờ hoàng đạo hôm nay ${d}/${m}/${y}?`,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text:    `Giờ hoàng đạo hôm nay: ${hours.filter(h => h.isHoangDao).map(h => h.tenGio).join(', ')}.`,
+        },
+      },
+    ],
+  },
 ];
 ---
 
 <BaseLayout
   {title}
   {description}
-  {canonical}
-  {schema}
+  canonicalUrl={canonical}
+  {jsonLd}
   googleVerification="Ayd10DMuvfW7FDDg0_ugpWAsIXbryRv7wyxDWH5vkjc"
 >
+<script is:inline define:vars={{ todayJDN }}>
+  document.body.dataset.jdn = todayJDN;
+</script>
 
-  <!-- Hero: Lịch hôm nay -->
-  <div class="text-center mb-6 pt-2">
-    <p class="text-sm font-medium mb-1" style="color: var(--text-3);">{solar.weekdayLabel}</p>
-    <h1 class="font-display font-bold text-5xl mb-1" style="color: var(--red); line-height: 1.1;">
-      {String(day).padStart(2, '0')}
-    </h1>
-    <p class="text-lg font-semibold" style="color: var(--text-1);">
-      Tháng {month} năm {year}
-    </p>
-    <div class="flex items-center justify-center gap-2 mt-2">
-      <span class="badge-red">Dương Lịch</span>
-      <span class="badge-gold">Xem chi tiết ngày này →</span>
-    </div>
-  </div>
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 1 — HERO: Lịch âm hôm nay
+     ══════════════════════════════════════════════════════════ -->
+<section aria-label="Lịch âm hôm nay" class="mb-4">
 
-  <!-- CTA tới trang ngày chi tiết -->
-  <a
-    href={dayPath}
-    class="card block p-4 mb-4 no-underline hover:shadow-lg transition-shadow"
-    style="border-color: var(--border-red);"
-  >
-    <div class="flex items-center justify-between">
-      <div>
-        <p class="section-label mb-1">📅 Xem đầy đủ hôm nay</p>
-        <p class="font-bold text-base" style="color: var(--text-1);">
-          Ngày tốt xấu · Can chi · Sao trực · Giờ hoàng đạo
-        </p>
-        <p class="text-sm mt-0.5" style="color: var(--text-3);">
-          Luận giải chi tiết theo âm lịch Việt Nam
-        </p>
-      </div>
-      <span class="text-2xl">→</span>
-    </div>
-  </a>
+  <!-- H1 phải có "lịch âm hôm nay" để SEO -->
+  <h1 class="text-sm font-bold uppercase tracking-widest mb-3 text-center" style="color:var(--text-3);">
+    🗓 Lịch âm hôm nay
+  </h1>
 
-  <!-- Quick links 2×2 -->
-  <div class="grid grid-cols-2 gap-3 mb-6">
-    {quickLinks.map(({ href, icon, label, desc }) => (
-      <a
-        href={href}
-        class="card p-3.5 no-underline flex flex-col gap-1.5 hover:shadow-md transition-shadow"
-      >
-        <span class="text-2xl">{icon}</span>
-        <p class="font-bold text-sm" style="color: var(--text-1);">{label}</p>
-        <p class="text-xs" style="color: var(--text-3);">{desc}</p>
-      </a>
-    ))}
-  </div>
+  <div class="card overflow-hidden">
+    <!-- Thanh màu top theo quality -->
+    <div class="h-1.5" style={`background:${quality.color};`}></div>
 
-  <!-- Giới thiệu SEO -->
-  <div class="card p-4 mb-4">
-    <h2 class="font-bold text-base mb-2" style="color: var(--text-1);">
-      🗓️ Lịch Vạn Niên AI — Công cụ xem lịch âm dương Việt Nam
-    </h2>
-    <p class="text-sm leading-relaxed" style="color: var(--text-2);">
-      Xem <strong>lịch âm hôm nay</strong>, tra cứu <strong>ngày tốt xấu</strong> theo 12 trực nhật,
-      114 sao cát hung, giờ hoàng đạo chính xác. Hỗ trợ <strong>chọn ngày cưới</strong>,
-      khai trương, xây dựng, an táng theo thuật toán Hồ Ngọc Đức chuẩn xác.
-    </p>
-  </div>
-
-  <!-- Lịch nhanh: các ngày trong tuần -->
-  <div class="card-surface p-3 mb-4">
-    <p class="section-label mb-2">📆 Tuần này</p>
-    <div class="grid grid-cols-7 gap-1">
-      {Array.from({ length: 7 }, (_, i) => {
-        const d = new Date(year, month - 1, day - solar.weekday + i);
-        const dd = d.getDate(), mm = d.getMonth() + 1, yy = d.getFullYear();
-        const isActive = dd === day && mm === month;
-        const isSun = d.getDay() === 0;
-        const isSat = d.getDay() === 6;
-        return (
-          <a
-            href={solarToPath(dd, mm, yy)}
-            class="flex flex-col items-center py-2 rounded-xl no-underline transition-all"
-            style={isActive
-              ? 'background: var(--red); color: white;'
-              : 'background: var(--bg-card); color: var(--text-3);'}
-          >
-            <span class="text-[9px] font-bold">
-              {['CN','T2','T3','T4','T5','T6','T7'][d.getDay()]}
+    <div class="p-4">
+      <!-- Dòng 1: Thứ + ngày dương -->
+      <div class="flex items-start justify-between mb-3">
+        <div>
+          <p class="text-sm font-medium mb-0.5" style="color:var(--text-3);">
+            {solar.weekdayLabel}, {d}/{m}/{y}
+          </p>
+          <!-- Ngày to -->
+          <div class="flex items-baseline gap-2">
+            <span class="font-display font-black leading-none" style="font-size:4.5rem;color:var(--text-1);line-height:1;">
+              {String(d).padStart(2,'0')}
             </span>
-            <span
-              class="font-bold text-base leading-tight"
-              style={!isActive && isSun ? 'color: var(--red);' : !isActive && isSat ? 'color: var(--gold-dark);' : ''}
-            >
+            <div class="flex flex-col">
+              <span class="text-sm font-semibold" style="color:var(--text-2);">tháng {m}</span>
+              <span class="text-sm" style="color:var(--text-3);">năm {y}</span>
+            </div>
+          </div>
+        </div>
+        <!-- Score circle -->
+        <div class="flex flex-col items-center justify-center w-16 h-16 rounded-2xl shrink-0"
+          style={`border:2px solid ${quality.color};background:${quality.color}15;`}>
+          <span class="font-display font-black text-2xl leading-none" style={`color:${quality.color};`}>
+            {quality.score}
+          </span>
+          <span class="text-[9px]" style="color:var(--text-3);">/5 điểm</span>
+        </div>
+      </div>
+
+      <!-- Dòng 2: Âm lịch -->
+      <div class="flex items-center gap-2 mb-3 p-2.5 rounded-xl" style="background:var(--bg-surface);">
+        <span class="text-base">🌙</span>
+        <div>
+          <p class="text-xs" style="color:var(--text-3);">Âm lịch</p>
+          <p class="font-bold text-sm" style="color:var(--text-1);">{lunarLabel}</p>
+        </div>
+      </div>
+
+      <!-- Dòng 3: Badges -->
+      <div class="flex flex-wrap gap-1.5 mb-3">
+        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold"
+          style={scoreBadgeStyle}>
+          {scoreLabel}
+        </span>
+        <span class="badge-gold">Ngày {canChi.ngay.display}</span>
+        {quality.isTamNuong && <span class="badge-red text-xs">⚠ Tam Nương</span>}
+        {quality.isNguyetKy  && <span class="badge-red text-xs">⚠ Nguyệt Kỵ</span>}
+      </div>
+
+      <!-- Score dots -->
+      <div class="flex items-center gap-1.5 mb-3">
+        {scoreDots.map(filled => (
+          <div class="w-6 h-2 rounded-full" style={`background:${filled ? quality.color : 'var(--border)'};`}></div>
+        ))}
+        <span class="text-xs ml-1" style="color:var(--text-3);">{quality.label}</span>
+      </div>
+
+      <!-- AI Summary placeholder — React island điền sau -->
+      <div
+        id="ai-summary"
+        class="rounded-xl p-3 text-sm"
+        style="background:var(--bg-surface);border:1px solid var(--border);min-height:64px;"
+        aria-label="Luận giải AI đang tải"
+      >
+        <div class="flex items-center gap-2 animate-pulse">
+          <div class="w-5 h-5 rounded-full bg-gray-200 dark:bg-gray-700 shrink-0"></div>
+          <div class="flex flex-col gap-1.5 flex-1">
+            <div class="h-2.5 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+            <div class="h-2.5 bg-gray-200 dark:bg-gray-700 rounded w-4/5"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 2 — TỨ TRỤ CAN CHI
+     ══════════════════════════════════════════════════════════ -->
+<section aria-label="Tứ trụ can chi" class="mb-4">
+  <h2 class="section-label mb-2">🔮 Tứ Trụ Can Chi</h2>
+  <div class="card overflow-hidden">
+    <div class="grid grid-cols-2">
+      {([
+        { label:'Năm',  cc: canChi.nam   },
+        { label:'Tháng',cc: canChi.thang },
+        { label:'Ngày', cc: canChi.ngay  },
+        { label:'Giờ',  cc: canChi.gio, realtime: true },
+      ] as const).map(({ label, cc, realtime }, i) => (
+        <div class:list={['p-3.5 border-b', i % 2 === 0 ? 'border-r' : '']}
+          style="border-color:var(--border);">
+          <p class="section-label mb-1">{label}</p>
+          <p class="font-bold text-base" style="color:var(--text-1);"
+            id={realtime ? 'gio-canchichi' : undefined}>
+            {cc.display}
+          </p>
+          <p class="text-xs mt-0.5" style="color:var(--text-3);">{cc.nguHanh}</p>
+          {realtime && (
+            <p class="text-[9px] mt-0.5" style="color:var(--text-4);" id="gio-label">
+              Đang cập nhật...
+            </p>
+          )}
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 3 — GIỜ HOÀNG ĐẠO
+     ══════════════════════════════════════════════════════════ -->
+<section aria-label="Giờ hoàng đạo hôm nay" class="mb-4">
+  <div class="flex items-center justify-between mb-2">
+    <h2 class="section-label">⏰ Giờ Hoàng Đạo Hôm Nay</h2>
+    <a href="/gio-hoang-dao" class="text-xs no-underline" style="color:var(--red);">Xem đầy đủ →</a>
+  </div>
+
+  <div class="card overflow-hidden">
+    <div class="flex flex-col divide-y" style="--tw-divide-opacity:1;" id="hoang-dao-list">
+      {hours.map((h, idx) => {
+        const isCurrent = idx === currentGioIdx;
+        return (
+          <div
+            class:list={['flex items-center justify-between px-3 py-2.5 transition-all', isCurrent ? 'current-gio' : '']}
+            data-gio-idx={idx}
+            style={h.isHoangDao
+              ? 'background:var(--green-pale);'
+              : isCurrent
+                ? 'background:rgba(192,57,43,0.06);'
+                : ''}
+          >
+            <div class="flex items-center gap-2.5">
+              <!-- Indicator dot -->
+              <div class="w-2 h-2 rounded-full shrink-0"
+                style={`background:${isCurrent ? 'var(--red)' : h.isHoangDao ? 'var(--green)' : 'var(--border)'};`}
+              ></div>
+              <div>
+                <p class="text-sm font-semibold leading-none mb-0.5"
+                  style={`color:${isCurrent ? 'var(--red)' : 'var(--text-1)'};`}>
+                  {h.tenGio}
+                  {isCurrent && <span class="text-[9px] ml-1.5 px-1.5 py-0.5 rounded" style="background:var(--red);color:white;" id="now-badge">Hiện tại</span>}
+                </p>
+                <p class="text-xs" style="color:var(--text-3);">{h.canChi}</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              {h.isHoangDao && h.goodFor[0] && (
+                <span class="text-[10px] hidden sm:block" style="color:var(--green);">{h.goodFor[0]}</span>
+              )}
+              <span class="text-xs font-bold px-2 py-0.5 rounded-lg"
+                style={h.isHoangDao
+                  ? 'color:var(--green);background:rgba(29,158,117,0.1);'
+                  : 'color:var(--text-4);background:var(--bg-surface);'}>
+                {h.isHoangDao ? 'Hoàng Đạo' : 'Hắc Đạo'}
+              </span>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 4 — NGÀY TỐT/XẤU CHI TIẾT
+     ══════════════════════════════════════════════════════════ -->
+<section aria-label="Ngày tốt xấu chi tiết" class="mb-4">
+  <h2 class="section-label mb-2">📊 Ngày Hôm Nay Nên Làm Gì?</h2>
+
+  <div class="card p-4">
+    <!-- Sao trực -->
+    <div class="flex items-center gap-2 mb-3 pb-3 border-b" style="border-color:var(--border);">
+      <span class="text-lg">⭐</span>
+      <div>
+        <p class="section-label">Sao trực nhật</p>
+        <p class="font-bold text-sm" style="color:var(--text-1);">{quality.tu}</p>
+      </div>
+    </div>
+
+    {quality.goodFor.length > 0 && (
+      <div class="mb-3">
+        <p class="section-label mb-2">✅ Nên làm hôm nay</p>
+        <div class="flex flex-wrap gap-1.5">
+          {quality.goodFor.map(g => (
+            <span class="badge-green text-xs">{g}</span>
+          ))}
+        </div>
+      </div>
+    )}
+
+    {quality.badFor.length > 0 && (
+      <div>
+        <p class="section-label mb-2">❌ Nên tránh</p>
+        <div class="flex flex-wrap gap-1.5">
+          {quality.badFor.map(b => (
+            <span class="badge-red text-xs">{b}</span>
+          ))}
+        </div>
+      </div>
+    )}
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     LỊCH TUẦN (7 ngày)
+     ══════════════════════════════════════════════════════════ -->
+<section aria-label="Lịch tuần này" class="mb-4">
+  <h2 class="section-label mb-2">📅 Tuần Này</h2>
+  <div class="card-surface p-3">
+    <div class="grid grid-cols-7 gap-1">
+      {weekDays.map(({ dd, mm, yy, dow, isToday }) => {
+        const isSun = dow === 0;
+        const isSat = dow === 6;
+        return (
+          <a href={solarToPath(dd, mm, yy)}
+            class="flex flex-col items-center py-2 rounded-xl no-underline transition-all"
+            aria-current={isToday ? 'date' : undefined}
+            style={isToday
+              ? 'background:var(--red);'
+              : 'background:var(--bg-card);'}>
+            <span class="text-[9px] font-bold"
+              style={isToday ? 'color:rgba(255,255,255,0.8);' : 'color:var(--text-3);'}>
+              {THU_SHORT[dow]}
+            </span>
+            <span class="font-bold text-base leading-tight"
+              style={isToday
+                ? 'color:white;'
+                : isSun ? 'color:var(--red);'
+                : isSat ? 'color:var(--gold-dark);'
+                : 'color:var(--text-1);'}>
               {dd}
             </span>
           </a>
@@ -136,5 +376,138 @@ const quickLinks = [
       })}
     </div>
   </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 5 — ĐIỀU HƯỚNG: Hôm qua | Lịch tháng | Ngày mai
+     ══════════════════════════════════════════════════════════ -->
+<nav aria-label="Điều hướng ngày" class="flex gap-2 mb-4">
+  <a href={prevPath}
+    class="flex-1 btn-secondary justify-center text-sm py-3"
+    aria-label="Xem ngày hôm qua">
+    ← Hôm qua
+  </a>
+  <a href={thangPath}
+    class="flex-1 btn-secondary justify-center text-sm py-3"
+    aria-label="Xem lịch tháng">
+    📅 Tháng {m}
+  </a>
+  <a href={nextPath}
+    class="flex-1 btn-secondary justify-center text-sm py-3"
+    aria-label="Xem ngày mai">
+    Ngày mai →
+  </a>
+</nav>
+
+<!-- SEO text -->
+<div class="card p-4 mb-4">
+  <h2 class="font-bold text-sm mb-2" style="color:var(--text-1);">
+    Lịch Vạn Niên AI — Lịch Âm Dương Việt Nam
+  </h2>
+  <p class="text-sm leading-relaxed" style="color:var(--text-2);">
+    Xem <strong>lịch âm hôm nay</strong> chính xác theo thuật toán Hồ Ngọc Đức.
+    Tra cứu <strong>ngày tốt xấu</strong>, giờ hoàng đạo, tứ trụ can chi.
+    Hỗ trợ <strong>chọn ngày cưới</strong>, khai trương, xây dựng theo âm lịch Việt Nam.
+  </p>
+</div>
 
 </BaseLayout>
+
+<!-- ══════════════════════════════════════════════════════════
+     SCRIPT: Cập nhật giờ real-time mỗi 60 giây
+     ══════════════════════════════════════════════════════════ -->
+<script is:inline>
+(function() {
+  // Can chi giờ theo chi ngày và giờ index
+  var CAN  = ['Giáp','Ất','Bính','Đinh','Mậu','Kỷ','Canh','Tân','Nhâm','Quý'];
+  var CHI  = ['Tý','Sửu','Dần','Mão','Thìn','Tỵ','Ngọ','Mùi','Thân','Dậu','Tuất','Hợi'];
+  var TEN_GIO = [
+    'Giờ Tý (23-1h)','Giờ Sửu (1-3h)','Giờ Dần (3-5h)',
+    'Giờ Mão (5-7h)','Giờ Thìn (7-9h)','Giờ Tỵ (9-11h)',
+    'Giờ Ngọ (11-13h)','Giờ Mùi (13-15h)','Giờ Thân (15-17h)',
+    'Giờ Dậu (17-19h)','Giờ Tuất (19-21h)','Giờ Hợi (21-23h)',
+  ];
+
+  // JDN của ngày hôm nay (tính lúc build, inject qua data attribute)
+  // Để đơn giản: dùng toJDN đơn giản inline
+  function toJDN(d, m, y) {
+    var yy = y, mm = m;
+    if (mm <= 2) { yy--; mm += 12; }
+    var A = Math.floor(yy / 100);
+    var B = 2 - A + Math.floor(A / 4);
+    return Math.floor(365.25 * (yy + 4716)) + Math.floor(30.6001 * (mm + 1)) + d + B - 1524;
+  }
+
+  function getGioIdx(hour) {
+    return Math.floor(((hour + 1) % 24) / 2);
+  }
+
+  function getVNHour() {
+    // Lấy giờ VN qua sv-SE locale
+    try {
+      var s = new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Ho_Chi_Minh' });
+      return parseInt(s.split(' ')[1].split(':')[0], 10);
+    } catch(e) {
+      return new Date().getHours();
+    }
+  }
+
+  function updateGio() {
+    var hour    = getVNHour();
+    var gioIdx  = getGioIdx(hour);
+
+    // Cập nhật label giờ hiện tại trong Tứ Trụ
+    var gioEl   = document.getElementById('gio-canchichi');
+    var gioLbl  = document.getElementById('gio-label');
+
+    if (gioEl) {
+      // Lấy JDN từ data attribute (được inject bên dưới)
+      var jdn = parseInt(document.body.dataset.jdn || '0', 10);
+      if (jdn > 0) {
+        var canNgay = (jdn + 9) % 10;
+        var canGio  = (canNgay % 5 * 2 + gioIdx) % 10;
+        gioEl.textContent = CAN[canGio] + ' ' + CHI[gioIdx];
+      }
+    }
+    if (gioLbl) {
+      gioLbl.textContent = TEN_GIO[gioIdx];
+    }
+
+    // Cập nhật highlight giờ hoàng đạo
+    var rows = document.querySelectorAll('[data-gio-idx]');
+    rows.forEach(function(row) {
+      var idx     = parseInt(row.dataset.gioIdx, 10);
+      var nowBadge = row.querySelector('#now-badge');
+      var dot      = row.querySelector('.w-2');
+
+      // Xóa state cũ
+      row.classList.remove('current-gio');
+
+      if (idx === gioIdx) {
+        row.classList.add('current-gio');
+        if (!nowBadge) {
+          // Thêm badge "Hiện tại" nếu chưa có
+          var nameEl = row.querySelector('p');
+          if (nameEl) {
+            var badge = document.createElement('span');
+            badge.id = 'now-badge';
+            badge.textContent = 'Hiện tại';
+            badge.style.cssText = 'font-size:9px;margin-left:6px;padding:1px 6px;border-radius:4px;background:var(--red);color:white;';
+            nameEl.appendChild(badge);
+          }
+        }
+        // Scroll giờ hiện tại vào view (nếu off-screen)
+        row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      } else {
+        // Xóa badge cũ nếu giờ đã qua
+        var old = row.querySelector('#now-badge');
+        if (old) old.remove();
+      }
+    });
+  }
+
+  // Chạy ngay + mỗi 60 giây
+  updateGio();
+  setInterval(updateGio, 60000);
+})();
+</script>
