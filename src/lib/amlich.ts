@@ -355,7 +355,11 @@ export function getCanChiHour(hour: number, day: number, month: number, year: nu
 export function getCanChi(day: number, month: number, year: number): CanChi {
   const lunar  = solarToLunar(day, month, year);
   const jdn    = toJDN(day, month, year);
-  const hour   = typeof window !== 'undefined' ? new Date().getHours() : 8;
+  // Dùng getVietnamNow() thay new Date() để đúng timezone VN
+  const _vnNow = typeof globalThis.Intl !== 'undefined'
+    ? (() => { const s = new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Ho_Chi_Minh' }); return parseInt(s.split(' ')[1]?.split(':')[0] ?? '8', 10); })()
+    : 8;
+  const hour   = _vnNow;
   const gioIdx = Math.floor(((hour + 1) % 24) / 2);
   const canNgay = (jdn + 9) % 10;
   const canGio  = (canNgay % 5 * 2 + gioIdx) % 10;
