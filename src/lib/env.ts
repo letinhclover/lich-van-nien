@@ -37,10 +37,10 @@ export interface Env {
   /**
    * Anthropic API key.
    * ⚠️ KHÔNG log, KHÔNG trả về client, KHÔNG cache key này.
-   * Set production: wrangler secret put ANTHROPIC_API_KEY
-   * Set local: .dev.vars → ANTHROPIC_API_KEY=sk-ant-...
+   * Set production: wrangler secret put GROQ_API_KEY
+   * Set local: .dev.vars → GROQ_API_KEY=gsk_...
    */
-  ANTHROPIC_API_KEY: string;
+  GROQ_API_KEY: string;
 
   // ── Vars (từ [vars] trong wrangler.toml) ──────────────────
   /** "production" | "development" | "preview" */
@@ -69,13 +69,13 @@ export interface Env {
 export function getEnv(raw: unknown): Env {
   const env = raw as Env;
 
-  // Chỉ validate ANTHROPIC_API_KEY vì là critical secret
+  // Chỉ validate GROQ_API_KEY vì là critical secret
   // KV/D1 có thể absent trong preview deployments
-  if (!env.ANTHROPIC_API_KEY) {
+  if (!env.GROQ_API_KEY) {
     throw new Error(
-      'ANTHROPIC_API_KEY chưa được set. ' +
+      'GROQ_API_KEY chưa được set. ' +
       'Local: thêm vào .dev.vars. ' +
-      'Production: chạy wrangler secret put ANTHROPIC_API_KEY'
+      'Production: chạy wrangler secret put GROQ_API_KEY'
     );
   }
 
@@ -87,8 +87,8 @@ export function getEnv(raw: unknown): Env {
  * Dùng để graceful degrade khi thiếu config.
  */
 export function isAIAvailable(env: Partial<Env>): boolean {
-  return typeof env.ANTHROPIC_API_KEY === 'string'
-    && env.ANTHROPIC_API_KEY.startsWith('sk-ant-');
+  return typeof env.GROQ_API_KEY === 'string'
+    && env.GROQ_API_KEY.startsWith('gsk_');
 }
 
 /**
