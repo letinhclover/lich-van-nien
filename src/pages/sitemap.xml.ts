@@ -19,7 +19,7 @@ function url(
 ): string {
   return `  <url>
     <loc>${loc}</loc>
-    <lastmod>${lastmod ?? fmt(new Date())}</lastmod>
+    <lastmod>${lastmod ?? today}</lastmod>
     <changefreq>${changefreq}</changefreq>
     <priority>${priority}</priority>
   </url>`;
@@ -27,7 +27,9 @@ function url(
 
 export const GET: APIRoute = () => {
   const entries: string[] = [];
-  const today = fmt(new Date());
+  // Ngày hôm nay theo timezone VN
+  const vnStr = new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Ho_Chi_Minh' });
+  const today = vnStr.split(' ')[0] ?? '2026-01-01';
   const weekAgo = fmt(new Date(Date.now() - 7 * 86400000));
 
   // ── Trang chủ ───────────────────────────────────────────────
