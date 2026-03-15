@@ -10,7 +10,7 @@
 #   2. wrangler d1 create lich-van-nien-db
 #      → Copy "database_id" paste vào [[d1_databases]].database_id
 #
-#   3. wrangler secret put ANTHROPIC_API_KEY
+#   3. wrangler secret put GROQ_API_KEY
 #      → Gõ key khi được hỏi — TUYỆT ĐỐI không viết vào file này
 #
 # SAU ĐÓ: xóa placeholder YOUR_KV_ID_HERE, YOUR_D1_ID_HERE
