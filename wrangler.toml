@@ -1,0 +1,58 @@
+# ============================================================
+# wrangler.toml — Cloudflare Pages + Workers config
+# Lịch Vạn Niên AI (lichvannien.io.vn)
+#
+# SETUP LẦN ĐẦU (chạy trong terminal):
+#   1. wrangler kv:namespace create AI_CACHE
+#      → Copy "id" paste vào [[kv_namespaces]].id bên dưới
+#      → Copy "preview_id" paste vào preview_id
+#
+#   2. wrangler d1 create lich-van-nien-db
+#      → Copy "database_id" paste vào [[d1_databases]].database_id
+#
+#   3. wrangler secret put ANTHROPIC_API_KEY
+#      → Gõ key khi được hỏi — TUYỆT ĐỐI không viết vào file này
+#
+# SAU ĐÓ: xóa placeholder YOUR_KV_ID_HERE, YOUR_D1_ID_HERE
+# ============================================================
+
+name                    = "lich-van-nien"
+compatibility_date      = "2024-09-23"
+compatibility_flags     = ["nodejs_compat"]
+
+# Astro build output → Cloudflare Pages sẽ deploy thư mục này
+pages_build_output_dir  = "dist"
+
+# ── KV Namespace: cache AI responses ─────────────────────────
+# AI_CACHE lưu kết quả gọi Anthropic API (TTL 24h)
+# → Giảm chi phí, tăng tốc độ response
+[[kv_namespaces]]
+binding     = "AI_CACHE"           # Tên binding trong code: env.AI_CACHE
+id          = "YOUR_KV_ID_HERE"    # ← Paste ID từ wrangler kv:namespace create
+preview_id  = "YOUR_KV_PREVIEW_ID" # ← Paste preview_id (cho wrangler dev)
+
+# ── D1 Database: analytics + user events ─────────────────────
+# DB lưu: trang phổ biến nhất, feedback AI, future features
+# (Hiện tại optional — app chạy được khi không có D1)
+[[d1_databases]]
+binding       = "DB"                    # Tên binding trong code: env.DB
+database_name = "lich-van-nien-db"
+database_id   = "YOUR_D1_ID_HERE"      # ← Paste ID từ wrangler d1 create
+
+# ── Environment variables (non-secret, có thể commit) ────────
+[vars]
+ENVIRONMENT = "production"
+BASE_URL    = "https://lichvannien.io.vn"
+SITE_NAME   = "Lịch Vạn Niên AI"
+
+# ── Cron triggers: chạy scheduled tasks ──────────────────────
+# "0 0 * * *" = 00:00 UTC mỗi ngày = 07:00 SA Việt Nam
+# Dùng để: pre-warm AI cache cho ngày mới, cleanup cache cũ
+[triggers]
+crons = ["0 0 * * *"]
+
+# ── Local dev server ─────────────────────────────────────────
+[dev]
+port            = 8788   # Port cho wrangler pages dev
+local_protocol  = "http"
+ip              = "localhost"
