@@ -13,6 +13,9 @@ import {
   solarToLunar, getDayInfo,
 } from '../../../../lib/amlich';
 import { SITE } from '../../../../lib/constants';
+import { createDayPageSchema } from '../../../../lib/schema';
+import Breadcrumb  from '../../../../components/Breadcrumb.astro';
+import RelatedDays from '../../../../components/RelatedDays.astro';
 
 // ─── SSG: generate 1826 paths ────────────────────────────────
 export function getStaticPaths() {
@@ -35,6 +38,9 @@ const { canChi, quality, hours } = info;
 const lunarFull   = `${lunar.leap ? 'Nhuận ' : ''}${lunar.day} tháng ${lunar.month} năm ${lunar.yearName}`;
 const lunarShort  = `${lunar.leap ? 'Nhuận ' : ''}${lunar.day}/${lunar.month}`;
 const goodHoursStr = hours.filter(h => h.isHoangDao).slice(0, 4).map(h => h.tenGio.split(' ')[0]).join(', ');
+
+// JSON-LD schema đầy đủ cho trang ngày
+const daySchema = createDayPageSchema(info, canonical);
 
 const scoreBadgeStyle = quality.score >= 4
   ? 'background:var(--green-pale);color:var(--green);border:1px solid rgba(29,158,117,0.3);'
@@ -126,19 +132,17 @@ const jsonLd = [
   {title}
   {description}
   canonicalUrl={canonical}
-  {jsonLd}
+  jsonLd={JSON.parse(daySchema)}
   prevUrl={`${SITE.baseUrl}${prevPath}`}
   nextUrl={`${SITE.baseUrl}${nextPath}`}
 >
 
   <!-- ── 1. BREADCRUMB ──────────────────────────────────────── -->
-  <nav aria-label="Breadcrumb" class="flex flex-wrap items-center gap-1 text-xs mb-4" style="color:var(--text-3);">
-    <a href="/" class="no-underline hover:underline" style="color:var(--text-3);">Trang chủ</a>
-    <span aria-hidden>›</span>
-    <a href={thangPath} class="no-underline hover:underline" style="color:var(--text-3);">Tháng {m}/{y}</a>
-    <span aria-hidden>›</span>
-    <span style="color:var(--text-1);font-weight:600;" aria-current="page">{d}/{m}/{y}</span>
-  </nav>
+  <Breadcrumb items={[
+    { label: 'Trang chủ', href: '/' },
+    { label: `Tháng ${m}/${y}`, href: thangPath },
+    { label: `${d}/${m}/${y}` },
+  ]} />
 
   <!-- ── HERO CARD ──────────────────────────────────────────── -->
   <div class="card overflow-hidden mb-4">
@@ -286,41 +290,30 @@ const jsonLd = [
     </div>
   </section>
 
-  <!-- ── 6. RELATED DAYS: 7 ngày trong tuần ─────────────────── -->
-  <section aria-label="Lịch tuần này" class="mb-4">
-    <h2 class="section-label mb-2">📅 Tuần Này</h2>
-    <div class="card-surface p-3">
-      <div class="grid grid-cols-7 gap-1">
-        {weekDays.map(({ dd, mm, yy, dow, isThis, path }) => {
-          const isSun = dow === 0;
-          const isSat = dow === 6;
-          return (
-            <a href={path} aria-current={isThis ? 'date' : undefined}
-              class="flex flex-col items-center py-2 rounded-xl no-underline transition-all"
-              style={isThis
-                ? 'background:var(--red);'
-                : 'background:var(--bg-card);'}>
-              <span class="text-[9px] font-bold"
-                style={isThis ? 'color:rgba(255,255,255,0.8);' : 'color:var(--text-3);'}>
-                {THU_SHORT[dow]}
-              </span>
-              <span class="font-bold text-base leading-tight"
-                style={isThis
-                  ? 'color:white;'
-                  : isSun ? 'color:var(--red);'
-                  : isSat ? 'color:var(--gold-dark);'
-                  : 'color:var(--text-1);'}>
-                {dd}
-              </span>
-              {mm !== m && (
-                <span class="text-[8px]" style="color:var(--text-4);">{mm}</span>
-              )}
-            </a>
-          );
-        })}
-      </div>
+  <!-- ── 6. RELATED DAYS ──────────────────────────────────────── -->
+  <RelatedDays {day} {month} {year} />
+
+  <!-- ── INTERNAL LINKS ───────────────────────────────────────── -->
+  <div class="card-surface p-3 mb-4">
+    <p class="section-label mb-2">🔗 Xem thêm</p>
+    <div class="flex flex-wrap gap-2 text-xs">
+      <a href={`/lich/${y-1}/${month}/${day}`} class="badge-gold no-underline">
+        Cùng ngày {d}/{m}/{y-1}
+      </a>
+      <a href={`/lich/${y+1}/${month}/${day}`} class="badge-gold no-underline">
+        Cùng ngày {d}/{m}/{y+1}
+      </a>
+      <a href={thangPath} class="badge-green no-underline">
+        Lịch tháng {m}/{y}
+      </a>
+      <a href="/gio-hoang-dao" class="no-underline text-xs px-2.5 py-1 rounded-full" style="background:var(--bg-surface);color:var(--text-3);border:1px solid var(--border);">
+        Giờ hoàng đạo
+      </a>
+      <a href="/chuyen-doi-lich" class="no-underline text-xs px-2.5 py-1 rounded-full" style="background:var(--bg-surface);color:var(--text-3);border:1px solid var(--border);">
+        Chuyển đổi lịch
+      </a>
     </div>
-  </section>
+  </div>
 
   <!-- ── ĐIỀU HƯỚNG ─────────────────────────────────────────── -->
   <nav aria-label="Điều hướng ngày" class="flex gap-2 mb-4">
