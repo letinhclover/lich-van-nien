@@ -39,9 +39,6 @@ const lunarFull   = `${lunar.leap ? 'Nhuận ' : ''}${lunar.day} tháng ${lunar.
 const lunarShort  = `${lunar.leap ? 'Nhuận ' : ''}${lunar.day}/${lunar.month}`;
 const goodHoursStr = hours.filter(h => h.isHoangDao).slice(0, 4).map(h => h.tenGio.split(' ')[0]).join(', ');
 
-// JSON-LD schema đầy đủ cho trang ngày
-const daySchema = createDayPageSchema(info, canonical);
-
 const scoreBadgeStyle = quality.score >= 4
   ? 'background:var(--green-pale);color:var(--green);border:1px solid rgba(29,158,117,0.3);'
   : quality.score === 3
@@ -67,6 +64,9 @@ const prevPath  = prevDayPath(d, m, y);
 const nextPath  = nextDayPath(d, m, y);
 const thangPath = `/lich/thang/${year}/${month}`;
 const canonical = `${SITE.baseUrl}/lich/${year}/${month}/${day}`;
+
+// JSON-LD — phải sau canonical
+const daySchema = createDayPageSchema(info, canonical);
 
 // ─── SEO ─────────────────────────────────────────────────────
 const title = `Lịch âm ngày ${d}/${m}/${y} — ${canChi.ngay.display} ${scoreLabel} | Lịch Vạn Niên AI`.slice(0, 60);
