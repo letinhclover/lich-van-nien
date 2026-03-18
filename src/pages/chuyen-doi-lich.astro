@@ -3,6 +3,7 @@
 import BaseLayout    from '../layouts/BaseLayout.astro';
 import LichConverter from '../components/LichConverter';
 import { SITE } from '../lib/constants';
+import Breadcrumb from '../components/Breadcrumb.astro';
 
 const title       = 'Chuyển đổi lịch âm dương — Tra cứu ngày âm dương lịch chính xác | Lịch Vạn Niên'.slice(0,60);
 const description = 'Công cụ chuyển đổi lịch âm dương trực tuyến miễn phí. Nhập ngày dương lịch để biết ngày âm lịch và ngược lại. Chính xác theo thuật toán Hồ Ngọc Đức, cập nhật tức thì.'.slice(0,160);
@@ -33,11 +34,10 @@ const jsonLd = {
 ---
 <BaseLayout {title} {description} canonicalUrl={canonical} {jsonLd}>
 
-  <nav class="flex items-center gap-1 text-xs mb-3" style="color:var(--text-3);">
-    <a href="/" class="no-underline hover:underline" style="color:var(--text-3);">Trang chủ</a>
-    <span>›</span>
-    <span style="color:var(--text-1);font-weight:600;">Chuyển đổi lịch</span>
-  </nav>
+  <Breadcrumb items={[
+    { label: 'Trang chủ', href: '/' },
+    { label: 'Chuyển Đổi Lịch' },
+  ]} />
 
   <h1 class="font-display font-bold text-2xl mb-2" style="color:var(--text-1);">
     Công cụ chuyển đổi lịch âm dương

@@ -5,6 +5,7 @@ import HoangDaoTable   from '../components/HoangDaoTable.astro';
 import { getVietnamNow, buildSolarDate } from '../lib/dateUtils';
 import { solarToLunar, getCanChi, getHoangDao } from '../lib/amlich';
 import { SITE } from '../lib/constants';
+import Breadcrumb from '../components/Breadcrumb.astro';
 
 const now   = getVietnamNow();
 const { day: d, month: m, year: y, hour } = now;
@@ -45,11 +46,10 @@ const jsonLd = {
 ---
 <BaseLayout {title} {description} canonicalUrl={canonical} {jsonLd}>
 
-  <nav class="flex items-center gap-1 text-xs mb-3" style="color:var(--text-3);">
-    <a href="/" class="no-underline hover:underline" style="color:var(--text-3);">Trang chủ</a>
-    <span>›</span>
-    <span style="color:var(--text-1);font-weight:600;">Giờ Hoàng Đạo</span>
-  </nav>
+  <Breadcrumb items={[
+    { label: 'Trang chủ', href: '/' },
+    { label: 'Giờ Hoàng Đạo' },
+  ]} />
 
   <h1 class="font-display font-bold text-2xl mb-1" style="color:var(--text-1);">
     Giờ hoàng đạo ngày {dateStr}
