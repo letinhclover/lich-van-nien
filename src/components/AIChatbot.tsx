@@ -4,6 +4,7 @@
 // ============================================================
 
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { trackEvent } from '../lib/analytics';
 
 interface Message {
   role:      'user' | 'assistant';
@@ -40,6 +41,7 @@ export default function AIChatbot() {
 
     setInput('');
     setMessages(prev => [...prev, { role: 'user', content: msg }]);
+    trackEvent('AI Chat Sent', { question_length: msg.length });
     setLoading(true);
 
     // Placeholder AI message

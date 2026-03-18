@@ -4,6 +4,7 @@
 // ============================================================
 
 import { useState, useRef } from 'react';
+import { trackEvent } from '../lib/analytics';
 
 interface Props {
   day:     number;
@@ -80,6 +81,7 @@ export default function ShareDayImage({
         a.download = file.name;
         a.click();
       }
+      trackEvent('Share Image Created');
       setDone(true);
       setTimeout(() => setDone(false), 3000);
     } catch (e) {
