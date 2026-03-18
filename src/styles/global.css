@@ -303,3 +303,29 @@
     min-height: 44px;
   }
 }
+
+/* ── Accessibility: Chữ lớn cho người lớn tuổi ─────────────── */
+html[data-font-size=large] {
+  font-size: 20px;
+}
+html[data-font-size=large] .text-sm {
+  font-size: 16px !important;
+  line-height: 1.6;
+}
+html[data-font-size=large] .text-xs {
+  font-size: 13px !important;
+}
+html[data-font-size=large] .section-label {
+  font-size: 14px !important;
+}
+html[data-font-size=large] button,
+html[data-font-size=large] a.btn-primary,
+html[data-font-size=large] a.btn-secondary {
+  min-height: 48px;
+}
+html[data-font-size=large] input,
+html[data-font-size=large] select,
+html[data-font-size=large] textarea {
+  font-size: 16px !important;
+  min-height: 48px;
+}
