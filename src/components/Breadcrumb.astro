@@ -1,0 +1,46 @@
+---
+// src/components/Breadcrumb.astro
+// Breadcrumb UI + JSON-LD BreadcrumbList
+// Props: items = [{label, href?}] — item cuối không cần href
+
+interface BreadcrumbItem {
+  label: string;
+  href?: string;
+}
+
+interface Props {
+  items: BreadcrumbItem[];
+}
+
+const { items } = Astro.props;
+---
+
+<nav aria-label="Breadcrumb" class="flex flex-wrap items-center gap-1 text-xs mb-4">
+  {items.map((item, i) => {
+    const isLast = i === items.length - 1;
+    return (
+      <>
+        {i > 0 && (
+          <span aria-hidden="true" style="color:var(--text-4);">›</span>
+        )}
+        {isLast ? (
+          <span
+            aria-current="page"
+            class="font-semibold"
+            style="color:var(--text-1);"
+          >
+            {item.label}
+          </span>
+        ) : (
+          <a
+            href={item.href ?? '/'}
+            class="no-underline hover:underline transition-colors"
+            style="color:var(--text-3);"
+          >
+            {item.label}
+          </a>
+        )}
+      </>
+    );
+  })}
+</nav>
