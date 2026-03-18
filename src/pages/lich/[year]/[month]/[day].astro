@@ -16,7 +16,6 @@ import { SITE } from '../../../../lib/constants';
 import { createDayPageSchema } from '../../../../lib/schema';
 import Breadcrumb  from '../../../../components/Breadcrumb.astro';
 import RelatedDays from '../../../../components/RelatedDays.astro';
-import AISummary      from '../../../../components/AISummary';
 import ShareDayImage  from '../../../../components/ShareDayImage';
 
 // ─── SSG: generate 1826 paths ────────────────────────────────
@@ -39,7 +38,7 @@ const { canChi, quality, hours } = info;
 // Derived
 const lunarFull   = `${lunar.leap ? 'Nhuận ' : ''}${lunar.day} tháng ${lunar.month} năm ${lunar.yearName}`;
 const lunarShort  = `${lunar.leap ? 'Nhuận ' : ''}${lunar.day}/${lunar.month}`;
-const goodHoursStr = hours.filter(h => h.isHoangDao).slice(0, 4).map(h => h.tenGio.split(' ')[0]).join(', ');
+const goodHoursStr = hours.filter(h => h.isHoangDao).slice(0, 4).map(h => h.tenGio.split(' (')[0]).join(', ');
 
 const scoreBadgeStyle = quality.score >= 4
   ? 'background:var(--green-pale);color:var(--green);border:1px solid rgba(29,158,117,0.3);'
@@ -225,11 +224,7 @@ const description = (
     </div>
   </section>
 
-  <!-- ── 5. AI SUMMARY ─────────────────────────────────────── -->
-  <section aria-label="Luận giải AI" class="mb-4">
-    <h2 class="section-label mb-2">🤖 Luận Giải AI</h2>
-    <AISummary date={dateStr} client:visible />
-  </section>
+
 
   <!-- ── 6. RELATED DAYS ──────────────────────────────────────── -->
   <RelatedDays {day} {month} {year} />
