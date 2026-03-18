@@ -1,1 +1,77 @@
+---
+// src/pages/tiet-khi/index.astro — Timeline 24 tiết khí
+import BaseLayout  from '../../layouts/BaseLayout.astro';
+import Breadcrumb  from '../../components/Breadcrumb.astro';
+import { SITE }    from '../../lib/constants';
+import { todayVN } from '../../lib/dateUtils';
+import { getTietKhi } from '../../lib/amlich';
+import TIET_KHI_DATA from '../../lib/tiet-khi-content';
 
+const { year } = todayVN();
+const tietKhiNam = getTietKhi(year);
+
+const canonical  = `${SITE.baseUrl}/tiet-khi`;
+const title      = `24 Tiết Khí năm ${year} — Ngày tháng, ý nghĩa và phong tục | Lịch Vạn Niên`.slice(0,60);
+const description = `Lịch 24 tiết khí năm ${year}: Lập Xuân, Xuân Phân, Hạ Chí, Đông Chí... Ngày chính xác, ý nghĩa, phong tục và phong thuỷ từng tiết theo lịch âm Việt Nam.`;
+
+const SEASON_COLOR: Record<string,string> = {
+  xuân: 'var(--green)',
+  hạ:   'var(--red)',
+  thu:  '#d97706',
+  đông: '#3b82f6',
+};
+const SEASON_LABEL: Record<string,string> = {
+  xuân: '🌸 Xuân', hạ: '☀️ Hạ', thu: '🍂 Thu', đông: '❄️ Đông',
+};
+---
+
+<BaseLayout {title} {description} canonicalUrl={canonical}>
+
+  <Breadcrumb items={[
+    { label: 'Trang chủ', href: '/' },
+    { label: '24 Tiết Khí' },
+  ]} />
+
+  <h1 class="font-display font-bold text-2xl mb-1" style="color:var(--text-1);">
+    🌏 24 Tiết Khí năm {year}
+  </h1>
+  <p class="text-sm mb-5" style="color:var(--text-2);">
+    Lịch 24 tiết khí chính xác — ngày tháng, ý nghĩa, phong tục và phong thuỷ từng tiết.
+  </p>
+
+  <!-- Grid 24 tiết theo mùa -->
+  {(['xuân','hạ','thu','đông'] as const).map(season => {
+    const tietMua = TIET_KHI_DATA.filter(t => t.season === season);
+    return (
+      <section class="mb-5">
+        <h2 class="section-label mb-3" style={`color:${SEASON_COLOR[season]};`}>
+          {SEASON_LABEL[season]}
+        </h2>
+        <div class="grid grid-cols-2 gap-2">
+          {tietMua.map(tk => {
+            const ngay = tietKhiNam[tk.position - 1];
+            const dateStr = ngay ? `${ngay.date.day}/${ngay.date.month}` : '—';
+            return (
+              <a
+                href={`/tiet-khi/${tk.slug}`}
+                class="card p-3 no-underline hover:shadow-md transition-shadow"
+              >
+                <div class="flex items-start justify-between mb-1">
+                  <p class="font-bold text-sm" style="color:var(--text-1);">{tk.name}</p>
+                  <span class="text-[10px] px-1.5 py-0.5 rounded" style={`background:${SEASON_COLOR[season]}18;color:${SEASON_COLOR[season]};`}>
+                    {tk.position}/24
+                  </span>
+                </div>
+                <p class="text-xs mb-1" style="color:var(--text-3);">{tk.meaning}</p>
+                <p class="text-xs font-semibold" style={`color:${SEASON_COLOR[season]};`}>
+                  📅 {dateStr}/{year}
+                </p>
+              </a>
+            );
+          })}
+        </div>
+      </section>
+    );
+  })}
+
+</BaseLayout>

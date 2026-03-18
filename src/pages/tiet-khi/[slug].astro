@@ -1,0 +1,191 @@
+---
+// src/pages/tiet-khi/[slug].astro — 24 trang tiết khí
+import BaseLayout  from '../../layouts/BaseLayout.astro';
+import Breadcrumb  from '../../components/Breadcrumb.astro';
+import { SITE }    from '../../lib/constants';
+import { todayVN, solarToPath } from '../../lib/dateUtils';
+import { getTietKhi } from '../../lib/amlich';
+import TIET_KHI_DATA from '../../lib/tiet-khi-content';
+
+export function getStaticPaths() {
+  return TIET_KHI_DATA.map(t => ({ params: { slug: t.slug }, props: { tk: t } }));
+}
+
+const { tk } = Astro.props;
+const { year } = todayVN();
+
+// Tính ngày tiết khí năm nay
+const tietKhiNam = getTietKhi(year);
+const ngayTK     = tietKhiNam[tk.position - 1];
+const ngayStr    = ngayTK
+  ? `${ngayTK.date.day}/${ngayTK.date.month}/${year}`
+  : '';
+const dayPath = ngayTK
+  ? solarToPath(ngayTK.date.day, ngayTK.date.month, year)
+  : '/';
+
+// Prev/next tiết
+const prevTK = TIET_KHI_DATA[tk.position - 2];
+const nextTK = TIET_KHI_DATA[tk.position % 24];
+
+const canonical  = `${SITE.baseUrl}/tiet-khi/${tk.slug}`;
+const title      = `${tk.name} ${year} — Ngày mấy? Ý nghĩa và phong tục Việt Nam | Lịch Vạn Niên`.slice(0,60);
+const description = tk.seoDesc;
+
+const SEASON_LABEL: Record<string, string> = {
+  xuân: '🌸 Mùa Xuân', hạ: '☀️ Mùa Hạ', thu: '🍂 Mùa Thu', đông: '❄️ Mùa Đông',
+};
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type':    'Article',
+  headline:   title,
+  description,
+  url:        canonical,
+  datePublished: `${year}-01-01`,
+  author:     { '@type': 'Organization', name: SITE.siteName, url: SITE.baseUrl },
+  publisher:  { '@type': 'Organization', name: SITE.siteName, url: SITE.baseUrl },
+};
+---
+
+<BaseLayout {title} {description} canonicalUrl={canonical} {jsonLd}>
+
+  <Breadcrumb items={[
+    { label: 'Trang chủ', href: '/' },
+    { label: '24 Tiết Khí', href: '/tiet-khi' },
+    { label: tk.name },
+  ]} />
+
+  <!-- Hero -->
+  <div class="card overflow-hidden mb-5">
+    <div class="h-1.5" style={`background: ${tk.season === 'xuân' ? 'var(--green)' : tk.season === 'hạ' ? 'var(--red)' : tk.season === 'thu' ? '#d97706' : '#3b82f6'};`}></div>
+    <div class="p-4">
+      <div class="flex items-start justify-between gap-3">
+        <div>
+          <p class="section-label mb-1">
+            {SEASON_LABEL[tk.season]} · Tiết khí {tk.position}/24
+          </p>
+          <h1 class="font-display font-bold text-2xl mb-1" style="color:var(--text-1);">
+            {tk.name} {year}
+          </h1>
+          <p class="text-sm mb-2" style="color:var(--text-2);">{tk.hanViet} — {tk.meaning}</p>
+          {ngayStr && (
+            <a href={dayPath} class="badge-green no-underline">
+              📅 Năm {year}: ngày {ngayStr}
+            </a>
+          )}
+        </div>
+        <div class="text-4xl shrink-0">
+          {tk.season === 'xuân' ? '🌸' : tk.season === 'hạ' ? '☀️' : tk.season === 'thu' ? '🍂' : '❄️'}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 1. Thông tin -->
+  <section class="mb-5">
+    <h2 class="section-label mb-2">📖 Ý Nghĩa {tk.name}</h2>
+    <div class="card p-4">
+      <p class="text-sm leading-relaxed" style="color:var(--text-1);">{tk.detail}</p>
+    </div>
+  </section>
+
+  <!-- 2. Thời tiết -->
+  <section class="mb-5">
+    <h2 class="section-label mb-2">🌤 Thời Tiết Mùa Này</h2>
+    <div class="grid grid-cols-1 gap-3">
+      <div class="card p-3.5">
+        <p class="text-xs font-bold mb-1" style="color:var(--text-3);">🏙 Miền Bắc</p>
+        <p class="text-sm" style="color:var(--text-1);">{tk.weather.bac}</p>
+      </div>
+      <div class="card p-3.5">
+        <p class="text-xs font-bold mb-1" style="color:var(--text-3);">🌴 Miền Nam</p>
+        <p class="text-sm" style="color:var(--text-1);">{tk.weather.nam}</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Phong tục & Văn hoá -->
+  <section class="mb-5">
+    <h2 class="section-label mb-2">🎋 Phong Tục & Văn Hoá</h2>
+    <div class="card p-4">
+      <div class="mb-3">
+        <p class="text-xs font-bold mb-2" style="color:var(--text-3);">Tập tục</p>
+        <div class="flex flex-wrap gap-1.5">
+          {tk.customs.map(c => <span class="badge-gold text-xs">{c}</span>)}
+        </div>
+      </div>
+      <div class="mb-3">
+        <p class="text-xs font-bold mb-2" style="color:var(--text-3);">🍜 Món ăn đặc trưng</p>
+        <div class="flex flex-wrap gap-1.5">
+          {tk.foods.map(f => <span class="badge-green text-xs">{f}</span>)}
+        </div>
+      </div>
+      <div>
+        <p class="text-xs font-bold mb-1" style="color:var(--text-3);">🌾 Nông nghiệp</p>
+        <p class="text-sm" style="color:var(--text-1);">{tk.farming}</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Phong thuỷ -->
+  <section class="mb-5">
+    <h2 class="section-label mb-2">🔮 Phong Thuỷ Tiết {tk.name}</h2>
+    <div class="card p-4 flex flex-col gap-3">
+      <div>
+        <p class="text-xs font-bold mb-2" style="color:var(--text-3);">🎨 Màu hợp tiết này</p>
+        <div class="flex gap-2 flex-wrap">
+          {tk.fengshui.colors.map(c => (
+            <span class="text-sm px-3 py-1 rounded-full" style="background:var(--bg-surface);border:1px solid var(--border);color:var(--text-1);">{c}</span>
+          ))}
+        </div>
+      </div>
+      {tk.fengshui.doNow.length > 0 && (
+        <div>
+          <p class="text-xs font-bold mb-2" style="color:var(--text-3);">✅ Nên làm tiết này</p>
+          <div class="flex flex-wrap gap-1.5">
+            {tk.fengshui.doNow.map(d => <span class="badge-green text-xs">{d}</span>)}
+          </div>
+        </div>
+      )}
+      {tk.fengshui.avoid.length > 0 && (
+        <div>
+          <p class="text-xs font-bold mb-2" style="color:var(--text-3);">⚠️ Nên tránh</p>
+          <div class="flex flex-wrap gap-1.5">
+            {tk.fengshui.avoid.map(a => <span class="badge-red text-xs">{a}</span>)}
+          </div>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <!-- 5. Link ngày tiết khí -->
+  {ngayTK && (
+    <div class="card p-4 mb-5" style="background:var(--green-pale);border-color:rgba(29,158,117,0.3);">
+      <p class="font-bold text-sm mb-1" style="color:var(--text-1);">
+        📅 {tk.name} {year} rơi vào ngày {ngayStr}
+      </p>
+      <a href={dayPath} class="btn-primary text-sm mt-2 inline-flex">
+        Xem chi tiết ngày {ngayStr} →
+      </a>
+    </div>
+  )}
+
+  <!-- Prev/Next -->
+  <nav class="flex gap-2 mb-4">
+    {prevTK && (
+      <a href={`/tiet-khi/${prevTK.slug}`} class="flex-1 btn-secondary text-sm py-3 justify-center">
+        ← {prevTK.name}
+      </a>
+    )}
+    <a href="/tiet-khi" class="flex-1 btn-secondary text-sm py-3 justify-center">
+      📋 24 Tiết Khí
+    </a>
+    {nextTK && (
+      <a href={`/tiet-khi/${nextTK.slug}`} class="flex-1 btn-secondary text-sm py-3 justify-center">
+        {nextTK.name} →
+      </a>
+    )}
+  </nav>
+
+</BaseLayout>
