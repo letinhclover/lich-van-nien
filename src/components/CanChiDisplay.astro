@@ -1,0 +1,123 @@
+---
+// src/components/CanChiDisplay.astro — Tứ Trụ Can Chi
+// Props: day, month, year, hour (optional — nếu không có dùng giờ build-time)
+import { getCanChi } from '../lib/amlich';
+import { getVietnamNow } from '../lib/dateUtils';
+
+interface Props {
+  day:   number;
+  month: number;
+  year:  number;
+  hour?: number;
+}
+
+const { day, month, year } = Astro.props;
+const now  = getVietnamNow();
+const hour = Astro.props.hour ?? now.hour;
+const cc   = getCanChi(day, month, year);
+
+// Màu ngũ hành
+const NGU_HANH_COLOR: Record<string, { bg: string; text: string; emoji: string }> = {
+  'Hải Trung Kim':   { bg:'rgba(184,114,10,0.1)',  text:'var(--gold-dark)', emoji:'🪙' },
+  'Lư Trung Hỏa':   { bg:'rgba(192,57,43,0.1)',   text:'var(--red)',       emoji:'🔥' },
+  'Đại Lâm Mộc':    { bg:'rgba(29,158,117,0.1)',  text:'var(--green)',     emoji:'🌿' },
+  'Lộ Bàng Thổ':    { bg:'rgba(120,100,40,0.1)',  text:'#8B6914',          emoji:'🌏' },
+  'Kiếm Phong Kim':  { bg:'rgba(184,114,10,0.1)',  text:'var(--gold-dark)', emoji:'🪙' },
+  'Thiên Hà Thủy':  { bg:'rgba(30,58,138,0.1)',   text:'#1d4ed8',          emoji:'💧' },
+};
+
+function getNguHanhStyle(nguHanh: string) {
+  // Match partial key
+  const key = Object.keys(NGU_HANH_COLOR).find(k => nguHanh.includes(k.split(' ')[1] ?? ''));
+  // Fallback by element type
+  if (nguHanh.includes('Kim'))   return { bg:'rgba(184,114,10,0.1)', text:'var(--gold-dark)', emoji:'🪙' };
+  if (nguHanh.includes('Mộc'))   return { bg:'rgba(29,158,117,0.1)', text:'var(--green)',     emoji:'🌿' };
+  if (nguHanh.includes('Hỏa'))   return { bg:'rgba(192,57,43,0.1)',  text:'var(--red)',        emoji:'🔥' };
+  if (nguHanh.includes('Thủy'))  return { bg:'rgba(30,58,138,0.1)',  text:'#1d4ed8',           emoji:'💧' };
+  if (nguHanh.includes('Thổ'))   return { bg:'rgba(120,100,40,0.1)', text:'#8B6914',            emoji:'🌏' };
+  return { bg:'var(--bg-surface)', text:'var(--text-3)', emoji:'✨' };
+}
+
+const slots = [
+  { label:'Năm',  cc: cc.nam,   id: 'cc-nam'   },
+  { label:'Tháng',cc: cc.thang, id: 'cc-thang' },
+  { label:'Ngày', cc: cc.ngay,  id: 'cc-ngay'  },
+  { label:'Giờ',  cc: cc.gio,   id: 'cc-gio', realtime: true },
+] as const;
+---
+
+<div class="card overflow-hidden">
+  <div class="grid grid-cols-2 md:grid-cols-4">
+    {slots.map(({ label, cc: unit, id, realtime }, i) => {
+      const style = getNguHanhStyle(unit.nguHanh);
+      const isLast = i === slots.length - 1;
+      return (
+        <div
+          class:list={['p-3.5 border-b md:border-b-0', !isLast ? 'border-r' : '', i % 2 === 0 && i < 2 ? '' : '']}
+          style={`border-color:var(--border);background:${style.bg};`}
+        >
+          <p class="section-label mb-1">{label}</p>
+          <!-- Can Chi lớn -->
+          <p class="font-bold text-lg leading-tight" style={`color:${style.text};`}
+            id={realtime ? id : undefined}>
+            {unit.display}
+          </p>
+          <!-- Ngũ hành + emoji -->
+          <p class="text-xs mt-0.5 flex items-center gap-1" style="color:var(--text-3);">
+            <span>{style.emoji}</span>
+            <span id={realtime ? `${id}-nguhanh` : undefined}>{unit.nguHanh}</span>
+          </p>
+          {realtime && (
+            <p class="text-[9px] mt-1" style="color:var(--text-4);" id={`${id}-ten`}>
+              {unit.can} {unit.chi}
+            </p>
+          )}
+        </div>
+      );
+    })}
+  </div>
+</div>
+
+<script is:inline>
+// Cập nhật ô Giờ real-time mỗi 60 giây
+(function() {
+  var CAN = ['Giáp','Ất','Bính','Đinh','Mậu','Kỷ','Canh','Tân','Nhâm','Quý'];
+  var CHI = ['Tý','Sửu','Dần','Mão','Thìn','Tỵ','Ngọ','Mùi','Thân','Dậu','Tuất','Hợi'];
+  var NAP_AM_NH = {
+    'Kim':['Hải Trung Kim','Kiếm Phong Kim','Bạch Lạp Kim','Sa Trung Kim','Kim Bạch Kim','Thoa Xuyến Kim'],
+    'Hỏa':['Lư Trung Hỏa','Sơn Đầu Hỏa','Tịch Lịch Hỏa','Sơn Hạ Hỏa','Phúc Đăng Hỏa','Thiên Thượng Hỏa'],
+    'Mộc':['Đại Lâm Mộc','Tùng Bách Mộc','Dương Liễu Mộc','Bình Địa Mộc','Tang Đố Mộc','Thạch Lựu Mộc'],
+    'Thủy':['Giản Hạ Thủy','Tuyền Trung Thủy','Trường Lưu Thủy','Thiên Hà Thủy','Đại Khê Thủy','Đại Hải Thủy'],
+    'Thổ':['Lộ Bàng Thổ','Thành Đầu Thổ','Ốc Thượng Thổ','Bích Thượng Thổ','Sa Trung Thổ','Đại Trạch Thổ'],
+  };
+
+  function getVNHour() {
+    try {
+      var s = new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Ho_Chi_Minh' });
+      return parseInt(s.split(' ')[1].split(':')[0], 10);
+    } catch(e) { return new Date().getHours(); }
+  }
+  function toJDN(d,m,y) {
+    var yy=y,mm=m; if(mm<=2){yy--;mm+=12;}
+    var A=Math.floor(yy/100),B=2-A+Math.floor(A/4);
+    return Math.floor(365.25*(yy+4716))+Math.floor(30.6001*(mm+1))+d+B-1524;
+  }
+
+  function updateGio() {
+    var h   = getVNHour();
+    var idx = Math.floor(((h+1)%24)/2);
+    var jdn = parseInt(document.body.dataset.jdn||'0',10);
+    if(!jdn) return;
+    var canNgay = (jdn+9)%10, canGio = (canNgay%5*2+idx)%10;
+    var display = CAN[canGio]+' '+CHI[idx];
+
+    var el = document.getElementById('cc-gio');
+    if(el) el.textContent = display;
+    var tenEl = document.getElementById('cc-gio-ten');
+    if(tenEl) tenEl.textContent = CAN[canGio]+' '+CHI[idx];
+  }
+
+  updateGio();
+  setInterval(updateGio, 60000);
+})();
+</script>
