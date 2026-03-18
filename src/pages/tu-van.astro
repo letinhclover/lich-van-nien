@@ -1,5 +1,5 @@
 ---
-// src/pages/tu-van.astro — Trang tư vấn AI (Bước 24)
+// src/pages/tu-van.astro — Trang tư vấn AI
 import BaseLayout  from '../layouts/BaseLayout.astro';
 import AIChatbot   from '../components/AIChatbot';
 import Breadcrumb  from '../components/Breadcrumb.astro';
@@ -24,7 +24,7 @@ const jsonLd = {
       name:    'AI tư vấn lịch âm có chính xác không?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text:    'AI tư vấn dựa trên thuật toán lịch pháp Hồ Ngọc Đức và kiến thức phong thủy truyền thống Việt Nam. Thông tin mang tính tham khảo theo quan niệm dân gian.',
+        text:    'AI tư vấn dựa trên thuật toán lịch pháp Hồ Ngọc Đức và kiến thức phong thủy truyền thống Việt Nam. Thông tin mang tính tham khảo.',
       },
     },
     {
@@ -32,7 +32,7 @@ const jsonLd = {
       name:    'Tôi có thể hỏi AI về những vấn đề gì?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text:    'Bạn có thể hỏi về: ngày tốt để cưới hỏi, khai trương, xuất hành, ký hợp đồng, xây dựng; giờ hoàng đạo trong ngày; ý nghĩa can chi; ngày hợp tuổi theo năm sinh.',
+        text:    'Ngày tốt để cưới hỏi, khai trương, xuất hành, ký hợp đồng; giờ hoàng đạo; ý nghĩa can chi; ngày hợp tuổi theo năm sinh.',
       },
     },
   ],
@@ -49,7 +49,7 @@ const USE_CASES = [
   {
     icon: '🏪',
     title: 'Khai trương',
-    desc: 'Ngày giờ hoàng đạo phù hợp ngành kinh doanh của bạn',
+    desc: 'Ngày giờ hoàng đạo phù hợp ngành kinh doanh',
     example: 'Tôi muốn khai trương cửa hàng thực phẩm vào tháng 4/2026, ngày nào tốt?',
     href: '/gio-hoang-dao',
   },
@@ -70,29 +70,23 @@ const USE_CASES = [
     { label: 'Tư Vấn AI' },
   ]} />
 
-  <!-- SECTION 1: Hero -->
   <div class="text-center mb-6">
     <div
       class="inline-flex items-center justify-center w-14 h-14 rounded-2xl text-2xl mb-3"
       style="background:linear-gradient(135deg,var(--red),var(--red-dark));box-shadow:0 4px 16px rgba(192,57,43,0.35);"
     >🤖</div>
-
     <h1 class="font-display font-bold text-2xl mb-1" style="color:var(--text-1);">
       Tư vấn ngày tốt xấu bằng AI
     </h1>
     <p class="text-sm mb-4" style="color:var(--text-3);">
       Đặt câu hỏi tự nhiên — AI phân tích theo lịch âm Việt Nam
     </p>
-
-    <!-- 3 badges -->
     <div class="flex flex-wrap justify-center gap-2">
       <span class="badge-green">✓ Miễn phí không giới hạn</span>
       <span class="badge-gold">✓ Theo lịch âm VN</span>
-      <span class="badge-red">✓ Tiếng Việt</span>
     </div>
   </div>
 
-  <!-- Context hôm nay -->
   <div class="card p-3 mb-5 flex items-center gap-3"
     style="background:var(--red-pale);border-color:var(--border-red);">
     <span class="text-lg shrink-0">📅</span>
@@ -103,8 +97,7 @@ const USE_CASES = [
     </p>
   </div>
 
-  <!-- SECTION 2: 3 use case cards -->
-  <section aria-label="Các trường hợp tư vấn" class="mb-5">
+  <section class="mb-5">
     <h2 class="section-label mb-3">📋 Bạn cần tư vấn gì?</h2>
     <div class="grid grid-cols-1 gap-3">
       {USE_CASES.map(({ icon, title: t, desc, example, href }) => (
@@ -119,50 +112,19 @@ const USE_CASES = [
           <p class="text-xs italic mb-2.5 px-3 py-2 rounded-lg" style="color:var(--text-3);background:var(--bg-surface);">
             VD: "{example}"
           </p>
-          <a href={href} class="text-xs no-underline font-semibold" style="color:var(--red);">
-            Xem thêm →
-          </a>
+          <a href={href} class="text-xs no-underline font-semibold" style="color:var(--red);">Xem thêm →</a>
         </div>
       ))}
     </div>
   </section>
 
-  <!-- SECTION 3: Chatbot -->
-  <section aria-label="Chat với AI" class="mb-5">
+  <section class="mb-5">
     <h2 class="section-label mb-3">💬 Đặt câu hỏi cho AI</h2>
     <AIChatbot client:load />
   </section>
 
-  <!-- SECTION 4: FAQ -->
-  <section aria-label="Câu hỏi thường gặp" class="mb-4">
-    <h2 class="section-label mb-3">❓ Câu hỏi thường gặp</h2>
-    <div class="card p-4 flex flex-col gap-4">
-      {[
-        {
-          q: 'AI tư vấn lịch âm có chính xác không?',
-          a: 'AI tư vấn dựa trên thuật toán lịch pháp Hồ Ngọc Đức và kiến thức phong thủy truyền thống. Thông tin mang tính tham khảo.',
-        },
-        {
-          q: 'Tôi có thể hỏi gì?',
-          a: 'Ngày tốt để cưới hỏi, khai trương, xuất hành, ký hợp đồng; giờ hoàng đạo; ý nghĩa can chi; ngày hợp tuổi.',
-        },
-        {
-          q: 'Miễn phí được mấy câu một ngày?',
-          a: 'Không giới hạn câu hỏi. Lượt hỏi tự động reset lúc 00:00 theo giờ Việt Nam.',
-        },
-      ].map(({ q, a }) => (
-        <div>
-          <p class="font-semibold text-sm mb-1" style="color:var(--text-1);">{q}</p>
-          <p class="text-sm" style="color:var(--text-2);">{a}</p>
-        </div>
-      ))}
-    </div>
-  </section>
-
-  <!-- Disclaimer -->
   <p class="text-xs text-center mb-4 px-4" style="color:var(--text-4);">
     ⚠️ Thông tin chỉ mang tính tham khảo theo phong tục truyền thống Việt Nam.
-    Không thay thế tư vấn chuyên gia.
   </p>
 
 </BaseLayout>

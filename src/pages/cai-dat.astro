@@ -1,214 +1,226 @@
 ---
-// src/pages/cai-dat.astro — Trang cài đặt
-
-import BaseLayout from '../layouts/BaseLayout.astro';
-import { SITE } from '../lib/constants';
+// src/pages/cai-dat.astro — Trang cài đặt đầy đủ
+import BaseLayout   from '../layouts/BaseLayout.astro';
+import Breadcrumb   from '../components/Breadcrumb.astro';
+import PushSubscribe from '../components/PushSubscribe';
+import { SITE }     from '../lib/constants';
 
 const title       = 'Cài Đặt — Lịch Vạn Niên AI';
-const description = 'Cài đặt ứng dụng Lịch Vạn Niên AI: giao diện sáng/tối, cỡ chữ, thông báo, cài PWA.';
+const description = 'Cài đặt giao diện sáng/tối, cỡ chữ, thông báo, cài app PWA.';
 const canonical   = `${SITE.baseUrl}/cai-dat`;
 ---
 
-<BaseLayout {title} {description} {canonical} noindex={true}>
+<BaseLayout {title} {description} canonicalUrl={canonical} noindex={true}>
 
-  <nav class="flex items-center gap-1 text-xs mb-4" style="color: var(--text-3);">
-    <a href="/" class="no-underline hover:underline" style="color: var(--text-3);">🏠 Trang chủ</a>
-    <span>›</span>
-    <span style="color: var(--text-1); font-weight: 600;">Cài Đặt</span>
-  </nav>
+  <Breadcrumb items={[
+    { label: 'Trang chủ', href: '/' },
+    { label: 'Cài Đặt' },
+  ]} />
 
-  <h1 class="font-display font-bold text-2xl mb-5" style="color: var(--text-1);">
+  <h1 class="font-display font-bold text-2xl mb-5" style="color:var(--text-1);">
     ⚙️ Cài Đặt
   </h1>
 
   <!-- Giao diện -->
   <div class="card overflow-hidden mb-4">
-    <div class="px-4 py-3 border-b" style="border-color: var(--border);">
-      <p class="font-bold text-sm" style="color: var(--text-1);">🎨 Giao diện</p>
+    <div class="px-4 py-3 border-b" style="border-color:var(--border);">
+      <p class="font-bold text-sm" style="color:var(--text-1);">🎨 Giao diện</p>
     </div>
     <div class="p-4 flex flex-col gap-4">
 
-      <!-- Dark mode -->
+      <!-- Dark mode toggle -->
       <div class="flex items-center justify-between">
         <div>
-          <p class="font-semibold text-sm" style="color: var(--text-1);">Chế độ tối</p>
-          <p class="text-xs mt-0.5" style="color: var(--text-3);">Bảo vệ mắt ban đêm</p>
+          <p class="text-sm font-semibold" style="color:var(--text-1);">Giao diện tối</p>
+          <p class="text-xs mt-0.5" style="color:var(--text-3);">Bảo vệ mắt ban đêm</p>
         </div>
         <button
-          id="toggle-dark"
+          id="btn-dark-mode"
           role="switch"
+          aria-label="Chuyển đổi giao diện sáng/tối"
           aria-checked="false"
-          class="w-12 h-6 rounded-full transition-all relative"
-          style="background: var(--bg-elevated); border: 1px solid var(--border-med);"
+          class="relative w-12 h-6 rounded-full transition-all"
+          style="background:var(--border);"
+          onclick="toggleDarkMode()"
         >
-          <span id="toggle-dark-thumb"
-            class="absolute top-0.5 left-0.5 w-5 h-5 rounded-full transition-all"
-            style="background: var(--text-3);"
-          ></span>
+          <span id="dark-thumb"
+            class="absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform">
+          </span>
         </button>
       </div>
 
-      <!-- Font size -->
-      <div>
-        <p class="font-semibold text-sm mb-2" style="color: var(--text-1);">Cỡ chữ</p>
-        <div class="flex gap-2">
-          {[
-            { id:'small',  label:'Nhỏ',     size:'14px' },
-            { id:'medium', label:'Vừa',     size:'16px' },
-            { id:'large',  label:'Lớn',     size:'18px' },
-            { id:'xlarge', label:'Rất lớn', size:'20px' },
-          ].map(({ id, label, size }) => (
-            <button
-              data-font={id}
-              data-size={size}
-              class="font-btn flex-1 py-2 rounded-xl text-sm font-medium border transition-all"
-              style="background: var(--bg-surface); border-color: var(--border); color: var(--text-2);"
-            >
-              {label}
-            </button>
-          ))}
+      <!-- Font size toggle -->
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm font-semibold" style="color:var(--text-1);">Chữ lớn</p>
+          <p class="text-xs mt-0.5" style="color:var(--text-3);">Dành cho người lớn tuổi</p>
+          <div class="flex gap-2 mt-1">
+            <span class="text-xs" style="color:var(--text-3);">Aa</span>
+            <span class="text-base font-bold" style="color:var(--text-3);">Aa</span>
+          </div>
         </div>
+        <button
+          id="btn-font-size"
+          role="switch"
+          aria-label="Bật/tắt chữ lớn"
+          aria-checked="false"
+          class="relative w-12 h-6 rounded-full transition-all"
+          style="background:var(--border);"
+          onclick="toggleFontSize()"
+        >
+          <span id="font-thumb"
+            class="absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform">
+          </span>
+        </button>
       </div>
+
     </div>
   </div>
 
-  <!-- Cài PWA -->
+  <!-- Thông báo -->
   <div class="card overflow-hidden mb-4">
-    <div class="px-4 py-3 border-b" style="border-color: var(--border);">
-      <p class="font-bold text-sm" style="color: var(--text-1);">📱 Cài Ứng Dụng (PWA)</p>
+    <div class="px-4 py-3 border-b" style="border-color:var(--border);">
+      <p class="font-bold text-sm" style="color:var(--text-1);">🔔 Thông báo</p>
     </div>
     <div class="p-4">
-      <p class="text-sm mb-3" style="color: var(--text-2);">
-        Cài Lịch Vạn Niên AI lên màn hình chính để dùng như ứng dụng thật, không cần mở trình duyệt.
-      </p>
-      <button id="btn-install-pwa" class="btn-primary w-full">
-        📲 Cài lên màn hình chính
-      </button>
-      <p class="text-xs text-center mt-2" style="color: var(--text-3);">
-        iOS: Safari → Chia sẻ → Thêm vào màn hình chính
-      </p>
+      <PushSubscribe client:load />
     </div>
   </div>
 
-  <!-- Thông tin app -->
+  <!-- Cài app -->
   <div class="card overflow-hidden mb-4">
-    <div class="px-4 py-3 border-b" style="border-color: var(--border);">
-      <p class="font-bold text-sm" style="color: var(--text-1);">ℹ️ Thông tin</p>
+    <div class="px-4 py-3 border-b" style="border-color:var(--border);">
+      <p class="font-bold text-sm" style="color:var(--text-1);">📲 Cài ứng dụng (PWA)</p>
     </div>
-    <div class="p-4 flex flex-col gap-2">
-      {[
-        { label: 'Phiên bản',     value: '1.0.0' },
-        { label: 'Domain',        value: SITE.domain },
-        { label: 'Thuật toán',    value: 'Hồ Ngọc Đức (Ho Ngoc Duc)' },
-        { label: 'Múi giờ',       value: 'Asia/Ho_Chi_Minh (UTC+7)' },
-        { label: 'Framework',     value: 'Astro 4.x SSG + Cloudflare Pages' },
-      ].map(({ label, value }) => (
-        <div class="flex justify-between items-center py-1.5 border-b" style="border-color: var(--border);">
-          <span class="text-sm" style="color: var(--text-3);">{label}</span>
-          <span class="text-sm font-medium" style="color: var(--text-1);">{value}</span>
-        </div>
-      ))}
+    <div class="p-4">
+      <p class="text-sm mb-3" style="color:var(--text-2);">
+        Cài Lịch Vạn Niên AI về màn hình chính để dùng offline, nhanh hơn browser.
+      </p>
+      <button
+        id="btn-install-pwa"
+        class="btn-primary w-full"
+        onclick="installPWA()"
+        style="display:none;"
+      >
+        📲 Cài về màn hình chính
+      </button>
+      <p id="pwa-ios-guide" class="text-sm" style="color:var(--text-3);display:none;">
+        Trên Safari: nhấn nút <strong>Chia sẻ</strong> → <strong>Thêm vào Màn hình chính</strong>
+      </p>
+      <p id="pwa-installed" class="text-sm" style="color:var(--green);display:none;">
+        ✅ Ứng dụng đã được cài đặt
+      </p>
     </div>
   </div>
 
-  <!-- Xóa cache -->
-  <div class="card p-4 mb-4">
-    <p class="font-bold text-sm mb-2" style="color: var(--text-1);">🗑️ Dữ liệu & Cache</p>
-    <p class="text-sm mb-3" style="color: var(--text-3);">Xóa toàn bộ cài đặt và cache về mặc định.</p>
-    <button id="btn-clear-cache" class="btn-secondary w-full border" style="border-color: var(--red); color: var(--red);">
-      Xóa dữ liệu
-    </button>
+  <!-- Bộ nhớ cache -->
+  <div class="card overflow-hidden mb-4">
+    <div class="px-4 py-3 border-b" style="border-color:var(--border);">
+      <p class="font-bold text-sm" style="color:var(--text-1);">🗑 Bộ nhớ tạm</p>
+    </div>
+    <div class="p-4">
+      <p class="text-sm mb-3" style="color:var(--text-2);">
+        Xóa cache để tải lại dữ liệu mới nhất. Không ảnh hưởng đến cài đặt cá nhân.
+      </p>
+      <button
+        class="btn-secondary w-full"
+        onclick="clearCache()"
+      >
+        🗑 Xóa cache
+      </button>
+    </div>
   </div>
 
-  <script>
-    // ─── Dark mode toggle ─────────────────────────────────────
-    const toggleBtn   = document.getElementById('toggle-dark');
-    const toggleThumb = document.getElementById('toggle-dark-thumb');
-
-    function getTheme() {
-      try { return localStorage.getItem('theme') ?? 'light'; } catch { return 'light'; }
-    }
-    function setTheme(t: string) {
-      try { localStorage.setItem('theme', t); } catch {}
-      document.documentElement.classList.toggle('dark', t === 'dark');
-      if (toggleBtn)   toggleBtn.setAttribute('aria-checked', String(t === 'dark'));
-      if (toggleThumb) {
-        toggleThumb.style.transform   = t === 'dark' ? 'translateX(24px)' : 'translateX(0)';
-        toggleThumb.style.background  = t === 'dark' ? 'var(--gold)' : 'var(--text-3)';
-      }
-      if (toggleBtn) toggleBtn.style.background = t === 'dark' ? 'var(--red-pale)' : 'var(--bg-elevated)';
-    }
-
-    // Init
-    setTheme(getTheme());
-    toggleBtn?.addEventListener('click', () => {
-      setTheme(getTheme() === 'dark' ? 'light' : 'dark');
-    });
-
-    // ─── Font size ────────────────────────────────────────────
-    const savedFont = (() => { try { return localStorage.getItem('lvn_font') ?? 'medium'; } catch { return 'medium'; } })();
-
-    document.querySelectorAll<HTMLElement>('.font-btn').forEach(btn => {
-      const id = btn.dataset['font'] ?? '';
-      if (id === savedFont) {
-        btn.style.background   = 'var(--red-pale)';
-        btn.style.borderColor  = 'var(--red)';
-        btn.style.color        = 'var(--red)';
-        btn.style.fontWeight   = '700';
-      }
-      btn.addEventListener('click', () => {
-        const size = btn.dataset['size'] ?? '16px';
-        document.documentElement.style.fontSize = size;
-        try { localStorage.setItem('lvn_font', id); } catch {}
-        document.querySelectorAll<HTMLElement>('.font-btn').forEach(b => {
-          b.style.background   = 'var(--bg-surface)';
-          b.style.borderColor  = 'var(--border)';
-          b.style.color        = 'var(--text-2)';
-          b.style.fontWeight   = '500';
-        });
-        btn.style.background   = 'var(--red-pale)';
-        btn.style.borderColor  = 'var(--red)';
-        btn.style.color        = 'var(--red)';
-        btn.style.fontWeight   = '700';
-      });
-    });
-
-    // Apply saved font size
-    const fontSizeMap: Record<string, string> = { small:'14px', medium:'16px', large:'18px', xlarge:'20px' };
-    if (fontSizeMap[savedFont]) {
-      document.documentElement.style.fontSize = fontSizeMap[savedFont]!;
-    }
-
-    // ─── PWA Install ─────────────────────────────────────────
-    let deferredPrompt: BeforeInstallPromptEvent | null = null;
-    type BeforeInstallPromptEvent = Event & { prompt(): Promise<void>; userChoice: Promise<{ outcome: string }> };
-
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e as BeforeInstallPromptEvent;
-    });
-
-    document.getElementById('btn-install-pwa')?.addEventListener('click', async () => {
-      if (deferredPrompt) {
-        await deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') alert('Đã cài thành công! Tìm Lịch Vạn Niên AI trên màn hình chính.');
-        deferredPrompt = null;
-      } else {
-        alert('Trình duyệt của bạn không hỗ trợ hoặc đã cài rồi.\niOS: Safari → Chia sẻ → Thêm vào màn hình chính.');
-      }
-    });
-
-    // ─── Clear cache ─────────────────────────────────────────
-    document.getElementById('btn-clear-cache')?.addEventListener('click', () => {
-      if (!confirm('Xóa toàn bộ dữ liệu cài đặt?')) return;
-      try {
-        localStorage.clear();
-        caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
-      } catch {}
-      alert('Đã xóa. Trang sẽ tải lại.');
-      location.reload();
-    });
-  </script>
+  <p class="text-xs text-center" style="color:var(--text-4);">
+    Lịch Vạn Niên AI · Thuật toán Hồ Ngọc Đức · lichvannien.io.vn
+  </p>
 
 </BaseLayout>
+
+<script is:inline>
+// ── Dark mode ──────────────────────────────────────────────
+function initDarkToggle() {
+  var isDark = document.documentElement.classList.contains('dark');
+  var btn    = document.getElementById('btn-dark-mode');
+  var thumb  = document.getElementById('dark-thumb');
+  if (btn) {
+    btn.style.background = isDark ? 'var(--red)' : 'var(--border)';
+    btn.setAttribute('aria-checked', isDark ? 'true' : 'false');
+  }
+  if (thumb) thumb.style.transform = isDark ? 'translateX(24px)' : 'translateX(0)';
+}
+
+function toggleDarkMode() {
+  var d = document.documentElement.classList.toggle('dark');
+  try { localStorage.setItem('theme', d ? 'dark' : 'light'); } catch(e){}
+  initDarkToggle();
+  // Update header icon if exists
+  var icon = document.getElementById('theme-icon');
+  if (icon) icon.textContent = d ? '☀️' : '🌙';
+}
+
+// ── Font size ──────────────────────────────────────────────
+function initFontToggle() {
+  var isLarge = document.documentElement.getAttribute('data-font-size') === 'large';
+  var btn     = document.getElementById('btn-font-size');
+  var thumb   = document.getElementById('font-thumb');
+  if (btn) {
+    btn.style.background = isLarge ? 'var(--red)' : 'var(--border)';
+    btn.setAttribute('aria-checked', isLarge ? 'true' : 'false');
+  }
+  if (thumb) thumb.style.transform = isLarge ? 'translateX(24px)' : 'translateX(0)';
+}
+
+function toggleFontSize() {
+  var cur = document.documentElement.getAttribute('data-font-size');
+  var next = cur === 'large' ? 'normal' : 'large';
+  document.documentElement.setAttribute('data-font-size', next);
+  try { localStorage.setItem('fontSize', next); } catch(e){}
+  initFontToggle();
+}
+
+// ── PWA install ────────────────────────────────────────────
+var deferredInstall = null;
+window.addEventListener('beforeinstallprompt', function(e) {
+  e.preventDefault();
+  deferredInstall = e;
+  var btn = document.getElementById('btn-install-pwa');
+  if (btn) btn.style.display = 'block';
+});
+window.addEventListener('appinstalled', function() {
+  var el = document.getElementById('pwa-installed');
+  var btn = document.getElementById('btn-install-pwa');
+  if (el)  el.style.display  = 'block';
+  if (btn) btn.style.display = 'none';
+});
+
+function installPWA() {
+  if (deferredInstall) deferredInstall.prompt();
+}
+
+// iOS detection
+if (/iPhone|iPad/.test(navigator.userAgent) && !navigator.standalone) {
+  var guide = document.getElementById('pwa-ios-guide');
+  if (guide) guide.style.display = 'block';
+}
+if (window.matchMedia('(display-mode: standalone)').matches) {
+  var el2 = document.getElementById('pwa-installed');
+  if (el2) el2.style.display = 'block';
+}
+
+// ── Clear cache ────────────────────────────────────────────
+function clearCache() {
+  if ('caches' in window) {
+    caches.keys().then(function(names) {
+      Promise.all(names.map(function(n) { return caches.delete(n); }))
+        .then(function() { alert('Đã xóa cache thành công!'); });
+    });
+  } else {
+    alert('Không hỗ trợ cache trên trình duyệt này.');
+  }
+}
+
+// Init
+initDarkToggle();
+initFontToggle();
+</script>
