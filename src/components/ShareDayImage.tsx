@@ -52,7 +52,18 @@ export default function ShareDayImage({
         });
       }
 
-      const dataUrl = await (window as unknown as { htmlToImage: typeof htmlToImage }).htmlToImage.toPng(cardRef.current, { pixelRatio: 2 });
+      const hi = (window as unknown as { htmlToImage: typeof htmlToImage }).htmlToImage;
+      // Temporarily make visible for capture
+      if (cardRef.current) {
+        cardRef.current.style.opacity = '1';
+        cardRef.current.style.zIndex = '9999';
+      }
+      await new Promise(r => setTimeout(r, 100)); // wait for render
+      const dataUrl = await hi.toPng(cardRef.current!, { pixelRatio: 2, cacheBust: true });
+      if (cardRef.current) {
+        cardRef.current.style.opacity = '0';
+        cardRef.current.style.zIndex = '-1';
+      }
 
       // Convert to blob
       const res  = await fetch(dataUrl);
@@ -90,9 +101,12 @@ export default function ShareDayImage({
       <div
         ref={cardRef}
         style={{
-          position:        'absolute',
-          left:            '-9999px',
+          position:        'fixed',
+          left:            0,
           top:             0,
+          opacity:         0,
+          pointerEvents:   'none',
+          zIndex:          -1,
           width:           '540px',
           height:          '540px',
           background:      'linear-gradient(135deg, #8B0000 0%, #C0392B 100%)',
