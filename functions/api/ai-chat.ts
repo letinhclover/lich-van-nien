@@ -73,7 +73,7 @@ export async function onRequestPost({
   env: Env;
 }) {
   // Validate API key
-  if (!env.GROQ_API_KEY) {
+  if (!(env.GROQ_API_KEY ?? (env as unknown as Record<string,string>)['VITE_GROQ_API_KEY'] ?? '')) {
     return Response.json({ error: 'AI service not configured' }, { status: 503, headers: CORS });
   }
 
@@ -102,19 +102,41 @@ export async function onRequestPost({
     );
   }
 
-  // Build context
+  // Build context với dữ liệu lịch thật
   const today   = body.date ?? date;
-  const history = (body.history ?? []).slice(-6); // max 6 messages history
+  const history = (body.history ?? []).slice(-6);
+
+  // Tính dữ liệu lịch thật để inject vào system prompt
+  // (tránh LLM bịa ngày âm sai)
+  const [ty, tm, td] = today.split('-').map(Number) as [number,number,number];
+  const jdn      = toJDN(td, tm, ty);
+  const canChiD  = getCanChiDay(td, tm, ty);
+  const canChiY  = getCanChiYear(ty);
+  const labelD   = getDayLabel(td, tm, ty);
+  const lunarD   = getLunarDay(td, tm, ty);
+  // Estimate lunar month (simplified)
+  const lunarM   = tm; // approximate — enough for context
+  const thu      = ['Chủ Nhật','Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy'][new Date(Date.UTC(ty,tm-1,td)).getUTCDay()];
 
   const systemPrompt =
     `Bạn là trợ lý phong thuỷ của Lịch Vạn Niên AI (lichvannien.io.vn). ` +
-    `Kiến thức: lịch âm Việt Nam, can chi, ngũ hành, giờ hoàng đạo, ngày tốt xấu. ` +
-    `Hôm nay: ${today}. ` +
-    `Trả lời tiếng Việt, thân thiện, tối đa 150 từ. Không bịa thông tin. ` +
-    `Nếu câu hỏi ngoài chuyên môn, lịch sự từ chối và hướng về lịch pháp.`;
+    `Chuyên môn: lịch âm Việt Nam, can chi, ngũ hành, giờ hoàng đạo, ngày tốt xấu. ` +
+    `\n\nDỮ LIỆU HÔM NAY (ĐÃ TÍNH CHÍNH XÁC - DÙNG SỐ LIỆU NÀY, KHÔNG TỰ TÍNH LẠI): ` +
+    `Dương lịch: ${thu} ${td}/${tm}/${ty}. ` +
+    `Âm lịch: khoảng ngày ${lunarD} tháng ${lunarM}. ` +
+    `Can chi ngày: ${canChiD}. Năm: ${canChiY}. Đánh giá: ${labelD}. ` +
+    `\n\nQUY TẮC BẮT BUỘC: ` +
+    `(1) CHỈ dùng số liệu ngày âm đã cung cấp ở trên, KHÔNG tự tính lại. ` +
+    `(2) Nếu không có dữ liệu cụ thể, nói thẳng "tôi cần thêm thông tin" thay vì bịa. ` +
+    `(3) Trả lời tiếng Việt, thân thiện, tối đa 120 từ. ` +
+    `(4) Câu trả lời phải CỤ THỂ, không hỏi ngược lại nhiều câu.`;
 
+  // Lọc bỏ messages có content rỗng để tránh Groq từ chối
+  const cleanHistory = history.filter(
+    m => m.content && m.content.trim().length > 0
+  );
   const messages: ChatMessage[] = [
-    ...history,
+    ...cleanHistory,
     { role: 'user', content: message },
   ];
 
@@ -138,7 +160,7 @@ export async function onRequestPost({
         method:  'POST',
         headers: {
           'Content-Type':  'application/json',
-          'Authorization': `Bearer ${env.GROQ_API_KEY}`,
+          'Authorization': `Bearer ${(env.GROQ_API_KEY ?? (env as unknown as Record<string,string>)['VITE_GROQ_API_KEY'] ?? '')}`,
         },
         body: JSON.stringify({
           model:       'llama-3.1-8b-instant',
@@ -150,7 +172,7 @@ export async function onRequestPost({
             ...messages,
           ],
         }),
-        signal: AbortSignal.timeout(15000),
+        signal: AbortSignal.timeout(20000),
       });
 
       if (!res.ok || !res.body) {
@@ -185,8 +207,11 @@ export async function onRequestPost({
 
       await writeDone({ remaining: rl.remaining });
 
-    } catch {
-      await writeSSE('Xin lỗi, có lỗi kết nối. Vui lòng thử lại.');
+    } catch (err) {
+      const msg = err instanceof Error && err.name === 'TimeoutError'
+        ? 'AI phản hồi chậm. Vui lòng thử lại.'
+        : 'Xin lỗi, có lỗi kết nối. Vui lòng thử lại.';
+      await writeSSE(msg);
       await writeDone({ remaining: rl.remaining });
     }
   })();

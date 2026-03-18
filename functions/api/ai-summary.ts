@@ -106,10 +106,11 @@ export async function onRequestGet({
   }
 
   // ── 2. Kiểm tra API key ────────────────────────────────────
-  if (!env.GROQ_API_KEY) {
+  if (!(env.GROQ_API_KEY ?? (env as unknown as Record<string,string>)['VITE_GROQ_API_KEY'] ?? '')) {
+    // Debug: trả lỗi rõ ràng thay vì fallback im lặng
     return Response.json(
-      { summary: fallbackSummary(d, m, y), date, cached: false, fallback: true },
-      { headers: CORS }
+      { error: 'GROQ_API_KEY not configured', summary: fallbackSummary(d, m, y), date, cached: false, fallback: true },
+      { status: 503, headers: CORS }
     );
   }
 
@@ -130,7 +131,7 @@ export async function onRequestGet({
       method:  'POST',
       headers: {
         'Content-Type':  'application/json',
-        'Authorization': `Bearer ${env.GROQ_API_KEY}`,
+        'Authorization': `Bearer ${(env.GROQ_API_KEY ?? (env as unknown as Record<string,string>)['VITE_GROQ_API_KEY'] ?? '')}`,
       },
       body: JSON.stringify({
         model:       'llama-3.1-8b-instant',
@@ -164,10 +165,10 @@ export async function onRequestGet({
       { headers: { ...CORS, 'Cache-Control': 'public, max-age=300' } }
     );
 
-  } catch {
-    // ── 5. Fallback thân thiện ────────────────────────────────
+  } catch(err) {
+    const errMsg = err instanceof Error ? err.message : String(err);
     return Response.json(
-      { summary: fallbackSummary(d, m, y), date, cached: false, fallback: true },
+      { summary: fallbackSummary(d, m, y), date, cached: false, fallback: true, debug: errMsg },
       { headers: CORS }
     );
   }
