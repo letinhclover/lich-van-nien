@@ -10,6 +10,7 @@ import { getVietnamNow, buildSolarDate, solarToPath,
 import { solarToLunar, getCanChi, getDayQuality, getHoangDao } from '../lib/amlich';
 import { SITE }         from '../lib/constants';
 import AISummary        from '../components/AISummary';
+import SaoTrucBadge     from '../components/SaoTrucBadge.astro';
 
 // ─── Dữ liệu hôm nay (build-time, UTC+7) ─────────────────────
 const now    = getVietnamNow();
@@ -190,7 +191,9 @@ const jsonLd = [
         {quality.isNguyetKy  && <span class="badge-red text-xs">⚠ Nguyệt Kỵ</span>}
       </div>
 
-      <!-- Score dots -->
+        <SaoTrucBadge {day} month={m} {year} />
+
+    <!-- Score dots -->
       <div class="flex items-center gap-1.5 mb-3">
         {scoreDots.map(filled => (
           <div class="w-6 h-2 rounded-full" style={`background:${filled ? quality.color : 'var(--border)'};`}></div>
