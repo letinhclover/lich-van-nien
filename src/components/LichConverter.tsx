@@ -201,7 +201,7 @@ export default function LichConverter() {
   return (
     <div>
       {/* Tabs */}
-      <div className="flex gap-1 mb-4 p-1 rounded-xl" {{background:'var(--bg-surface)'}}>
+      <div className="flex gap-1 mb-4 p-1 rounded-xl" style={{background:'var(--bg-surface)'}}>
         {(['solar','lunar'] as const).map(t => (
           <button key={t} onClick={() => setTab(t)}
             className="flex-1 py-2 rounded-lg text-sm font-semibold transition-all"
