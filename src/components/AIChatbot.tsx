@@ -23,19 +23,11 @@ export default function AIChatbot() {
   const [input,      setInput]      = useState('');
   const [loading,    setLoading]    = useState(false);
   const [remaining,  setRemaining]  = useState(3);
-  const [rateLimited,setRateLimited]= useState(false);
+  const [rateLimited,setRateLimited]= useState(false); // TODO: bật lại khi launch
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef  = useRef<HTMLInputElement>(null);
 
-  // Load remaining từ localStorage (estimate)
-  useEffect(() => {
-    const today = new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Ho_Chi_Minh' }).split(' ')[0] ?? '';
-    const key   = `lvn_chat_count:${today}`;
-    const count = parseInt(localStorage.getItem(key) ?? '0', 10);
-    const rem   = Math.max(0, 3 - count);
-    setRemaining(rem);
-    if (rem === 0) setRateLimited(true);
-  }, []);
+
 
   // Scroll to bottom
   useEffect(() => {
@@ -44,7 +36,7 @@ export default function AIChatbot() {
 
   const sendMessage = useCallback(async (text: string) => {
     const msg = text.trim();
-    if (!msg || loading || rateLimited) return;
+    if (!msg || loading) return;
 
     setInput('');
     setMessages(prev => [...prev, { role: 'user', content: msg }]);
@@ -61,27 +53,22 @@ export default function AIChatbot() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: msg,
-          history: messages.slice(-6).map(m => ({ role: m.role, content: m.content })),
+          history: messages
+            .filter(m => m.content && m.content.trim() && !m.streaming)
+            .slice(-6)
+            .map(m => ({ role: m.role, content: m.content })),
           date:    today,
         }),
       });
 
-      if (res.status === 429) {
-        setRateLimited(true);
-        setRemaining(0);
-        setMessages(prev => prev.slice(0, -1)); // remove placeholder
-        setLoading(false);
-        return;
-      }
+      // Rate limit disabled for testing
+      // if (res.status === 429) { ... }
 
       const rem = parseInt(res.headers.get('X-Rate-Limit-Remaining') ?? '2', 10);
       setRemaining(rem);
       if (rem === 0) setRateLimited(true);
 
-      // Update localStorage count
-      const key = `lvn_chat_count:${today}`;
-      const cnt = parseInt(localStorage.getItem(key) ?? '0', 10);
-      localStorage.setItem(key, String(cnt + 1));
+
 
       // Read SSE stream
       if (!res.body) throw new Error('No body');
@@ -161,20 +148,11 @@ export default function AIChatbot() {
   return (
     <div className="card overflow-hidden" style={{ position:'relative' }}>
 
-      {/* Rate limit counter */}
-      <div style={{ padding:'0.5rem 0.75rem', borderBottom:'1px solid var(--border)', display:'flex', alignItems:'center', justifyContent:'space-between', background:'var(--bg-surface)' }}>
+      {/* Header */}
+      <div style={{ padding:'0.5rem 0.75rem', borderBottom:'1px solid var(--border)', background:'var(--bg-surface)' }}>
         <span style={{ fontSize:'0.7rem', fontWeight:600, color:'var(--text-3)' }}>
           🤖 Trợ lý Lịch Vạn Niên AI
         </span>
-        {!rateLimited ? (
-          <span style={{ fontSize:'0.65rem', color:'var(--text-3)', padding:'2px 8px', background:'var(--bg-card)', border:'1px solid var(--border)', borderRadius:'8px' }}>
-            Còn {remaining}/{3} câu hôm nay
-          </span>
-        ) : (
-          <span style={{ fontSize:'0.65rem', color:'var(--red)', fontWeight:600 }}>
-            Hết lượt hôm nay
-          </span>
-        )}
       </div>
 
       {/* Messages area */}
