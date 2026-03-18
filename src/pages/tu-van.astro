@@ -12,7 +12,7 @@ const lunar  = solarToLunar(day, month, year);
 const canChi = getCanChi(day, month, year);
 
 const title       = 'Tư vấn phong thuỷ bằng AI — Hỏi về ngày tốt xấu, lịch âm | Lịch Vạn Niên'.slice(0, 60);
-const description = 'Hỏi AI về ngày tốt để cưới, khai trương, xuất hành. Phân tích theo lịch âm, can chi. Miễn phí 3 câu/ngày.'.slice(0, 160);
+const description = 'Hỏi AI về ngày tốt để cưới, khai trương, xuất hành. Phân tích theo lịch âm, can chi. Miễn phí không giới hạn.'.slice(0, 160);
 const canonical   = `${SITE.baseUrl}/tu-van`;
 
 const jsonLd = {
@@ -94,7 +94,7 @@ const USE_CASES = [
 
     <!-- 3 badges -->
     <div class="flex flex-wrap justify-center gap-2">
-      <span class="badge-green">✓ Miễn phí 3 câu/ngày</span>
+      <span class="badge-green">✓ Miễn phí không giới hạn</span>
       <span class="badge-gold">✓ Theo lịch âm VN</span>
       <span class="badge-red">✓ Tiếng Việt</span>
     </div>
@@ -156,7 +156,7 @@ const USE_CASES = [
         },
         {
           q: 'Miễn phí được mấy câu một ngày?',
-          a: '3 câu hỏi/ngày. Lượt hỏi tự động reset lúc 00:00 theo giờ Việt Nam.',
+          a: 'Không giới hạn câu hỏi. Lượt hỏi tự động reset lúc 00:00 theo giờ Việt Nam.',
         },
       ].map(({ q, a }) => (
         <div>
