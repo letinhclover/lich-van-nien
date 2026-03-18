@@ -101,7 +101,11 @@ export async function onRequestPost({request,env}:{request:Request;env:Env}) {
 
       if (!res.ok) {
         const errText = await res.text().catch(()=>'');
-        await send(`Lỗi API: ${res.status}. ${errText.slice(0,100)}`);
+        if (res.status === 429 || res.status === 403) {
+          await send('Groq AI đang bận (quá nhiều yêu cầu). Vui lòng chờ 1 phút rồi thử lại.');
+        } else {
+          await send(`Lỗi kết nối AI (${res.status}). Thử lại sau.`);
+        }
         await done(); return;
       }
       if (!res.body) { await send('Không nhận được phản hồi.'); await done(); return; }
