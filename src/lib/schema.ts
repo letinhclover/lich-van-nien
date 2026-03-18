@@ -4,7 +4,8 @@
 // Test tại: search.google.com/test/rich-results
 // ============================================================
 
-import { SITE } from './constants';
+import { SITE, THU_VI } from './constants';
+
 import type { DayInfo } from './amlich';
 
 // ─── WebSite Schema ──────────────────────────────────────────
@@ -85,6 +86,9 @@ export function createDayPageSchema(
 ): object[] {
   const { solar, lunar, canChi, quality, hours } = info;
   const { day: d, month: m, year: y } = solar;
+  // SolarDate từ amlich không có weekdayLabel → tính thủ công
+  const dow = new Date(Date.UTC(y, m - 1, d)).getUTCDay();
+  const weekdayLabel = THU_VI[dow] ?? 'Chủ Nhật';
   const lunarFull = `${lunar.leap ? 'Nhuận ' : ''}${lunar.day} tháng ${lunar.month} năm ${canChi.nam.display}`;
   const goodHours = hours.filter(h => h.isHoangDao).map(h => h.tenGio).join(', ');
   const goodFor   = quality.goodFor.slice(0, 3).join(', ');
@@ -98,7 +102,7 @@ export function createDayPageSchema(
   const faq = createFAQSchema([
     {
       q: `Ngày ${d}/${m}/${y} âm lịch là ngày mấy?`,
-      a: `Ngày ${d}/${m}/${y} (${solar.weekdayLabel}) âm lịch là ${lunarFull}. Can chi ngày: ${canChi.ngay.display}, tháng: ${canChi.thang.display}, năm: ${canChi.nam.display}.`,
+      a: `Ngày ${d}/${m}/${y} (${weekdayLabel}) âm lịch là ${lunarFull}. Can chi ngày: ${canChi.ngay.display}, tháng: ${canChi.thang.display}, năm: ${canChi.nam.display}.`,
     },
     {
       q: `Ngày ${d}/${m}/${y} là tốt hay xấu?`,
@@ -110,7 +114,7 @@ export function createDayPageSchema(
     },
     {
       q: `Ngày ${d}/${m}/${y} thứ mấy?`,
-      a: `Ngày ${d}/${m}/${y} là ${solar.weekdayLabel}. Âm lịch: ${lunarFull}.`,
+      a: `Ngày ${d}/${m}/${y} là ${weekdayLabel}. Âm lịch: ${lunarFull}.`,
     },
   ]);
 
