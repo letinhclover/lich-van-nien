@@ -9,6 +9,7 @@ import { getVietnamNow, buildSolarDate, solarToPath,
          prevDayPath, nextDayPath, formatDateVN, THU_SHORT } from '../lib/dateUtils';
 import { solarToLunar, getCanChi, getDayQuality, getHoangDao } from '../lib/amlich';
 import { SITE }         from '../lib/constants';
+import AISummary        from '../components/AISummary';
 
 // ─── Dữ liệu hôm nay (build-time, UTC+7) ─────────────────────
 const now    = getVietnamNow();
@@ -27,6 +28,7 @@ const nextPath     = nextDayPath(d, m, y);
 const thangPath    = `/lich/thang/${y}/${String(m).padStart(2,'0')}`;
 
 // Giờ đang diễn ra: giờ Tý bắt đầu từ 23h
+const todayDateStr = `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
 const currentGioIdx = ((currentHour + 1) % 24) < 2
   ? 0
   : Math.floor(((currentHour + 1) % 24) / 2);
