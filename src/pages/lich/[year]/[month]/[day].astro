@@ -17,6 +17,7 @@ import { createDayPageSchema } from '../../../../lib/schema';
 import Breadcrumb  from '../../../../components/Breadcrumb.astro';
 import RelatedDays from '../../../../components/RelatedDays.astro';
 import ShareDayImage  from '../../../../components/ShareDayImage';
+import SaoTrucBadge   from '../../../../components/SaoTrucBadge.astro';
 
 // ─── SSG: generate 1826 paths ────────────────────────────────
 export function getStaticPaths() {
@@ -199,7 +200,7 @@ const description = (
           style={`background:${quality.color}15;`}>⭐</div>
         <div>
           <p class="section-label">Sao trực nhật (Nhị Thập Bát Tú)</p>
-          <p class="font-bold text-base" style="color:var(--text-1);">{quality.tu}</p>
+          <SaoTrucBadge {day} {month} {year} expanded={true} />
           <p class="text-xs mt-0.5" style="color:var(--text-3);">{quality.label}</p>
         </div>
       </div>
