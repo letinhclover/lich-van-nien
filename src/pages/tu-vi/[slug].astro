@@ -1,0 +1,109 @@
+---
+// src/pages/tu-vi/[slug].astro — 60 trang tử vi năm 2027
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import { SITE }   from '../../lib/constants';
+import { getCanChiYear } from '../../lib/amlich';
+import CAN_CHI_PROFILES from '../../lib/can-chi-profiles';
+
+export function getStaticPaths() {
+  return CAN_CHI_PROFILES.map(p => ({
+    params: { slug: p.slug },
+    props:  { profile: p },
+  }));
+}
+
+const { profile } = Astro.props;
+
+// Load tuvi data from JSON
+let tuvi: Record<string,unknown> = {};
+try {
+  // Dynamic import of JSON content
+  const allFiles = import.meta.glob('../../content/tuvi/*.json', { eager: true });
+  const key = Object.keys(allFiles).find(k => k.includes(profile.slug));
+  if (key) tuvi = (allFiles[key] as { default: Record<string,unknown> }).default ?? {};
+} catch { /* fallback to empty */ }
+
+const canChi2027 = getCanChiYear(2027); // Đinh Mùi
+
+const canonical  = `${SITE.baseUrl}/tu-vi/${profile.slug}`;
+const title      = `Tử vi năm 2027 tuổi ${profile.name} — Vận mệnh, tài lộc đầy đủ | Lịch Vạn Niên`.slice(0,60);
+const description = `Tử vi năm 2027 ${canChi2027} cho tuổi ${profile.name}. Tài lộc, sự nghiệp, tình duyên, sức khoẻ và tháng tốt nhất năm 2027.`.slice(0,160);
+
+const thangTot = (tuvi.thangTot as string[]) ?? [];
+
+const SECTIONS = [
+  { key: 'tongVan',   icon: '🌟', title: 'Tổng vận năm 2027' },
+  { key: 'taiLoc',    icon: '💰', title: 'Tài lộc' },
+  { key: 'suNghiep',  icon: '💼', title: 'Sự nghiệp' },
+  { key: 'tinhDuyen', icon: '💕', title: 'Tình duyên' },
+  { key: 'sucKhoe',   icon: '🌿', title: 'Sức khoẻ' },
+  { key: 'loiKhuyen', icon: '✨', title: 'Lời khuyên' },
+];
+---
+
+<BaseLayout {title} {description} canonicalUrl={canonical}>
+
+  <Breadcrumb items={[
+    { label: 'Trang chủ', href: '/' },
+    { label: 'Tử vi 2027', href: '/tu-vi' },
+    { label: `Tuổi ${profile.name}` },
+  ]} />
+
+  <!-- Hero -->
+  <div class="card overflow-hidden mb-5">
+    <div class="h-1.5" style={`background:${profile.color};`}></div>
+    <div class="p-4">
+      <p class="section-label mb-1">Tử vi năm 2027 · Năm {canChi2027}</p>
+      <h1 class="font-display font-bold text-2xl mb-2" style="color:var(--text-1);">
+        Tuổi {profile.name} — {profile.conGiap}
+      </h1>
+      <div class="flex gap-2 flex-wrap">
+        <span class="badge-gold">🌿 {profile.nguHanh}</span>
+        <span style={`background:${profile.color}18;color:${profile.color};`}
+          class="text-xs px-2.5 py-1 rounded-full font-semibold">
+          {profile.can} · {profile.chi}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tháng tốt -->
+  {thangTot.length > 0 && (
+    <div class="card p-4 mb-5" style="background:var(--green-pale);border-color:rgba(29,158,117,0.3);">
+      <p class="section-label mb-2">📅 Tháng tốt nhất năm 2027</p>
+      <div class="flex gap-2 flex-wrap">
+        {thangTot.map(t => (
+          <span class="badge-green font-bold">Tháng {t} âm</span>
+        ))}
+      </div>
+    </div>
+  )}
+
+  <!-- 6 sections -->
+  {SECTIONS.map(({ key, icon, title: st }) => (
+    <section class="card p-4 mb-3">
+      <h2 class="font-bold text-sm mb-2" style="color:var(--text-1);">
+        {icon} {st}
+      </h2>
+      <p class="text-sm leading-relaxed" style="color:var(--text-2);">
+        {(tuvi[key] as string) ?? 'Đang cập nhật...'}
+      </p>
+    </section>
+  ))}
+
+  <!-- CTA -->
+  <div class="card p-4 mb-4" style={`background:${profile.color}08;border-color:${profile.color}30;`}>
+    <p class="font-bold text-sm mb-2" style="color:var(--text-1);">
+      🤖 Hỏi AI về vận trình tuổi {profile.name}
+    </p>
+    <a href="/tu-van" class="btn-primary text-sm inline-flex">
+      Tư vấn thêm →
+    </a>
+  </div>
+
+  <a href="/tu-vi" class="btn-secondary text-sm w-full justify-center">
+    ← Xem tử vi tất cả 60 tuổi
+  </a>
+
+</BaseLayout>
