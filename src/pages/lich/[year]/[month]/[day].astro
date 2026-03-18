@@ -16,7 +16,8 @@ import { SITE } from '../../../../lib/constants';
 import { createDayPageSchema } from '../../../../lib/schema';
 import Breadcrumb  from '../../../../components/Breadcrumb.astro';
 import RelatedDays from '../../../../components/RelatedDays.astro';
-import AISummary   from '../../../../components/AISummary';
+import AISummary      from '../../../../components/AISummary';
+import ShareDayImage  from '../../../../components/ShareDayImage';
 
 // ─── SSG: generate 1826 paths ────────────────────────────────
 export function getStaticPaths() {
@@ -261,6 +262,20 @@ const description = (
     <a href={thangPath} class="flex-1 btn-secondary justify-center text-sm py-3">📅 T{m}/{y}</a>
     <a href={nextPath}  class="flex-1 btn-secondary justify-center text-sm py-3">Hôm sau →</a>
   </nav>
+
+  <!-- ── SHARE ──────────────────────────────────────────────── -->
+  <div class="mb-4">
+    <ShareDayImage
+      {day} {month} {year}
+      lunar={lunarFull}
+      canChi={canChi.ngay.display}
+      score={quality.score}
+      label={quality.label}
+      goodFor={quality.goodFor}
+      url={canonical}
+      client:visible
+    />
+  </div>
 
   <!-- SEO text -->
   <div class="card p-4 mb-2">
