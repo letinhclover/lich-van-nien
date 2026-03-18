@@ -1,42 +1,44 @@
 {
-  "name":             "Lịch Vạn Niên AI 2026 — Lịch Âm",
-  "short_name":       "Lịch VN AI",
-  "description":      "Lịch vạn niên, âm lịch 2026, xem ngày tốt xấu, giờ hoàng đạo, tư vấn AI phong thủy",
-  "start_url":        "https://lichvannien.io.vn/?utm_source=pwa",
-  "scope":            "https://lichvannien.io.vn/",
-  "display":          "standalone",
-  "display_override": ["standalone", "minimal-ui"],
-  "orientation":      "portrait",
-  "theme_color":      "#C0392B",
-  "background_color": "#FFFDF9",
-  "lang":             "vi",
-  "dir":              "ltr",
-  "categories":       ["lifestyle", "utilities"],
+  "name":              "Lịch Vạn Niên AI 2026",
+  "short_name":        "Lịch AI",
+  "description":       "Lịch âm dương Việt Nam, xem ngày tốt xấu, giờ hoàng đạo, tư vấn AI phong thủy",
+  "start_url":         "/?utm_source=pwa",
+  "scope":             "/",
+  "display":           "standalone",
+  "display_override":  ["standalone", "minimal-ui"],
+  "orientation":       "portrait-primary",
+  "theme_color":       "#C0392B",
+  "background_color":  "#FFFDF9",
+  "lang":              "vi",
+  "dir":               "ltr",
+  "categories":        ["lifestyle", "utilities"],
   "icons": [
+    { "src": "/pwa-72x72.png",   "sizes": "72x72",   "type": "image/png", "purpose": "any" },
+    { "src": "/pwa-96x96.png",   "sizes": "96x96",   "type": "image/png", "purpose": "any" },
+    { "src": "/pwa-128x128.png", "sizes": "128x128", "type": "image/png", "purpose": "any" },
     { "src": "/pwa-192x192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
     { "src": "/pwa-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
     { "src": "/pwa-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ],
   "shortcuts": [
     {
-      "name":       "Xem Ngày Hôm Nay",
-      "short_name": "Hôm Nay",
+      "name":       "Hôm nay",
+      "short_name": "Hôm nay",
       "url":        "/?utm_source=shortcut",
       "icons":      [{ "src": "/pwa-192x192.png", "sizes": "192x192" }]
     },
     {
-      "name":       "Giờ Hoàng Đạo",
-      "short_name": "Hoàng Đạo",
-      "url":        "/gio-hoang-dao?utm_source=shortcut",
+      "name":       "Đổi lịch",
+      "short_name": "Đổi lịch",
+      "url":        "/chuyen-doi-lich?utm_source=shortcut",
       "icons":      [{ "src": "/pwa-192x192.png", "sizes": "192x192" }]
     },
     {
-      "name":       "Tư Vấn AI",
-      "short_name": "Hỏi Thầy",
+      "name":       "Tư vấn AI",
+      "short_name": "Tư vấn AI",
       "url":        "/tu-van?utm_source=shortcut",
       "icons":      [{ "src": "/pwa-192x192.png", "sizes": "192x192" }]
     }
   ],
-  "related_applications":       [],
   "prefer_related_applications": false
 }
