@@ -1,6 +1,6 @@
 ---
 title: "Ngày tốt tháng 4/2026 — Danh sách đầy đủ ngày hoàng đạo"
-description: "Danh sách ngày tốt tháng 4/2026 theo lịch âm: ngày hoàng đạo, tránh Tam Nương, Nguyệt Kỵ. Xem chi tiết từng ngày để chọn ngày khai trương, cưới hỏi, ký hợp đồng."
+description: "Danh sách ngày tốt tháng 4/2026 theo lịch âm: ngày hoàng đạo, tránh Tam Nương, Nguyệt Kỵ. Xem chi tiết từng ngày để chọn ngày khai trương, cưới hỏi, ký hợp đ..."
 pubDate: 2026-03-01
 keywords: ["ngày tốt tháng 4 2026", "lịch âm tháng 4", "ngày hoàng đạo tháng 4", "ngày tốt khai trương", "lịch vạn niên tháng 4 2026"]
 author: "Lịch Vạn Niên AI"
