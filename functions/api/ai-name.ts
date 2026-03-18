@@ -46,7 +46,7 @@ export async function onRequestPost({
   request: Request;
   env: Env;
 }) {
-  if (!env.GROQ_API_KEY) {
+  if (!(env.GROQ_API_KEY ?? (env as unknown as Record<string,string>)['VITE_GROQ_API_KEY'] ?? '')) {
     return Response.json({ error: 'AI service not configured' }, { status: 503, headers: CORS });
   }
 
@@ -90,7 +90,7 @@ export async function onRequestPost({
   try {
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${env.GROQ_API_KEY}` },
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${(env.GROQ_API_KEY ?? (env as unknown as Record<string,string>)['VITE_GROQ_API_KEY'] ?? '')}` },
       body: JSON.stringify({
         model: 'llama-3.1-8b-instant', max_tokens: 400, temperature: 0.5,
         messages: [
