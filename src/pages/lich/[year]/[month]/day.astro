@@ -1,0 +1,293 @@
+---
+// ============================================================
+// src/pages/lich/[year]/[month]/[day].astro
+// 1825 trang tĩnh — mỗi trang = 1 URL = 1 cơ hội rank Google
+// ============================================================
+
+import BaseLayout from '../../../../layouts/BaseLayout.astro';
+import {
+  getAllDayParams, validateDayParams,
+  solarToPath, prevDayPath, nextDayPath, buildSolarDate, THU_SHORT,
+} from '../../../../lib/dateUtils';
+import {
+  solarToLunar, getDayInfo,
+} from '../../../../lib/amlich';
+import { SITE } from '../../../../lib/constants';
+import { createDayPageSchema } from '../../../../lib/schema';
+import Breadcrumb  from '../../../../components/Breadcrumb.astro';
+import RelatedDays from '../../../../components/RelatedDays.astro';
+import AISummary      from '../../../../components/AISummary';
+import ShareDayImage  from '../../../../components/ShareDayImage';
+
+// ─── SSG: generate 1826 paths ────────────────────────────────
+export function getStaticPaths() {
+  return getAllDayParams();
+}
+
+// ─── Params ──────────────────────────────────────────────────
+const { year, month, day } = Astro.params;
+const validated = validateDayParams(year, month, day);
+if (!validated.valid) return Astro.redirect('/404');
+const { y, m, d } = validated;
+
+// ─── Dữ liệu ngày ────────────────────────────────────────────
+const solar   = buildSolarDate(d, m, y);
+const lunar   = solarToLunar(d, m, y);
+const info    = getDayInfo(d, m, y);
+const { canChi, quality, hours } = info;
+
+// Derived
+const lunarFull   = `${lunar.leap ? 'Nhuận ' : ''}${lunar.day} tháng ${lunar.month} năm ${lunar.yearName}`;
+const lunarShort  = `${lunar.leap ? 'Nhuận ' : ''}${lunar.day}/${lunar.month}`;
+const goodHoursStr = hours.filter(h => h.isHoangDao).slice(0, 4).map(h => h.tenGio.split(' (')[0]).join(', ');
+
+const scoreBadgeStyle = quality.score >= 4
+  ? 'background:var(--green-pale);color:var(--green);border:1px solid rgba(29,158,117,0.3);'
+  : quality.score === 3
+    ? 'background:var(--gold-pale);color:var(--gold-dark);border:1px solid rgba(241,196,15,0.3);'
+    : 'background:var(--red-pale);color:var(--red);border:1px solid var(--border-red);';
+const scoreLabel  = quality.score >= 4 ? 'Ngày Tốt' : quality.score === 3 ? 'Bình Thường' : 'Ngày Xấu';
+
+// Lịch tuần: 7 ngày xung quanh ngày này
+const weekDays = Array.from({ length: 7 }, (_, i) => {
+  const ms  = Date.UTC(y, m - 1, d) + (i - solar.weekday) * 86400000;
+  const dt  = new Date(ms);
+  const dd2 = dt.getUTCDate(), mm2 = dt.getUTCMonth() + 1, yy2 = dt.getUTCFullYear();
+  return {
+    dd: dd2, mm: mm2, yy: yy2,
+    dow: dt.getUTCDay(),
+    isThis: dd2 === d && mm2 === m && yy2 === y,
+    path: solarToPath(dd2, mm2, yy2),
+  };
+});
+
+// Paths
+const prevPath  = prevDayPath(d, m, y);
+const nextPath  = nextDayPath(d, m, y);
+const thangPath = `/lich/thang/${year}/${month}`;
+const canonical = `${SITE.baseUrl}/lich/${year}/${month}/${day}`;
+const dateStr   = `${year}-${month}-${day}`;
+
+// JSON-LD — phải sau canonical
+const daySchema = createDayPageSchema(info, canonical);
+
+// ─── SEO ─────────────────────────────────────────────────────
+const title = `Lịch âm ngày ${d}/${m}/${y} — ${canChi.ngay.display} ${scoreLabel} | Lịch Vạn Niên AI`.slice(0, 60);
+const description = (
+  `Ngày ${d}/${m}/${y} (${solar.weekdayLabel}) = ${lunarFull}. ` +
+  `Can chi ${canChi.ngay.display}. ${quality.label}. ` +
+  `Giờ hoàng đạo: ${goodHoursStr}.`
+).slice(0, 160);
+
+// JSON-LD handled by createDayPageSchema below
+---
+
+<BaseLayout
+  {title}
+  {description}
+  canonicalUrl={canonical}
+  jsonLd={daySchema}
+  prevUrl={`${SITE.baseUrl}${prevPath}`}
+  nextUrl={`${SITE.baseUrl}${nextPath}`}
+>
+
+  <!-- ── 1. BREADCRUMB ──────────────────────────────────────── -->
+  <Breadcrumb items={[
+    { label: 'Trang chủ', href: '/' },
+    { label: `Tháng ${m}/${y}`, href: thangPath },
+    { label: `${d}/${m}/${y}` },
+  ]} />
+
+  <!-- ── HERO CARD ──────────────────────────────────────────── -->
+  <div class="card overflow-hidden mb-4">
+    <div class="h-1.5" style={`background:${quality.color};`}></div>
+    <div class="p-4">
+      <div class="flex items-start justify-between gap-3">
+        <div class="min-w-0">
+          <p class="section-label mb-1">{solar.weekdayLabel} · {d}/{m}/{y}</p>
+          <h1 class="font-display font-bold text-2xl leading-tight mb-1" style="color:var(--text-1);">
+            Lịch âm ngày {d}/{m}/{y}
+          </h1>
+          <p class="text-sm mb-2" style="color:var(--text-2);">
+            <span class="font-semibold">🌙 {lunarFull}</span>
+          </p>
+          <div class="flex flex-wrap gap-1.5">
+            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold"
+              style={scoreBadgeStyle}>{scoreLabel}</span>
+            <span class="badge-gold">Ngày {canChi.ngay.display}</span>
+            {quality.isTamNuong && <span class="badge-red text-xs">⚠ Tam Nương</span>}
+            {quality.isNguyetKy  && <span class="badge-red text-xs">⚠ Nguyệt Kỵ</span>}
+          </div>
+        </div>
+        <!-- Score -->
+        <div class="flex flex-col items-center justify-center w-16 h-16 rounded-2xl shrink-0"
+          style={`border:2px solid ${quality.color};background:${quality.color}15;`}>
+          <span class="font-display font-black text-2xl leading-none" style={`color:${quality.color};`}>{quality.score}</span>
+          <span class="text-[9px]" style="color:var(--text-3);">/5 điểm</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 2. TỨ TRỤ CAN CHI ─────────────────────────────────── -->
+  <section aria-label="Tứ trụ can chi" class="mb-4">
+    <h2 class="section-label mb-2">🔮 Tứ Trụ Can Chi Ngày {d}/{m}/{y}</h2>
+    <div class="card overflow-hidden">
+      <div class="grid grid-cols-2">
+        {([
+          { label:'Năm',  cc: canChi.nam   },
+          { label:'Tháng',cc: canChi.thang },
+          { label:'Ngày', cc: canChi.ngay  },
+          { label:'Giờ',  cc: canChi.gio   },
+        ] as const).map(({ label, cc }, i) => (
+          <div class:list={['p-3.5 border-b', i % 2 === 0 ? 'border-r' : '']}
+            style="border-color:var(--border);">
+            <p class="section-label mb-1">{label}</p>
+            <p class="font-bold text-base" style="color:var(--text-1);">{cc.display}</p>
+            <p class="text-xs mt-0.5" style="color:var(--text-3);">{cc.nguHanh}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 3. BẢNG 12 GIỜ HOÀNG ĐẠO ──────────────────────────── -->
+  <section aria-label="Giờ hoàng đạo" class="mb-4">
+    <div class="flex items-center justify-between mb-2">
+      <h2 class="section-label">⏰ Giờ Hoàng Đạo Ngày {d}/{m}/{y}</h2>
+      <div class="flex gap-2 text-[10px]" style="color:var(--text-3);">
+        <span>🟢 Hoàng Đạo</span>
+        <span>⚫ Hắc Đạo</span>
+      </div>
+    </div>
+    <div class="card overflow-hidden">
+      <div class="flex flex-col divide-y" style="border-color:var(--border);">
+        {hours.map(h => (
+          <div class="flex items-center justify-between px-3 py-2.5"
+            style={h.isHoangDao ? 'background:var(--green-pale);' : ''}>
+            <div class="flex items-center gap-2.5">
+              <div class="w-2 h-2 rounded-full shrink-0"
+                style={`background:${h.isHoangDao ? 'var(--green)' : 'var(--border)'};`}></div>
+              <div>
+                <p class="text-sm font-semibold" style="color:var(--text-1);">{h.tenGio}</p>
+                <p class="text-xs" style="color:var(--text-3);">{h.canChi}</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              {h.isHoangDao && h.goodFor[0] && (
+                <span class="text-[10px] hidden sm:block" style="color:var(--green);">{h.goodFor[0]}</span>
+              )}
+              <span class="text-xs font-bold px-2 py-0.5 rounded-lg"
+                style={h.isHoangDao
+                  ? 'color:var(--green);background:rgba(29,158,117,0.1);'
+                  : 'color:var(--text-4);background:var(--bg-surface);'}>
+                {h.isHoangDao ? 'Hoàng Đạo' : 'Hắc Đạo'}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 4. SAO TRỰC + NGÀY TỐT/XẤU CHI TIẾT ──────────────── -->
+  <section aria-label="Ngày tốt xấu chi tiết" class="mb-4">
+    <h2 class="section-label mb-2">📊 Ngày {d}/{m}/{y} Nên Làm Gì?</h2>
+    <div class="card p-4">
+      <!-- Sao trực nhật -->
+      <div class="flex items-center gap-3 pb-3 mb-3 border-b" style="border-color:var(--border);">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 text-lg"
+          style={`background:${quality.color}15;`}>⭐</div>
+        <div>
+          <p class="section-label">Sao trực nhật (Nhị Thập Bát Tú)</p>
+          <p class="font-bold text-base" style="color:var(--text-1);">{quality.tu}</p>
+          <p class="text-xs mt-0.5" style="color:var(--text-3);">{quality.label}</p>
+        </div>
+      </div>
+
+      {quality.goodFor.length > 0 && (
+        <div class="mb-3">
+          <p class="section-label mb-2">✅ Nên làm ngày {d}/{m}/{y}</p>
+          <div class="flex flex-wrap gap-1.5">
+            {quality.goodFor.map(g => <span class="badge-green text-xs">{g}</span>)}
+          </div>
+        </div>
+      )}
+
+      {quality.badFor.length > 0 && (
+        <div>
+          <p class="section-label mb-2">❌ Nên tránh</p>
+          <div class="flex flex-wrap gap-1.5">
+            {quality.badFor.map(b => <span class="badge-red text-xs">{b}</span>)}
+          </div>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <!-- ── 5. AI SUMMARY ─────────────────────────────────────── -->
+  <section aria-label="Luận giải AI" class="mb-4">
+    <h2 class="section-label mb-2">🤖 Luận Giải AI</h2>
+    <AISummary date={dateStr} client:visible />
+  </section>
+
+  <!-- ── 6. RELATED DAYS ──────────────────────────────────────── -->
+  <RelatedDays {day} {month} {year} />
+
+  <!-- ── INTERNAL LINKS ───────────────────────────────────────── -->
+  <div class="card-surface p-3 mb-4">
+    <p class="section-label mb-2">🔗 Xem thêm</p>
+    <div class="flex flex-wrap gap-2 text-xs">
+      <a href={`/lich/${y-1}/${month}/${day}`} class="badge-gold no-underline">
+        Cùng ngày {d}/{m}/{y-1}
+      </a>
+      <a href={`/lich/${y+1}/${month}/${day}`} class="badge-gold no-underline">
+        Cùng ngày {d}/{m}/{y+1}
+      </a>
+      <a href={thangPath} class="badge-green no-underline">
+        Lịch tháng {m}/{y}
+      </a>
+      <a href="/gio-hoang-dao" class="no-underline text-xs px-2.5 py-1 rounded-full" style="background:var(--bg-surface);color:var(--text-3);border:1px solid var(--border);">
+        Giờ hoàng đạo
+      </a>
+      <a href="/chuyen-doi-lich" class="no-underline text-xs px-2.5 py-1 rounded-full" style="background:var(--bg-surface);color:var(--text-3);border:1px solid var(--border);">
+        Chuyển đổi lịch
+      </a>
+    </div>
+  </div>
+
+  <!-- ── ĐIỀU HƯỚNG ─────────────────────────────────────────── -->
+  <nav aria-label="Điều hướng ngày" class="flex gap-2 mb-4">
+    <a href={prevPath} class="flex-1 btn-secondary justify-center text-sm py-3">← Hôm trước</a>
+    <a href={thangPath} class="flex-1 btn-secondary justify-center text-sm py-3">📅 T{m}/{y}</a>
+    <a href={nextPath}  class="flex-1 btn-secondary justify-center text-sm py-3">Hôm sau →</a>
+  </nav>
+
+  <!-- ── SHARE ──────────────────────────────────────────────── -->
+  <div class="mb-4">
+    <ShareDayImage
+      {day} {month} {year}
+      lunar={lunarFull}
+      canChi={canChi.ngay.display}
+      score={quality.score}
+      label={quality.label}
+      goodFor={quality.goodFor}
+      url={canonical}
+      client:visible
+    />
+  </div>
+
+  <!-- SEO text -->
+  <div class="card p-4 mb-2">
+    <h2 class="font-bold text-sm mb-1" style="color:var(--text-1);">
+      Lịch âm ngày {d} tháng {m} năm {y}
+    </h2>
+    <p class="text-sm leading-relaxed" style="color:var(--text-2);">
+      Ngày {d}/{m}/{y} ({solar.weekdayLabel}) âm lịch là <strong>{lunarFull}</strong>.
+      Can chi ngày <strong>{canChi.ngay.display}</strong>, tháng <strong>{canChi.thang.display}</strong>,
+      năm <strong>{canChi.nam.display}</strong>. {quality.label}.
+      {goodHoursStr && `Giờ hoàng đạo: ${goodHoursStr}.`}
+    </p>
+  </div>
+
+</BaseLayout>
