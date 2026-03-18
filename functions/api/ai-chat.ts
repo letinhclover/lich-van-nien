@@ -61,7 +61,7 @@ export async function onRequestPost({request,env}:{request:Request;env:Env}) {
     `Bạn là trợ lý phong thuỷ Lịch Vạn Niên AI. ` +
     `Hôm nay: ${thu} ${td}/${tm}/${ty}, can chi ngày ${ccDay}, năm ${ccNam}. ` +
     `Dùng đúng thông tin ngày này, KHÔNG tự tính lại. ` +
-    `Trả lời tiếng Việt, thân thiện, ngắn gọn dưới 100 từ, câu trả lời CỤ THỂ có ích.`;
+    `Trả lời tiếng Việt, thân thiện, TỐI ĐA 60 từ, NGẮN GỌN và CỤ THỂ. Không giải thích vòng vo.`;
 
   // Lọc history — bỏ message rỗng
   const history = (body.history??[])
@@ -87,7 +87,7 @@ export async function onRequestPost({request,env}:{request:Request;env:Env}) {
         headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
         body: JSON.stringify({
           model:'llama-3.1-8b-instant',
-          max_tokens:250,
+          max_tokens:180,
           temperature:0.5,
           stream:true,
           messages:[
