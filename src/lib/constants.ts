@@ -225,3 +225,46 @@ export const DUONG_CONG: Record<number, number[]> = {
 // ─── Stars range for SSG (5 năm: 2024–2028) ──────────────────
 export const SSG_START_YEAR = 2024;
 export const SSG_END_YEAR   = 2028;
+
+// ─── Nhị Thập Bát Tú ─────────────────────────────────────────
+export interface SaoTrucInfo {
+  ten:       string;
+  rating:    'tot' | 'xau' | 'binh';
+  yNghia:    string;
+  nenLam:    string[];
+  nenTranh:  string[];
+}
+
+export const NHI_THAP_BAT_TU_DATA: SaoTrucInfo[] = [
+  { ten:'Giác', rating:'tot',  yNghia:'Sao Giác chủ về cát tường, may mắn', nenLam:['Khai trương','Kết hôn','Xuất hành'], nenTranh:[] },
+  { ten:'Cang', rating:'xau', yNghia:'Sao Cang chủ về hung, không may', nenLam:[], nenTranh:['Cưới hỏi','Xây dựng','Xuất hành'] },
+  { ten:'Đê',   rating:'xau', yNghia:'Sao Đê chủ về hung', nenLam:[], nenTranh:['Khai trương','Khởi công'] },
+  { ten:'Phòng',rating:'tot',  yNghia:'Sao Phòng đại cát, rất may mắn', nenLam:['Kết hôn','Khai trương','Ký hợp đồng','Xuất hành'], nenTranh:[] },
+  { ten:'Tâm',  rating:'xau', yNghia:'Sao Tâm đại hung, tránh việc lớn', nenLam:[], nenTranh:['Kết hôn','Khai trương','Xuất hành'] },
+  { ten:'Vĩ',   rating:'tot',  yNghia:'Sao Vĩ cát, thuận lợi cho nhiều việc', nenLam:['Xuất hành','Khai trương','Học hành'], nenTranh:[] },
+  { ten:'Cơ',   rating:'binh', yNghia:'Sao Cơ trung bình, bình thường', nenLam:['Công việc hàng ngày'], nenTranh:['Việc lớn quan trọng'] },
+  { ten:'Đẩu',  rating:'binh', yNghia:'Sao Đẩu bình thường', nenLam:['Học hành','Họp bàn'], nenTranh:['Kết hôn'] },
+  { ten:'Ngưu', rating:'xau', yNghia:'Sao Ngưu hung', nenLam:[], nenTranh:['Kết hôn','Khai trương'] },
+  { ten:'Nữ',   rating:'xau', yNghia:'Sao Nữ hung', nenLam:[], nenTranh:['Xuất hành xa','Khởi công'] },
+  { ten:'Hư',   rating:'xau', yNghia:'Sao Hư hung, chú ý sức khoẻ', nenLam:[], nenTranh:['Cưới hỏi','Khai trương'] },
+  { ten:'Nguy', rating:'xau', yNghia:'Sao Nguy đại hung', nenLam:[], nenTranh:['Kết hôn','Khai trương','Xuất hành'] },
+  { ten:'Thất', rating:'binh', yNghia:'Sao Thất trung bình', nenLam:['Sửa nhà nhỏ'], nenTranh:['Khởi công lớn'] },
+  { ten:'Bích', rating:'tot',  yNghia:'Sao Bích cát, thuận lợi', nenLam:['Khai trương','Ký hợp đồng'], nenTranh:[] },
+  { ten:'Khuê', rating:'xau', yNghia:'Sao Khuê hung', nenLam:[], nenTranh:['Kết hôn','Xuất hành'] },
+  { ten:'Lâu',  rating:'tot',  yNghia:'Sao Lâu cát, may mắn', nenLam:['Mua sắm','Xuất hành','Khai trương'], nenTranh:[] },
+  { ten:'Vị',   rating:'tot',  yNghia:'Sao Vị đại cát', nenLam:['Kết hôn','Khai trương','Khởi công'], nenTranh:[] },
+  { ten:'Mão',  rating:'xau', yNghia:'Sao Mão hung', nenLam:[], nenTranh:['Kết hôn','Khai trương'] },
+  { ten:'Tất',  rating:'tot',  yNghia:'Sao Tất cát', nenLam:['Xuất hành','Khai trương'], nenTranh:[] },
+  { ten:'Chủy', rating:'xau', yNghia:'Sao Chủy đại hung', nenLam:[], nenTranh:['Kết hôn','Khai trương','Xuất hành'] },
+  { ten:'Sâm',  rating:'binh', yNghia:'Sao Sâm trung bình', nenLam:['Họp bàn công việc'], nenTranh:['Khởi công xây dựng'] },
+  { ten:'Tỉnh', rating:'tot',  yNghia:'Sao Tỉnh đại cát, rất tốt', nenLam:['Kết hôn','Khai trương','Ký hợp đồng','Xuất hành'], nenTranh:[] },
+  { ten:'Quỷ',  rating:'xau', yNghia:'Sao Quỷ đại hung', nenLam:[], nenTranh:['Kết hôn','Khai trương','Xuất hành'] },
+  { ten:'Liễu', rating:'xau', yNghia:'Sao Liễu hung', nenLam:[], nenTranh:['Kết hôn','Khai trương'] },
+  { ten:'Tinh', rating:'xau', yNghia:'Sao Tinh hung', nenLam:[], nenTranh:['Xuất hành xa','Khởi công'] },
+  { ten:'Trương',rating:'tot', yNghia:'Sao Trương cát', nenLam:['Khai trương','Ký hợp đồng'], nenTranh:[] },
+  { ten:'Dực',  rating:'binh', yNghia:'Sao Dực trung bình', nenLam:['Công việc nhẹ'], nenTranh:['Khởi công lớn'] },
+  { ten:'Chẩn', rating:'xau', yNghia:'Sao Chẩn hung', nenLam:[], nenTranh:['Kết hôn','Khai trương'] },
+];
+
+// Ref JDN: 5/1/2000 = Sao Giác (index 0)
+export const TU_REF_JDN = 2451549;
