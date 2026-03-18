@@ -15,7 +15,8 @@
 
 import { SITE } from '../lib/constants';
 import { todayVN } from '../lib/dateUtils';
-import FooterNav from '../components/FooterNav.astro';
+import FooterNav      from '../components/FooterNav.astro';
+import InstallPrompt  from '../components/InstallPrompt';
 import '../styles/global.css';
 
 interface Props {
@@ -126,6 +127,9 @@ function isActive(href: string): boolean {
       try{
         var t=localStorage.getItem('theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');
         document.documentElement.classList.toggle('dark',t==='dark');
+        // Font size accessibility
+        var fs=localStorage.getItem('fontSize')||'normal';
+        document.documentElement.setAttribute('data-font-size',fs);
       }catch(e){}
     })();
   </script>
@@ -135,9 +139,8 @@ function isActive(href: string): boolean {
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
   <!-- Theme color -->
-  <meta name="theme-color" content="#C0392B" />
   <meta name="theme-color" content="#C0392B" media="(prefers-color-scheme: light)" />
-  <meta name="theme-color" content="#110805" media="(prefers-color-scheme: dark)" />
+  <meta name="theme-color" content="#8B0000" media="(prefers-color-scheme: dark)" />
 
   <!-- Favicons & PWA icons -->
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -268,6 +271,7 @@ function isActive(href: string): boolean {
   </main>
 
   <FooterNav />
+  <InstallPrompt client:only="react" />
 
   <!-- ── BOTTOM NAVIGATION (mobile only) ───────────────────── -->
   <nav
@@ -315,6 +319,30 @@ function isActive(href: string): boolean {
       })}
     </div>
   </nav>
+
+  <!-- ── SERVICE WORKER REGISTRATION ─────────────────────── -->
+  <script is:inline>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/sw.js', { scope: '/' })
+          .then(function(reg) {
+            // SW registered - check for updates
+            reg.addEventListener('updatefound', function() {
+              var newWorker = reg.installing;
+              if (newWorker) {
+                newWorker.addEventListener('statechange', function() {
+                  if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    // New version available — silent update
+                    newWorker.postMessage({ type: 'SKIP_WAITING' });
+                  }
+                });
+              }
+            });
+          })
+          .catch(function() { /* SW registration failed — non-critical */ });
+      });
+    }
+  </script>
 
   <!-- ── DARK MODE TOGGLE SCRIPT ────────────────────────────── -->
   <script is:inline>
