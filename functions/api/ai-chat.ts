@@ -27,6 +27,37 @@ const CORS = {
   'Access-Control-Allow-Headers': 'Content-Type',
 };
 
+
+// ─── Inline lunar helpers (không import từ src/) ─────────────
+const CAN_CC = ['Giáp','Ất','Bính','Đinh','Mậu','Kỷ','Canh','Tân','Nhâm','Quý'];
+const CHI_CC = ['Tý','Sửu','Dần','Mão','Thìn','Tỵ','Ngọ','Mùi','Thân','Dậu','Tuất','Hợi'];
+
+function toJDN(d: number, m: number, y: number): number {
+  let yy = y, mm = m;
+  if (mm <= 2) { yy--; mm += 12; }
+  const A = Math.floor(yy / 100);
+  const B = 2 - A + Math.floor(A / 4);
+  return Math.floor(365.25*(yy+4716)) + Math.floor(30.6001*(mm+1)) + d + B - 1524;
+}
+function getCanChiDay(d: number, m: number, y: number): string {
+  const jdn = toJDN(d, m, y);
+  return `${CAN_CC[(jdn+9)%10]} ${CHI_CC[(jdn+1)%12]}`;
+}
+function getCanChiYear(y: number): string {
+  return `${CAN_CC[(y+6)%10]} ${CHI_CC[(y+8)%12]}`;
+}
+function getDayLabel(d: number, m: number, y: number): string {
+  const jdn    = toJDN(d, m, y);
+  const TU_D   = [1,-1,0,2,-2,1,0,1,-1,-1,-1,-2,0,1,0,1,2,-1,1,-2,0,2,-2,-1,0,1,-1,0];
+  const tu     = TU_D[((jdn-2451549)%28+28)%28] ?? 0;
+  const score  = Math.max(1, Math.min(5, 3 + tu));
+  return score >= 4 ? 'Ngày Tốt' : score <= 2 ? 'Ngày Xấu' : 'Ngày Bình Thường';
+}
+function getLunarDay(d: number, m: number, y: number): number {
+  const jdn = toJDN(d, m, y);
+  return ((jdn - 2415021) % 30 + 30) % 30 + 1;
+}
+
 const MAX_PER_DAY = 3;
 
 // ─── Rate limit helpers ───────────────────────────────────────
