@@ -118,13 +118,36 @@ export async function onRequestGet({
   const canChi  = getCanChiDay(d, m, y);
   const canNam  = getCanChiYear(y);
   const label   = getDayLabel(d, m, y);
+  const score   = getDayScore(d, m, y);
   const thu     = THU_VI[new Date(Date.UTC(y, m-1, d)).getUTCDay()] ?? 'Thứ Hai';
 
+  // Danh sách nên làm / nên tránh theo score (nhất quán với UI)
+  const GOOD: Record<number,string> = {
+    5: 'Kết hôn, khai trương, khởi công, ký hợp đồng, xuất hành',
+    4: 'Họp bàn công việc, mua sắm lớn, thăm người thân, học hành thi cử',
+    3: 'Công việc hàng ngày, gặp gỡ bạn bè, mua sắm nhỏ',
+    2: 'Nghỉ ngơi, thiền định, việc nhẹ tại nhà',
+    1: 'Dưỡng sức, không khởi sự việc lớn',
+  };
+  const BAD: Record<number,string> = {
+    5: 'Không có việc cần tránh đặc biệt',
+    4: 'Hạn chế phẫu thuật nếu không cần thiết',
+    3: 'Tránh khởi công lớn, kết hôn, khai trương',
+    2: 'Tránh kết hôn, khai trương, xuất hành xa, khởi công',
+    1: 'Tránh kết hôn, khai trương, xuất hành, ký hợp đồng, chuyển nhà',
+  };
+  const goodFor = GOOD[score] ?? GOOD[3]!;
+  const badFor  = BAD[score]  ?? BAD[3]!;
+
   const userPrompt =
-    `Ngày ${d}/${m}/${y} (${thu}). Can chi ngày: ${canChi}. Năm ${canNam}. Đánh giá: ${label}. ` +
-    `Viết ĐÚNG 3 câu ngắn (tổng tối đa 80 chữ): ` +
-    `(1) nhận xét tổng quan ngày hôm nay, (2) nên làm gì, (3) nên tránh gì. ` +
-    `Tiếng Việt thân thiện, không dùng markdown.`;
+    `Ngày ${d}/${m}/${y} (${thu}), can chi ${canChi}, năm ${canNam}. ` +
+    `KẾT QUẢ TÍNH TOÁN (BẮT BUỘC DÙNG, KHÔNG TỰ TÍNH LẠI): Đây là ${label} (${score}/5 điểm). ` +
+    `Nên làm: ${goodFor}. Nên tránh: ${badFor}. ` +
+    `Viết ĐÚNG 3 câu (tối đa 70 chữ): ` +
+    `(1) xác nhận đây là ${label} và lý do ngắn gọn, ` +
+    `(2) việc nên làm hôm nay, ` +
+    `(3) việc nên tránh. ` +
+    `Tiếng Việt thân thiện, không dùng markdown, KHÔNG mâu thuẫn với đánh giá ${label} đã cho.`;
 
   try {
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -140,7 +163,7 @@ export async function onRequestGet({
         messages: [
           {
             role:    'system',
-            content: 'Bạn là chuyên gia phong thuỷ Việt Nam. Viết ngắn gọn, thân thiện, chính xác theo lịch pháp.',
+            content: 'Bạn là chuyên gia phong thuỷ Việt Nam. QUAN TRỌNG: Luôn dùng đúng đánh giá ngày (tốt/xấu) đã được cung cấp, KHÔNG tự đánh giá lại. Viết ngắn gọn, thân thiện.',
           },
           { role: 'user', content: userPrompt },
         ],
