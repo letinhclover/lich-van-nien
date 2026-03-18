@@ -82,7 +82,7 @@ export function createBreadcrumbSchema(
 export function createDayPageSchema(
   info: DayInfo,
   canonicalUrl: string,
-): string {
+): object[] {
   const { solar, lunar, canChi, quality, hours } = info;
   const { day: d, month: m, year: y } = solar;
   const lunarFull = `${lunar.leap ? 'Nhuận ' : ''}${lunar.day} tháng ${lunar.month} năm ${canChi.nam.display}`;
@@ -114,7 +114,7 @@ export function createDayPageSchema(
     },
   ]);
 
-  return JSON.stringify([breadcrumb, faq]);
+  return [breadcrumb, faq];
 }
 
 // ─── Article Schema ───────────────────────────────────────────
