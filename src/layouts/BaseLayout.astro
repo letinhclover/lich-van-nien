@@ -15,6 +15,7 @@
 
 import { SITE } from '../lib/constants';
 import { todayVN } from '../lib/dateUtils';
+import FooterNav from '../components/FooterNav.astro';
 import '../styles/global.css';
 
 interface Props {
@@ -265,6 +266,8 @@ function isActive(href: string): boolean {
   >
     <slot />
   </main>
+
+  <FooterNav />
 
   <!-- ── BOTTOM NAVIGATION (mobile only) ───────────────────── -->
   <nav
