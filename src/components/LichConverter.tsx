@@ -234,14 +234,21 @@ export default function LichConverter() {
               <p className="section-label mb-1">KẾT QUẢ ÂM LỊCH</p>
               <p className="font-bold text-lg" style={{ color:'var(--text-1)' }}>{sResult.lunarStr}</p>
               <p className="text-sm mt-0.5" style={{ color:'var(--text-3)' }}>Can chi ngày: {sResult.canChi}</p>
-              <div className="flex gap-2 mt-3 flex-wrap">
-                <a href={sResult.path} className="btn-primary text-xs py-2 px-3 no-underline">Xem chi tiết →</a>
-                <a href={sResult.thang} className="btn-secondary text-xs py-2 px-3 no-underline">Xem cả tháng</a>
-                <button onClick={() => handleCopy(`${sResult.input} = ${sResult.lunarStr} (${sResult.canChi})`)}
-                  className="btn-secondary text-xs py-2 px-3">
-                  {copied ? '✓ Đã copy' : 'Copy'}
-                </button>
-              </div>
+              {/* Chỉ link khi năm trong SSG range 2024-2028 */}
+              {(() => {
+                const y = parseInt(sResult.path.split('/')[2] ?? '0');
+                const inRange = y >= 2024 && y <= 2028;
+                return (
+                  <div className="flex gap-2 mt-3 flex-wrap">
+                    {inRange && <a href={sResult.path} className="btn-primary text-xs py-2 px-3 no-underline">Xem chi tiết →</a>}
+                    {inRange && <a href={sResult.thang} className="btn-secondary text-xs py-2 px-3 no-underline">Xem cả tháng</a>}
+                    <button onClick={() => handleCopy(`${sResult.input} = ${sResult.lunarStr} (${sResult.canChi})`)}
+                      className="btn-secondary text-xs py-2 px-3">
+                      {copied ? '✓ Đã copy' : 'Copy'}
+                    </button>
+                  </div>
+                );
+              })()}
             </div>
           )}
         </div>
