@@ -81,10 +81,33 @@ export default function WeddingDatePicker() {
   const [selectedMonths, setSelectedMonths] = useState<number[]>([]);
   const [year, setYear] = useState(2026);
   const [results, setResults] = useState<WeddingDay[]>([]);
-  const [searched, setSearched] = useState(false);
+  const [searched,    setSearched]    = useState(false);
+  const [selectedDay, setSelectedDay] = useState<WeddingDay | null>(null);
+  const [aiAdvice,    setAiAdvice]    = useState('');
+  const [aiLoading,   setAiLoading]   = useState(false);
 
   const toggleMonth = (m: number) => {
     setSelectedMonths(prev => prev.includes(m) ? prev.filter(x=>x!==m) : [...prev,m]);
+  };
+
+  const fetchAdvice = async (day: WeddingDay) => {
+    setSelectedDay(day);
+    setAiAdvice('');
+    setAiLoading(true);
+    try {
+      const dateStr = `${day.y}-${String(day.m).padStart(2,'0')}-${String(day.d).padStart(2,'0')}`;
+      const res = await fetch('/api/ai-wedding-advice', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ date: dateStr, groomBirthYear: namRe ? parseInt(namRe) : undefined, brideBirthYear: namDau ? parseInt(namDau) : undefined }),
+      });
+      const data = await res.json() as { advice?: string };
+      setAiAdvice(data.advice ?? 'Xem chi tiết tại trang ngày.');
+    } catch {
+      setAiAdvice('Xem chi tiết giờ hoàng đạo tại trang ngày.');
+    } finally {
+      setAiLoading(false);
+    }
   };
 
   const findDays = () => {
