@@ -43,7 +43,7 @@ export async function onRequestPost({request, env}:{request:Request;env:Env}) {
 
   const prompt =
     `Viết báo cáo vận trình năm 2027 (năm Đinh Mùi) cho người sinh năm ${birthYear}, tuổi ${canChi}, mệnh ${nguHanh}.\n` +
-    `Trả về JSON hợp lệ (không markdown, không ``` ) với các trường sau, mỗi trường 60-80 chữ tiếng Việt thân thiện:\n` +
+    'Trả về JSON hợp lệ (không markdown, không code block) với các trường sau, mỗi trường 60-80 chữ tiếng Việt thân thiện:\n' +
     `{\n` +
     `  "tongQuan": "...",\n` +
     `  "taiLoc": "...",\n` +
