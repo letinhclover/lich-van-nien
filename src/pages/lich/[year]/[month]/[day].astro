@@ -47,6 +47,10 @@ const scoreBadgeStyle = quality.score >= 4
     ? 'background:var(--gold-pale);color:var(--gold-dark);border:1px solid rgba(241,196,15,0.3);'
     : 'background:var(--red-pale);color:var(--red);border:1px solid var(--border-red);';
 const scoreLabel  = quality.score >= 4 ? 'Ngày Tốt' : quality.score === 3 ? 'Bình Thường' : 'Ngày Xấu';
+const ramMungBadge = getRamMungBadge(lunar.day);
+const dacBietLunar = getDacBietByLunar(lunar.day, lunar.month);
+const dacBietSolar = getDacBietBySolar(d, m);
+const allDacBiet   = [...dacBietLunar, ...dacBietSolar];
 
 // Lịch tuần: 7 ngày xung quanh ngày này
 const weekDays = Array.from({ length: 7 }, (_, i) => {
