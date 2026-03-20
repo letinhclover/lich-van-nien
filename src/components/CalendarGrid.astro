@@ -29,7 +29,7 @@ const firstDow  = new Date(Date.UTC(year, month-1, 1)).getUTCDay();
 const totalDays = new Date(Date.UTC(year, month, 0)).getUTCDate();
 
 // Cells: null = empty, number = day
-const cells: (number | null)[] = Array(firstDow).fill(null);
+const cells: (number | null)[] = Array(Math.max(0, firstDow || 0)).fill(null);
 for (let d = 1; d <= totalDays; d++) cells.push(d);
 while (cells.length % 7 !== 0) cells.push(null);
 
