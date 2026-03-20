@@ -47,10 +47,34 @@ const scoreBadgeStyle = quality.score >= 4
     ? 'background:var(--gold-pale);color:var(--gold-dark);border:1px solid rgba(241,196,15,0.3);'
     : 'background:var(--red-pale);color:var(--red);border:1px solid var(--border-red);';
 const scoreLabel  = quality.score >= 4 ? 'Ngày Tốt' : quality.score === 3 ? 'Bình Thường' : 'Ngày Xấu';
-const ramMungBadge = getRamMungBadge(lunar.day);
-const dacBietLunar = getDacBietByLunar(lunar.day, lunar.month);
-const dacBietSolar = getDacBietBySolar(d, m);
-const allDacBiet   = [...dacBietLunar, ...dacBietSolar];
+// Inline: Rằm / Mùng Một badge
+const ramMungBadge: string | null = lunar.day === 15 ? '🌕 Ngày Rằm' : lunar.day === 1 ? '🌑 Mùng Một' : null;
+
+// Inline: Ngày lễ / Ngày Vía
+interface _NgayDB { icon: string; ten: string; }
+const _LUNAR_DB: Array<{ld:number;lm:number;icon:string;ten:string}> = [
+  {ld:1, lm:1,  icon:'🧧',ten:'Tết Nguyên Đán'},
+  {ld:15,lm:1,  icon:'🌕',ten:'Rằm tháng Giêng'},
+  {ld:10,lm:3,  icon:'👑',ten:'Giỗ Tổ Hùng Vương'},
+  {ld:5, lm:5,  icon:'🍑',ten:'Tết Đoan Ngọ'},
+  {ld:15,lm:7,  icon:'🙏',ten:'Lễ Vu Lan'},
+  {ld:15,lm:8,  icon:'🥮',ten:'Tết Trung Thu'},
+  {ld:19,lm:2,  icon:'🙏',ten:'Vía Quan Thế Âm'},
+  {ld:19,lm:6,  icon:'🙏',ten:'Vía Quan Thế Âm (hè)'},
+  {ld:19,lm:9,  icon:'🙏',ten:'Vía Quan Thế Âm (thu)'},
+  {ld:23,lm:12, icon:'🔥',ten:'Vía Ông Táo'},
+  {ld:30,lm:12, icon:'🍽️',ten:'Tất Niên'},
+];
+const _SOLAR_DB: Array<{sd:number;sm:number;icon:string;ten:string}> = [
+  {sd:1, sm:1, icon:'🎉',ten:'Tết Dương Lịch'},
+  {sd:30,sm:4, icon:'🇻🇳',ten:'Ngày Giải Phóng 30/4'},
+  {sd:1, sm:5, icon:'✊',ten:'Ngày Lao Động'},
+  {sd:2, sm:9, icon:'🇻🇳',ten:'Quốc Khánh 2/9'},
+];
+const allDacBiet: _NgayDB[] = [
+  ..._LUNAR_DB.filter(x => x.ld === lunar.day && x.lm === lunar.month),
+  ..._SOLAR_DB.filter(x => x.sd === d && x.sm === m),
+];
 
 // Lịch tuần: 7 ngày xung quanh ngày này
 const weekDays = Array.from({ length: 7 }, (_, i) => {
