@@ -47,7 +47,7 @@ const jsonLd = {
     Lịch tháng {m}/{y} — Ngày tốt xấu {THANG_VI[m]}
   </h1>
 
-  <CalendarGrid {year} {month} {days} {currentDay} />
+  <CalendarGrid year={y} month={m} {days} {currentDay} />
 
   <!-- Danh sách ngày tốt -->
   {goodDays.length > 0 && (
