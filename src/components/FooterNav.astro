@@ -1,7 +1,7 @@
 ---
 // src/components/FooterNav.astro
-// Footer navigation: 12 tháng năm nay + tính năng + 12 tháng năm sau
-// 1 cột mobile, 3 cột desktop
+// Mobile: compact 2 dòng links — không lãng phí diện tích
+// Desktop: 3 cột đầy đủ
 
 import { todayVN } from '../lib/dateUtils';
 import { SITE } from '../lib/constants';
@@ -10,62 +10,86 @@ const today = todayVN();
 const curY  = today.year;
 const nextY = curY + 1;
 
-const THANG = ['','Tháng 1','Tháng 2','Tháng 3','Tháng 4','Tháng 5','Tháng 6',
-               'Tháng 7','Tháng 8','Tháng 9','Tháng 10','Tháng 11','Tháng 12'];
-
 const FEATURES = [
-  { href:'/',               label:'Lịch âm hôm nay'     },
-  { href:'/gio-hoang-dao',  label:'Giờ Hoàng Đạo'        },
-  { href:'/chuyen-doi-lich',label:'Chuyển đổi lịch'      },
-  { href:'/chon-ngay-cuoi', label:'Chọn ngày cưới'       },
-  { href:'/tu-van',         label:'Tư vấn AI'             },
-  { href:'/van-trinh',       label:'Vận Trình 2027'         },
-  { href:'/developer',       label:'Developer API'          },
+  { href:'/',                label:'Hôm nay'       },
+  { href:'/gio-hoang-dao',   label:'Hoàng đạo'     },
+  { href:'/chuyen-doi-lich', label:'Đổi lịch'      },
+  { href:'/chon-ngay-cuoi',  label:'Ngày cưới'     },
+  { href:'/tu-van',          label:'Tư vấn AI'     },
+  { href:'/van-trinh',       label:'Vận trình'     },
+  { href:'/tiet-khi',        label:'Tiết khí'      },
+  { href:'/can-chi',         label:'Can chi'       },
+  { href:'/developer',       label:'API'           },
 ];
 ---
 
-<footer class="border-t mt-8 pt-6 pb-20 md:pb-8" style="border-color:var(--border);">
-  <div class="max-w-2xl mx-auto px-4">
+<!-- Mobile: compact | Desktop: full 3-column -->
+<footer class="border-t mt-6" style="border-color:var(--border);">
 
-    <!-- 3 cột -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+  <!-- MOBILE: 2 dòng gọn -->
+  <div class="md:hidden px-4 py-3 pb-20">
+    <!-- Dòng 1: tháng nhanh -->
+    <div class="overflow-x-auto -mx-4 px-4 mb-2">
+      <div class="flex gap-1 min-w-max">
+        {Array.from({length:12},(_,i)=>i+1).map(m => (
+          <a
+            href={`/lich/thang/${curY}/${String(m).padStart(2,'0')}`}
+            class="text-xs px-2.5 py-1 rounded-full no-underline whitespace-nowrap"
+            style={m === today.month
+              ? 'background:var(--red);color:white;font-weight:700;'
+              : 'background:var(--bg-surface);color:var(--text-3);border:1px solid var(--border);'}
+          >
+            T.{m}
+          </a>
+        ))}
+      </div>
+    </div>
 
-      <!-- Cột 1: 12 tháng năm nay -->
+    <!-- Dòng 2: tính năng -->
+    <div class="overflow-x-auto -mx-4 px-4">
+      <div class="flex gap-2 min-w-max">
+        {FEATURES.map(({ href, label }) => (
+          <a
+            href={href}
+            class="text-xs no-underline whitespace-nowrap py-0.5"
+            style="color:var(--text-4);"
+          >
+            {label}
+          </a>
+        ))}
+      </div>
+    </div>
+  </div>
+
+  <!-- DESKTOP: 3 cột đầy đủ -->
+  <div class="hidden md:block max-w-2xl mx-auto px-4 py-6 pb-8">
+    <div class="grid grid-cols-3 gap-6">
       <div>
         <p class="section-label mb-3">📅 Lịch {curY}</p>
-        <div class="grid grid-cols-3 gap-1">
+        <div class="grid grid-cols-4 gap-1">
           {Array.from({length:12},(_,i)=>i+1).map(m => (
             <a href={`/lich/thang/${curY}/${String(m).padStart(2,'0')}`}
-              class="text-xs py-1.5 px-2 rounded-lg no-underline text-center transition-all hover:bg-[var(--bg-surface)]"
-              style={m === today.month ? 'color:var(--red);font-weight:700;background:var(--red-pale);' : 'color:var(--text-3);'}>
+              class="text-xs py-1 px-1.5 rounded-lg no-underline text-center"
+              style={m === today.month ? 'color:var(--red);font-weight:700;' : 'color:var(--text-3);'}>
               T.{m}
             </a>
           ))}
         </div>
       </div>
-
-      <!-- Cột 2: Tính năng -->
       <div>
         <p class="section-label mb-3">🔧 Tính năng</p>
         <div class="flex flex-col gap-1.5">
           {FEATURES.map(({ href, label }) => (
-            <a href={href}
-              class="text-xs no-underline hover:underline py-0.5"
-              style="color:var(--text-3);">
-              {label}
-            </a>
+            <a href={href} class="text-xs no-underline" style="color:var(--text-3);">{label}</a>
           ))}
         </div>
-
       </div>
-
-      <!-- Cột 3: 12 tháng năm sau -->
       <div>
         <p class="section-label mb-3">📅 Lịch {nextY}</p>
-        <div class="grid grid-cols-3 gap-1">
+        <div class="grid grid-cols-4 gap-1">
           {Array.from({length:12},(_,i)=>i+1).map(m => (
             <a href={`/lich/thang/${nextY}/${String(m).padStart(2,'0')}`}
-              class="text-xs py-1.5 px-2 rounded-lg no-underline text-center transition-all hover:bg-[var(--bg-surface)]"
+              class="text-xs py-1 px-1.5 rounded-lg no-underline text-center"
               style="color:var(--text-3);">
               T.{m}
             </a>
@@ -73,6 +97,6 @@ const FEATURES = [
         </div>
       </div>
     </div>
-
   </div>
+
 </footer>
