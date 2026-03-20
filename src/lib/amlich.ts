@@ -282,6 +282,9 @@ export function solarToLunar(day: number, month: number, year: number): LunarDat
 
   if (lunarMonth > 12) lunarMonth -= 12;
   if (lunarMonth > 11 && diff < 4) lunarYear--;
+  // Fix: khi tháng 11 âm rơi vào tháng 12 dương của năm trước
+  // (nmThis < Jan 1 of input year), lunarYear phải là năm input - 1
+  if (lunarMonth === 11 && nmThis < toJDN(1, 1, year) - JD_BASE) lunarYear--;
 
   return {
     day:       lunarDay,
