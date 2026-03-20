@@ -117,6 +117,10 @@ const description = (
             <span class="badge-gold">Ngày {canChi.ngay.display}</span>
             {quality.isTamNuong && <span class="badge-red text-xs">⚠ Tam Nương</span>}
             {quality.isNguyetKy  && <span class="badge-red text-xs">⚠ Nguyệt Kỵ</span>}
+        {ramMungBadge && <span class="badge-gold text-xs">{ramMungBadge}</span>}
+        {allDacBiet.map(db => (
+          <span class="text-xs px-2.5 py-1 rounded-full font-semibold" style="background:var(--bg-surface);color:var(--text-2);">{db.icon} {db.ten}</span>
+        ))}
           </div>
         </div>
         <!-- Score -->
