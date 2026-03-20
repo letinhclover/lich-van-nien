@@ -1,0 +1,133 @@
+---
+// src/pages/ngay-le-2026.astro — Lịch ngày nghỉ lễ 2026
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import { SITE }   from '../lib/constants';
+import { solarToPath } from '../lib/dateUtils';
+import { solarToLunar } from '../lib/amlich';
+import { HOLIDAYS_VN }  from '../lib/holidays';
+
+const canonical  = `${SITE.baseUrl}/ngay-le-2026`;
+const title      = 'Lịch ngày nghỉ lễ năm 2026 — Danh sách đầy đủ ngày lễ VN'.slice(0,60);
+const description = 'Danh sách đầy đủ ngày lễ và ngày nghỉ lễ năm 2026 tại Việt Nam: Tết, 30/4, 1/5, Quốc Khánh, Giỗ Tổ Hùng Vương. Kèm ngày âm lịch tương ứng.'.slice(0,160);
+
+// Compute solar dates for lunar holidays in 2026
+interface HolidayRow {
+  name:    string;
+  icon:    string;
+  type:    string;
+  solar:   string;
+  lunar:   string;
+  note:    string;
+  path?:   string;
+}
+
+const rows: HolidayRow[] = [];
+
+for (const h of HOLIDAYS_VN) {
+  if (!h.isLunar) {
+    // Dương lịch — dễ
+    const sd = h.solarDay!;
+    const sm = h.solarMonth!;
+    const lunar = solarToLunar(sd, sm, 2026);
+    rows.push({
+      name: h.name, icon: h.icon, type: h.type,
+      solar: `${sd}/${sm}/2026`,
+      lunar: `${lunar.day}/${lunar.month} ${lunar.yearName}`,
+      note: h.traditions[0] ?? '',
+      path: solarToPath(sd, sm, 2026),
+    });
+  } else {
+    // Âm lịch — cần convert
+    // Simple approximation for 2026 lunar holidays
+    // Use known Tết date as anchor
+    const ld = h.lunarDay!;
+    const lm = h.lunarMonth!;
+    // Map common lunar holidays to solar 2026
+    const KNOWN: Record<string, string> = {
+      '1-1': '29/1', '15-1': '12/2', '10-3': '7/4',
+      '5-5': '22/6', '15-7': '29/8', '15-8': '28/9',
+      '23-12': '11/1/2027',
+    };
+    const key = `${ld}-${lm}`;
+    const solarStr = KNOWN[key];
+    rows.push({
+      name: h.name, icon: h.icon, type: h.type,
+      solar: solarStr ? `${solarStr}${solarStr.includes('2027') ? '' : '/2026'}` : '—',
+      lunar: `${ld}/${lm} âm lịch`,
+      note: h.traditions[0] ?? '',
+    });
+  }
+}
+
+// Sort by roughly date order
+const TYPE_LABEL: Record<string, string> = {
+  quocgia: '🏛 Quốc gia', truyen-thong: '🎊 Truyền thống', 'phat-giao': '🙏 Phật giáo',
+};
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    { '@type':'Question', name:'Năm 2026 có bao nhiêu ngày lễ quốc gia?',
+      acceptedAnswer:{ '@type':'Answer', text:'Năm 2026 có 5 ngày lễ quốc gia được nghỉ: Tết Dương Lịch (1/1), Tết Nguyên Đán (~29/1-2/2), Giỗ Tổ Hùng Vương (10/3 âm), Ngày 30/4, Ngày 1/5, Quốc Khánh (2/9).' }},
+    { '@type':'Question', name:'Nghỉ Tết 2026 từ ngày nào?',
+      acceptedAnswer:{ '@type':'Answer', text:'Dự kiến nghỉ Tết Bính Ngọ 2026 từ 25/1/2026 đến 3/2/2026. Lịch chính thức do Chính phủ công bố.' }},
+  ],
+};
+---
+
+<BaseLayout {title} {description} canonicalUrl={canonical} jsonLd={[faqSchema]}>
+
+  <Breadcrumb items={[
+    { label:'Trang chủ', href:'/' },
+    { label:'Ngày lễ 2026' },
+  ]} />
+
+  <h1 class="font-display font-bold text-2xl mb-2" style="color:var(--text-1);">
+    🗓 Lịch Ngày Nghỉ Lễ Năm 2026
+  </h1>
+  <p class="text-sm mb-5" style="color:var(--text-2);">
+    Danh sách đầy đủ ngày lễ và sự kiện truyền thống Việt Nam năm 2026.
+  </p>
+
+  <div class="card overflow-hidden mb-5">
+    <!-- Header -->
+    <div class="grid grid-cols-3 px-4 py-2.5 text-xs font-bold border-b"
+      style="border-color:var(--border);color:var(--text-3);background:var(--bg-surface);">
+      <span>Ngày</span>
+      <span>Tên ngày lễ</span>
+      <span>Âm lịch</span>
+    </div>
+
+    {rows.map(row => (
+      <div class="grid grid-cols-3 px-4 py-3 border-b items-center"
+        style="border-color:var(--border);">
+        <div>
+          {row.path ? (
+            <a href={row.path} class="font-bold text-sm no-underline" style="color:var(--red);">
+              {row.solar}
+            </a>
+          ) : (
+            <span class="font-bold text-sm" style="color:var(--text-1);">{row.solar}</span>
+          )}
+        </div>
+        <div>
+          <p class="text-sm font-semibold" style="color:var(--text-1);">{row.icon} {row.name}</p>
+          <p class="text-[10px] mt-0.5" style="color:var(--text-3);">{row.note}</p>
+        </div>
+        <div class="text-xs" style="color:var(--text-3);">{row.lunar}</div>
+      </div>
+    ))}
+  </div>
+
+  <!-- Link to Tết page -->
+  <a href="/tet-2026" class="card p-4 mb-4 no-underline flex items-center gap-3">
+    <span style="font-size:2rem;">🧧</span>
+    <div>
+      <p class="font-bold text-sm" style="color:var(--text-1);">Tết Nguyên Đán 2026 — Chi tiết đầy đủ</p>
+      <p class="text-xs" style="color:var(--text-3);">Mùng 1 Tết, lịch nghỉ, phong tục, ngày tốt đầu năm →</p>
+    </div>
+  </a>
+
+</BaseLayout>
