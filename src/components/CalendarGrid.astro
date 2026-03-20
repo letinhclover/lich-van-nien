@@ -11,9 +11,11 @@ interface Props {
   currentDay?: number;   // ngày hôm nay (để highlight)
 }
 
-const { year: _year, month: _month, days, currentDay } = Astro.props;
-const year  = typeof _year  === 'string' ? parseInt(_year,  10) : _year;
-const month = typeof _month === 'string' ? parseInt(_month, 10) : _month;
+const _p = Astro.props;
+const year  = Number(_p.year);
+const month = Number(_p.month);
+const days  = _p.days;
+const currentDay = _p.currentDay;
 
 const THU_SHORT = ['CN','T2','T3','T4','T5','T6','T7'];
 const THANG_VI  = ['','Tháng Một','Tháng Hai','Tháng Ba','Tháng Tư','Tháng Năm','Tháng Sáu','Tháng Bảy','Tháng Tám','Tháng Chín','Tháng Mười','Tháng Mười Một','Tháng Mười Hai'];
@@ -99,7 +101,7 @@ function dotColor(d: number): string {
         {cells.slice(row*7, row*7+7).map((d, col) => {
           const isSun     = col === 0;
           const isSat     = col === 6;
-          const isToday   = false; // handled by JS below
+          const isToday   = d !== null && d === currentDay;
           const info      = d ? dayMap.get(d) : undefined;
           const lunarDay  = info?.lunar.day;
           const canChiStr = info ? info.canChi.ngay.display : '';
@@ -110,7 +112,6 @@ function dotColor(d: number): string {
             <a
               href={solarToPath(d, month, year)}
               title={canChiStr}
-              data-day={d ?? ''}
               aria-current={isToday ? 'date' : undefined}
               class:list={[
                 'p-1.5 min-h-[52px] flex flex-col no-underline transition-all hover:brightness-95 relative',
@@ -146,22 +147,3 @@ function dotColor(d: number): string {
     ))}
   </div>
 </div>
-
-<script is:inline>
-(function() {
-  // Highlight today client-side (SSG builds at UTC, client knows local date)
-  try {
-    const s = new Intl.DateTimeFormat('sv-SE', {timeZone:'Asia/Ho_Chi_Minh'}).format(new Date());
-    const today = parseInt(s.split('-')[2], 10);
-    const cells = document.querySelectorAll('[data-day]');
-    cells.forEach(function(el) {
-      if (parseInt(el.getAttribute('data-day') || '0', 10) === today) {
-        el.style.background = 'var(--red)';
-        el.style.color = 'white';
-        el.style.borderRadius = '8px';
-        el.setAttribute('aria-current', 'date');
-      }
-    });
-  } catch(e) {}
-})();
-</script>
