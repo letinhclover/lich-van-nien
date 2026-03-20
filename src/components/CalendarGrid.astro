@@ -34,7 +34,8 @@ for (let d = 1; d <= totalDays; d++) cells.push(d);
 while (cells.length % 7 !== 0) cells.push(null);
 
 // Map day → DayInfo for fast lookup
-const dayMap = new Map<number, DayInfo>(days.map(d => [d.solar.day, d]));
+const safeDays = Array.isArray(days) ? days.filter(d => d?.solar?.day) : [];
+const dayMap = new Map<number, DayInfo>(safeDays.map(d => [d.solar.day, d]));
 
 function cellStyle(d: number | null): string {
   if (!d) return 'opacity:0.2;cursor:default;';
