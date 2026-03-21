@@ -79,7 +79,7 @@ export function getCanIndex(year: number): number  { return (year + 6) % 10; }
 
 // ── UserProfile (Bản Mệnh) ────────────────────────────────────
 export interface ShopeeProduct {
-  name: string; description: string; url: string; emoji: string;
+  name: string; description: string; url: string; emoji: string; price: string;
 }
 
 export interface UserProfile {
@@ -161,11 +161,11 @@ const DESTINY_TABLE: Record<string, { element: string; elementName: string; dest
 };
 
 const SHOPEE_BY_ELEMENT: Record<string, ShopeeProduct> = {
-  kim:  {name:'Vòng bạc phong thủy Kim',   description:'Hợp mệnh Kim, thu hút tài lộc', url:'https://shopee.vn', emoji:'💍'},
-  moc:  {name:'Cây phong thủy mệnh Mộc',   description:'Mang năng lượng tươi mát, bình an', url:'https://shopee.vn', emoji:'🌿'},
-  thuy: {name:'Đá phong thủy mệnh Thủy',   description:'Hợp mệnh Thủy, thanh lọc không gian', url:'https://shopee.vn', emoji:'💎'},
-  hoa:  {name:'Đèn phong thủy mệnh Hỏa',   description:'Kích hoạt năng lượng, sáng suốt', url:'https://shopee.vn', emoji:'🕯️'},
-  tho:  {name:'Tượng đất phong thủy mệnh Thổ', description:'Ổn định, vững chắc, sum vầy', url:'https://shopee.vn', emoji:'🏺'},
+  kim:  {name:'Vòng bạc phong thủy Kim',   description:'Hợp mệnh Kim, thu hút tài lộc', url:'https://shopee.vn', emoji:'💍', price:'từ 150.000đ'},
+  moc:  {name:'Cây phong thủy mệnh Mộc',   description:'Mang năng lượng tươi mát, bình an', url:'https://shopee.vn', emoji:'🌿', price:'từ 80.000đ'},
+  thuy: {name:'Đá phong thủy mệnh Thủy',   description:'Hợp mệnh Thủy, thanh lọc không gian', url:'https://shopee.vn', emoji:'💎', price:'từ 120.000đ'},
+  hoa:  {name:'Đèn phong thủy mệnh Hỏa',   description:'Kích hoạt năng lượng, sáng suốt', url:'https://shopee.vn', emoji:'🕯️', price:'từ 95.000đ'},
+  tho:  {name:'Tượng đất phong thủy mệnh Thổ', description:'Ổn định, vững chắc, sum vầy', url:'https://shopee.vn', emoji:'🏺', price:'từ 200.000đ'},
 };
 
 const ELEMENT_EMOJI: Record<string,string> = { kim:'🪙', moc:'🌿', thuy:'💧', hoa:'🔥', tho:'🌍' };
