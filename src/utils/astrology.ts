@@ -87,8 +87,11 @@ export interface UserProfile {
   canChiYear:   string;
   element:      string;
   elementName:  string;
+  elementEmoji: string;
   destinyName:  string;
   shopeeProduct: ShopeeProduct;
+  canIndex:     number;
+  chiIndex:     number;
 }
 
 const CAN = ['Giáp','Ất','Bính','Đinh','Mậu','Kỷ','Canh','Tân','Nhâm','Quý'];
@@ -165,6 +168,8 @@ const SHOPEE_BY_ELEMENT: Record<string, ShopeeProduct> = {
   tho:  {name:'Tượng đất phong thủy mệnh Thổ', description:'Ổn định, vững chắc, sum vầy', url:'https://shopee.vn', emoji:'🏺'},
 };
 
+const ELEMENT_EMOJI: Record<string,string> = { kim:'🪙', moc:'🌿', thuy:'💧', hoa:'🔥', tho:'🌍' };
+
 export function buildUserProfile(birthYear: number): UserProfile {
   const canChi = `${CAN[(birthYear+6)%10]} ${CHI[(birthYear+8)%12]}`;
   const destiny = DESTINY_TABLE[canChi] ?? {element:'tho',elementName:'Thổ',destinyName:'Bình Địa Mộc'};
@@ -173,7 +178,14 @@ export function buildUserProfile(birthYear: number): UserProfile {
     canChiYear:   canChi,
     element:      destiny.element,
     elementName:  destiny.elementName,
+    elementEmoji: ELEMENT_EMOJI[destiny.element] ?? '🌍',
     destinyName:  destiny.destinyName,
     shopeeProduct: SHOPEE_BY_ELEMENT[destiny.element] ?? SHOPEE_BY_ELEMENT['tho']!,
+    canIndex:     (birthYear + 6) % 10,
+    chiIndex:     (birthYear + 8) % 12,
   };
+}
+
+export function getShopeeProduct(element: string): ShopeeProduct {
+  return SHOPEE_BY_ELEMENT[element] ?? SHOPEE_BY_ELEMENT['tho']!;
 }

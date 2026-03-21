@@ -105,3 +105,6 @@ export function playSuccess() {
     });
   } catch {}
 }
+
+// Alias cho compatibility
+export function playChime() { playBell(0.3); }
