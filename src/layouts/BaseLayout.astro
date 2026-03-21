@@ -196,9 +196,12 @@ function isActive(href: string): boolean {
     rel="stylesheet"
   />
 
-  <!-- Preconnect for fonts (LCP) -->
+  <!-- Preconnect + preload fonts (LCP optimization) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <!-- Load fonts async to avoid render-blocking -->
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Serif+Display&display=swap&subset=vietnamese" onload="this.onload=null;this.rel='stylesheet'" />
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Serif+Display&display=swap&subset=vietnamese" /></noscript>
 
   <!-- Analytics: Plausible (privacy-friendly, no cookies) -->
   <!-- Thay YOUR-DOMAIN bằng lichvannien.io.vn sau khi đăng ký plausible.io -->
