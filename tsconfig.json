@@ -1,0 +1,23 @@
+{
+  "extends": "astro/tsconfigs/strict",
+  "compilerOptions": {
+    "baseUrl":           ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@lib/*":        ["./src/lib/*"],
+      "@components/*": ["./src/components/*"],
+      "@layouts/*":    ["./src/layouts/*"]
+    },
+    "strictNullChecks":         true,
+    "noImplicitAny":            true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitReturns":        true,
+    "useUnknownInCatchVariables": true,
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler"
+  },
+  "include": ["src", "astro.config.mjs", ".astro/types.d.ts"],
+  "exclude": ["node_modules", "dist", ".cloudflare"]
+}

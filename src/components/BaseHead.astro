@@ -1,0 +1,104 @@
+---
+// src/components/BaseHead.astro
+// Component SEO head — dùng trong BaseLayout
+// Nhận đầy đủ props, không để mặc định chung chung
+
+import { SITE } from '../lib/constants';
+import type { SeoMeta } from '../lib/types';
+
+interface Props extends SeoMeta {
+  schema?: object | object[];
+}
+
+const {
+  title,
+  description,
+  canonical,
+  ogImage  = SITE.ogImage,
+  noindex  = false,
+  schema,
+} = Astro.props;
+
+// Giới hạn độ dài
+const safeTitle = title.slice(0, 60);
+const safeDesc  = description.slice(0, 160);
+---
+
+<!-- Charset & Viewport -->
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+<!-- Favicon -->
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152.png" />
+<link rel="apple-touch-icon" sizes="167x167" href="/apple-touch-icon-167.png" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180.png" />
+
+<!-- PWA -->
+<link rel="manifest" href="/manifest.json" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Lịch VN AI" />
+<meta name="theme-color" content="#C0392B" media="(prefers-color-scheme: light)" />
+<meta name="theme-color" content="#1a0a08" media="(prefers-color-scheme: dark)" />
+
+<!-- SEO Core -->
+<title>{safeTitle}</title>
+<meta name="description" content={safeDesc} />
+<link rel="canonical" href={canonical} />
+<meta name="robots" content={noindex ? 'noindex, nofollow' : 'index, follow'} />
+<meta name="author" content={SITE.siteName} />
+
+<!-- Google Verify -->
+<meta name="google-site-verification" content="Ayd10DMuvfW7FDDg0_ugpWAsIXbryRv7wyxDWH5vkjc" />
+
+<!-- Open Graph -->
+<meta property="og:type"        content="website" />
+<meta property="og:site_name"   content={SITE.siteName} />
+<meta property="og:url"         content={canonical} />
+<meta property="og:title"       content={safeTitle} />
+<meta property="og:description" content={safeDesc} />
+<meta property="og:image"       content={ogImage} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:locale"      content="vi_VN" />
+
+<!-- Twitter Card -->
+<meta name="twitter:card"        content="summary_large_image" />
+<meta name="twitter:title"       content={safeTitle} />
+<meta name="twitter:description" content={safeDesc} />
+<meta name="twitter:image"       content={ogImage} />
+
+<!-- Fonts: preconnect để load nhanh hơn -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap"
+  rel="stylesheet"
+/>
+
+<!-- JSON-LD Schema -->
+{schema && (
+  Array.isArray(schema) ? (
+    schema.map((s) => (
+      <script type="application/ld+json" set:html={JSON.stringify(s)} />
+    ))
+  ) : (
+    <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+  )
+)}
+
+<!-- Dark mode init — phải là inline script để không flash -->
+<script is:inline>
+  (function () {
+    try {
+      var t = localStorage.getItem('lvn_theme');
+      var h = document.documentElement;
+      if (t === 'dark') { h.classList.add('dark'); }
+      else              { h.classList.remove('dark'); }
+    } catch (e) {}
+  })();
+</script>

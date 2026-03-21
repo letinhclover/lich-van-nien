@@ -1,0 +1,72 @@
+---
+// src/components/SaoTrucBadge.astro — Badge sao trực nhật
+import { NHI_THAP_BAT_TU_DATA, TU_REF_JDN } from '../lib/constants';
+import { toJDN } from '../lib/amlich';
+
+interface Props {
+  day:   number;
+  month: number;
+  year:  number;
+  expanded?: boolean;
+}
+
+const { day, month, year, expanded = false } = Astro.props;
+
+const jdn    = toJDN(day, month, year);
+const idx    = ((jdn - TU_REF_JDN) % 28 + 28) % 28;
+const sao    = NHI_THAP_BAT_TU_DATA[idx];
+
+if (!sao) return null;
+
+const COLOR: Record<string, { bg: string; text: string }> = {
+  tot:  { bg: 'var(--green-pale)', text: 'var(--green)' },
+  xau:  { bg: 'var(--red-pale)',   text: 'var(--red)'   },
+  binh: { bg: 'var(--gold-pale)',  text: 'var(--gold-dark)' },
+};
+const c = COLOR[sao.rating]!;
+const label = sao.rating === 'tot' ? 'Cát tinh' : sao.rating === 'xau' ? 'Hung tinh' : 'Trung bình';
+---
+
+<div>
+  <!-- Badge nhỏ -->
+  <div
+    id={`sao-badge-${day}-${month}-${year}`}
+    class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full cursor-pointer"
+    style={`background:${c.bg};`}
+    onclick={`document.getElementById('sao-detail-${day}-${month}-${year}').classList.toggle('hidden')`}
+    role="button"
+    aria-expanded="false"
+    aria-label={`Sao ${sao.ten} — ${label}`}
+  >
+    <span class="text-xs font-bold" style={`color:${c.text};`}>⭐ {sao.ten}</span>
+    <span class="text-[10px]" style={`color:${c.text};`}>{label}</span>
+    <span class="text-[10px]" style="color:var(--text-4);">▼</span>
+  </div>
+
+  <!-- Detail expand -->
+  <div
+    id={`sao-detail-${day}-${month}-${year}`}
+    class:list={['mt-2 p-3 rounded-xl text-sm', expanded ? '' : 'hidden']}
+    style={`background:${c.bg};border:1px solid ${c.text}30;`}
+  >
+    <p class="font-semibold mb-1.5" style={`color:${c.text};`}>{sao.ten} — {sao.yNghia}</p>
+
+    {sao.nenLam.length > 0 && (
+      <div class="mb-1.5">
+        <p class="text-xs font-bold mb-1" style="color:var(--text-3);">✅ Nên làm</p>
+        <div class="flex flex-wrap gap-1">
+          {sao.nenLam.map(n => <span class="badge-green text-xs">{n}</span>)}
+        </div>
+      </div>
+    )}
+
+    {sao.nenTranh.length > 0 && (
+      <div>
+        <p class="text-xs font-bold mb-1" style="color:var(--text-3);">❌ Nên tránh</p>
+        <div class="flex flex-wrap gap-1">
+          {sao.nenTranh.map(n => <span class="badge-red text-xs">{n}</span>)}
+        </div>
+      </div>
+    )}
+  </div>
+</div>

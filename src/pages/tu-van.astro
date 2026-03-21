@@ -1,0 +1,130 @@
+---
+// src/pages/tu-van.astro — Trang tư vấn AI
+import BaseLayout  from '../layouts/BaseLayout.astro';
+import AIChatbot   from '../components/AIChatbot';
+import Breadcrumb  from '../components/Breadcrumb.astro';
+import { SITE }    from '../lib/constants';
+import { todayVN } from '../lib/dateUtils';
+import { getCanChi, solarToLunar } from '../lib/amlich';
+
+const { day, month, year } = todayVN();
+const lunar  = solarToLunar(day, month, year);
+const canChi = getCanChi(day, month, year);
+
+const title       = 'Tư vấn phong thuỷ bằng AI — Hỏi về ngày tốt xấu, lịch âm | Lịch Vạn Niên'.slice(0, 60);
+const description = 'Hỏi AI về ngày tốt để cưới, khai trương, xuất hành. Phân tích theo lịch âm, can chi. Miễn phí không giới hạn.'.slice(0, 160);
+const canonical   = `${SITE.baseUrl}/tu-van`;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type':    'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name:    'AI tư vấn lịch âm có chính xác không?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text:    'AI tư vấn dựa trên thuật toán lịch pháp Hồ Ngọc Đức và kiến thức phong thủy truyền thống Việt Nam. Thông tin mang tính tham khảo.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name:    'Tôi có thể hỏi AI về những vấn đề gì?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text:    'Ngày tốt để cưới hỏi, khai trương, xuất hành, ký hợp đồng; giờ hoàng đạo; ý nghĩa can chi; ngày hợp tuổi theo năm sinh.',
+      },
+    },
+  ],
+};
+
+const USE_CASES = [
+  {
+    icon: '💍',
+    title: 'Ngày cưới',
+    desc: 'Nhập tuổi 2 người, AI gợi ý ngày đẹp nhất theo lịch âm',
+    example: 'Tôi sinh 1995, bạn đời sinh 1993. Ngày nào tháng 10 tốt để cưới?',
+    href: '/chon-ngay-cuoi',
+  },
+  {
+    icon: '🏪',
+    title: 'Khai trương',
+    desc: 'Ngày giờ hoàng đạo phù hợp ngành kinh doanh',
+    example: 'Tôi muốn khai trương cửa hàng thực phẩm vào tháng 4/2026, ngày nào tốt?',
+    href: '/gio-hoang-dao',
+  },
+  {
+    icon: '🚗',
+    title: 'Xuất hành',
+    desc: 'Giờ và ngày tốt để đi xa, ký hợp đồng, gặp đối tác',
+    example: 'Tuần này ngày nào tốt để xuất hành ký hợp đồng lớn?',
+    href: '/',
+  },
+];
+---
+
+<BaseLayout {title} {description} canonicalUrl={canonical} {jsonLd}>
+
+  <Breadcrumb items={[
+    { label: 'Trang chủ', href: '/' },
+    { label: 'Tư Vấn AI' },
+  ]} />
+
+  <div class="text-center mb-6">
+    <div
+      class="inline-flex items-center justify-center w-14 h-14 rounded-2xl text-2xl mb-3"
+      style="background:linear-gradient(135deg,var(--red),var(--red-dark));box-shadow:0 4px 16px rgba(192,57,43,0.35);"
+    >🤖</div>
+    <h1 class="font-display font-bold text-2xl mb-1" style="color:var(--text-1);">
+      Tư vấn ngày tốt xấu bằng AI
+    </h1>
+    <p class="text-sm mb-4" style="color:var(--text-3);">
+      Đặt câu hỏi tự nhiên — AI phân tích theo lịch âm Việt Nam
+    </p>
+    <div class="flex flex-wrap justify-center gap-2">
+      <span class="badge-green">✓ Miễn phí không giới hạn</span>
+      <span class="badge-gold">✓ Theo lịch âm VN</span>
+    </div>
+  </div>
+
+  <div class="card p-3 mb-5 flex items-center gap-3"
+    style="background:var(--red-pale);border-color:var(--border-red);">
+    <span class="text-lg shrink-0">📅</span>
+    <p class="text-sm" style="color:var(--text-2);">
+      <span class="font-semibold">Hôm nay:</span>
+      {day}/{month}/{year} · Ngày <strong>{canChi.ngay.display}</strong>
+      · {lunar.day}/{lunar.month} {lunar.yearName}
+    </p>
+  </div>
+
+  <section class="mb-5">
+    <h2 class="section-label mb-3">📋 Bạn cần tư vấn gì?</h2>
+    <div class="grid grid-cols-1 gap-3">
+      {USE_CASES.map(({ icon, title: t, desc, example, href }) => (
+        <div class="card p-4">
+          <div class="flex items-start gap-3 mb-2">
+            <span class="text-2xl shrink-0">{icon}</span>
+            <div>
+              <p class="font-bold text-sm" style="color:var(--text-1);">{t}</p>
+              <p class="text-xs mt-0.5" style="color:var(--text-3);">{desc}</p>
+            </div>
+          </div>
+          <p class="text-xs italic mb-2.5 px-3 py-2 rounded-lg" style="color:var(--text-3);background:var(--bg-surface);">
+            VD: "{example}"
+          </p>
+          <a href={href} class="text-xs no-underline font-semibold" style="color:var(--red);">Xem thêm →</a>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="mb-5">
+    <h2 class="section-label mb-3">💬 Đặt câu hỏi cho AI</h2>
+    <AIChatbot client:load />
+  </section>
+
+  <p class="text-xs text-center mb-4 px-4" style="color:var(--text-4);">
+    ⚠️ Thông tin chỉ mang tính tham khảo theo phong tục truyền thống Việt Nam.
+  </p>
+
+</BaseLayout>

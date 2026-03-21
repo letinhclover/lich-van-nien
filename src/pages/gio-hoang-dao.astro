@@ -1,0 +1,91 @@
+---
+// src/pages/gio-hoang-dao.astro — Giờ Hoàng Đạo hôm nay
+import BaseLayout      from '../layouts/BaseLayout.astro';
+import HoangDaoTable   from '../components/HoangDaoTable.astro';
+import { getVietnamNow, buildSolarDate } from '../lib/dateUtils';
+import { solarToLunar, getCanChi, getHoangDao } from '../lib/amlich';
+import { SITE } from '../lib/constants';
+import Breadcrumb from '../components/Breadcrumb.astro';
+
+const now   = getVietnamNow();
+const { day: d, month: m, year: y, hour } = now;
+const solar  = buildSolarDate(d, m, y);
+const lunar  = solarToLunar(d, m, y);
+const canChi = getCanChi(d, m, y);
+const hours  = getHoangDao(d, m, y);
+const currentGioIdx = Math.floor(((hour + 1) % 24) / 2);
+const goodHours = hours.filter(h => h.isHoangDao);
+const dateStr = `${d}/${m}/${y}`;
+
+const title       = `Giờ Hoàng Đạo hôm nay ${dateStr} — 12 khung giờ tốt xấu chính xác | Lịch Vạn Niên`.slice(0,60);
+const description = `Giờ hoàng đạo ngày ${dateStr} (ngày ${canChi.ngay.display} ${canChi.nam.display}): ${goodHours.slice(0,4).map(h=>h.tenGio.split(' (')[0]).join(', ')}. Tra cứu 12 giờ tốt xấu theo âm lịch Việt Nam.`.slice(0,160);
+const canonical   = `${SITE.baseUrl}/gio-hoang-dao`;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type':    'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name:    `Giờ hoàng đạo hôm nay ${dateStr} là mấy giờ?`,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: `Giờ hoàng đạo hôm nay ${dateStr}: ${goodHours.map(h=>h.tenGio).join(', ')}.`,
+      },
+    },
+    {
+      '@type': 'Question',
+      name:    'Giờ hoàng đạo và hắc đạo khác nhau thế nào?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Giờ hoàng đạo là khung giờ được coi là may mắn, thuận lợi để làm việc quan trọng theo lịch pháp phương Đông. Giờ hắc đạo là giờ không thuận lợi, nên hạn chế khởi sự việc lớn. Giờ hoàng đạo thay đổi theo can chi ngày, có 6 giờ hoàng đạo và 6 giờ hắc đạo mỗi ngày.',
+      },
+    },
+  ],
+};
+---
+<BaseLayout {title} {description} canonicalUrl={canonical} {jsonLd}>
+
+  <Breadcrumb items={[
+    { label: 'Trang chủ', href: '/' },
+    { label: 'Giờ Hoàng Đạo' },
+  ]} />
+
+  <h1 class="font-display font-bold text-2xl mb-1" style="color:var(--text-1);">
+    Giờ hoàng đạo ngày {dateStr}
+  </h1>
+  <p class="text-sm mb-4 leading-relaxed" style="color:var(--text-2);">
+    Giờ hoàng đạo hôm nay theo ngày <strong>{canChi.ngay.display}</strong>
+    ({solar.weekdayLabel}, âm lịch {lunar.day}/{lunar.month} {lunar.yearName}).
+    Xem 12 khung giờ tốt xấu để chọn thời điểm làm việc quan trọng chính xác nhất.
+  </p>
+
+  <!-- Summary giờ hoàng đạo -->
+  <div class="card p-4 mb-4" style="border-color:rgba(29,158,117,0.3);background:rgba(29,158,117,0.05);">
+    <p class="section-label mb-2">✅ Giờ Hoàng Đạo hôm nay ({goodHours.length} giờ)</p>
+    <div class="flex flex-wrap gap-1.5">
+      {goodHours.map(h => (
+        <span class="badge-green">{h.tenGio.split(' (')[0]}</span>
+      ))}
+    </div>
+  </div>
+
+  <!-- Bảng đầy đủ -->
+  <HoangDaoTable {hours} date={dateStr} {currentGioIdx} />
+
+  <!-- FAQ -->
+  <div class="card p-4 mt-4">
+    <h2 class="font-bold text-sm mb-3" style="color:var(--text-1);">❓ Câu hỏi thường gặp</h2>
+    <div class="flex flex-col gap-3">
+      <div>
+        <p class="font-semibold text-sm" style="color:var(--text-1);">Giờ hoàng đạo và hắc đạo khác nhau thế nào?</p>
+        <p class="text-sm mt-1 leading-relaxed" style="color:var(--text-2);">
+          Giờ hoàng đạo là khung giờ may mắn, thuận lợi cho công việc quan trọng.
+          Giờ hắc đạo nên hạn chế khởi sự việc lớn. Mỗi ngày có 6 giờ hoàng đạo và 6 giờ hắc đạo,
+          thay đổi theo can chi ngày.
+        </p>
+      </div>
+    </div>
+  </div>
+
+</BaseLayout>

@@ -1,0 +1,62 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import { SITE }   from '../lib/constants';
+
+const canonical  = `${SITE.baseUrl}/chinh-sach`;
+const title      = 'Chính sách & Điều khoản — Lịch Vạn Niên AI'.slice(0,60);
+const description = 'Chính sách bảo mật, điều khoản sử dụng và tuyên bố miễn trừ trách nhiệm của Lịch Vạn Niên AI. Không quảng cáo, không thu thập dữ liệu cá nhân.'.slice(0,160);
+---
+
+<BaseLayout {title} {description} canonicalUrl={canonical} noindex={true}>
+
+  <Breadcrumb items={[{ label:'Trang chủ', href:'/' }, { label:'Chính sách' }]} />
+
+  <h1 class="font-display font-bold text-2xl mb-4" style="color:var(--text-1);">
+    📋 Chính sách & Điều khoản
+  </h1>
+
+  {[
+    {
+      title: '🔒 Chính sách bảo mật',
+      content: [
+        'Lịch Vạn Niên AI không thu thập, lưu trữ hoặc chia sẻ dữ liệu cá nhân của người dùng.',
+        'Ứng dụng sử dụng localStorage của trình duyệt để lưu cài đặt giao diện (sáng/tối, cỡ chữ) — dữ liệu này chỉ tồn tại trên thiết bị của bạn.',
+        'Tính năng AI Chatbot gửi câu hỏi đến Groq API để xử lý — không có thông tin cá nhân nào được gắn kèm.',
+        'Không sử dụng cookies theo dõi hay quảng cáo.',
+      ],
+    },
+    {
+      title: '📜 Điều khoản sử dụng',
+      content: [
+        'Lịch Vạn Niên AI cung cấp thông tin lịch âm dương và tư vấn phong thủy hoàn toàn miễn phí.',
+        'Người dùng được phép sử dụng ứng dụng cho mục đích cá nhân và phi thương mại.',
+        'Không được sao chép, phân phối lại toàn bộ dữ liệu lịch mà không có sự cho phép bằng văn bản.',
+        'Developer API (/api/v1/) được phép sử dụng tự do cho dự án cá nhân và thương mại với attribution.',
+      ],
+    },
+    {
+      title: '⚠️ Tuyên bố miễn trừ trách nhiệm',
+      content: [
+        'Tất cả thông tin trên Lịch Vạn Niên AI — bao gồm ngày tốt xấu, giờ hoàng đạo, tư vấn AI — mang tính THAM KHẢO theo phong tục truyền thống Việt Nam.',
+        'Ứng dụng không đảm bảo tính chính xác tuyệt đối của thông tin phong thủy và không chịu trách nhiệm về bất kỳ quyết định nào được thực hiện dựa trên thông tin cung cấp.',
+        'Các quyết định quan trọng về hôn nhân, kinh doanh, xây dựng nên tham khảo thêm chuyên gia có uy tín.',
+        'Thông tin lịch âm dương tính theo thuật toán Ho Ngoc Duc — có thể sai lệch nhỏ so với các nguồn khác do phương pháp tính khác nhau.',
+      ],
+    },
+  ].map(({ title, content }) => (
+    <div class="card p-4 mb-4">
+      <h2 class="font-bold text-sm mb-3" style="color:var(--text-1);">{title}</h2>
+      <div class="flex flex-col gap-2">
+        {content.map(c => (
+          <p class="text-sm leading-relaxed" style="color:var(--text-2);">• {c}</p>
+        ))}
+      </div>
+    </div>
+  ))}
+
+  <p class="text-xs text-center" style="color:var(--text-4);">
+    Cập nhật lần cuối: 03/2026 · lichvannien.io.vn
+  </p>
+
+</BaseLayout>

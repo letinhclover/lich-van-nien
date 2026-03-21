@@ -1,0 +1,191 @@
+---
+// src/pages/can-chi/[slug].astro — 60 trang can chi evergreen
+import BaseLayout  from '../../layouts/BaseLayout.astro';
+import Breadcrumb  from '../../components/Breadcrumb.astro';
+import { SITE }    from '../../lib/constants';
+import { todayVN, solarToPath } from '../../lib/dateUtils';
+import { toJDN, jdnToSolar } from '../../lib/amlich';
+import CAN_CHI_PROFILES from '../../lib/can-chi-profiles';
+
+export function getStaticPaths() {
+  return CAN_CHI_PROFILES.map(p => ({ params: { slug: p.slug }, props: { profile: p } }));
+}
+
+const { profile: p } = Astro.props;
+const today  = todayVN();
+
+// Tìm 3 ngày gần nhất (tương lai) có can chi này
+function findNextDays(canChi: string, fromYear: number, fromMonth: number, fromDay: number, count = 3) {
+  const days: { day:number; month:number; year:number }[] = [];
+  const startJDN = toJDN(fromDay, fromMonth, fromYear);
+  for (let offset = 0; offset <= 60 && days.length < count; offset++) {
+    const jdn  = startJDN + offset;
+    const date = jdnToSolar(jdn);
+    // Get can chi of this day
+    const cc = `${['Giáp','Ất','Bính','Đinh','Mậu','Kỷ','Canh','Tân','Nhâm','Quý'][(jdn+9)%10]} ${['Tý','Sửu','Dần','Mão','Thìn','Tỵ','Ngọ','Mùi','Thân','Dậu','Tuất','Hợi'][(jdn+1)%12]}`;
+    if (cc === canChi) days.push(date);
+  }
+  return days;
+}
+
+const nextDays = findNextDays(p.name, today.year, today.month, today.day);
+
+const canonical  = `${SITE.baseUrl}/can-chi/${p.slug}`;
+const title      = `Ý nghĩa ngày ${p.name} — Tính cách, màu hợp, phong thuỷ | Lịch Vạn Niên`.slice(0,60);
+const description = `Ý nghĩa ngày ${p.name} lịch âm. Tính cách người sinh ngày này, màu hợp theo ${p.nguHanh}, hướng tốt phong thuỷ Việt Nam.`;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type':    'Article',
+  headline:   title,
+  description,
+  url:        canonical,
+  author:     { '@type': 'Organization', name: SITE.siteName, url: SITE.baseUrl },
+  publisher:  { '@type': 'Organization', name: SITE.siteName, url: SITE.baseUrl },
+};
+---
+
+<BaseLayout {title} {description} canonicalUrl={canonical} {jsonLd}>
+
+  <Breadcrumb items={[
+    { label: 'Trang chủ', href: '/' },
+    { label: '60 Can Chi', href: '/can-chi' },
+    { label: p.name },
+  ]} />
+
+  <!-- Hero -->
+  <div class="card overflow-hidden mb-5">
+    <div class="h-1.5" style={`background:${p.color};`}></div>
+    <div class="p-4">
+      <div class="flex items-start justify-between gap-3">
+        <div>
+          <p class="section-label mb-1">Can Chi · Ngũ hành {p.nguHanh}</p>
+          <h1 class="font-display font-bold text-3xl mb-1" style={`color:${p.color};`}>
+            {p.name}
+          </h1>
+          <div class="flex gap-2 flex-wrap">
+            <span class="badge-gold">🌿 {p.nguHanh}</span>
+            <span class="badge-green">🐾 Con {p.conGiap}</span>
+            <span style={`background:${p.color}18;color:${p.color};`}
+              class="text-xs px-2.5 py-1 rounded-full font-semibold">
+              {p.can} + {p.chi}
+            </span>
+          </div>
+        </div>
+        <div class="w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 text-3xl font-black"
+          style={`background:${p.color}18;color:${p.color};`}>
+          {p.chi[0]}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 1. Tổng quan -->
+  <section class="mb-5">
+    <h2 class="section-label mb-2">📖 Tổng quan ngày {p.name}</h2>
+    <div class="card p-4">
+      <p class="text-sm leading-relaxed" style="color:var(--text-1);">{p.meaning}</p>
+    </div>
+  </section>
+
+  <!-- 2. Tính cách -->
+  <section class="mb-5">
+    <h2 class="section-label mb-2">🧠 Tính cách người sinh ngày {p.name}</h2>
+    <div class="card p-4 flex flex-col gap-2">
+      {p.personality.map((trait, i) => (
+        <div class="flex items-start gap-2.5">
+          <span class="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-0.5"
+            style={`background:${p.color};color:white;`}>{i+1}</span>
+          <p class="text-sm" style="color:var(--text-1);">{trait}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- 3. Màu sắc + số may mắn -->
+  <section class="mb-5">
+    <h2 class="section-label mb-2">🎨 Màu hợp · Hướng tốt · Số may mắn</h2>
+    <div class="card p-4 flex flex-col gap-4">
+      <div>
+        <p class="text-xs font-bold mb-2" style="color:var(--text-3);">Màu sắc hợp mệnh {p.nguHanh}</p>
+        <div class="flex gap-2 flex-wrap">
+          {p.colors.map(c => (
+            <span class="px-3 py-1.5 rounded-full text-sm font-semibold"
+              style={`background:${p.color}15;color:${p.color};border:1px solid ${p.color}40;`}>
+              {c}
+            </span>
+          ))}
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <p class="text-xs font-bold mb-1.5" style="color:var(--text-3);">🧭 Hướng tốt</p>
+          <p class="text-sm" style="color:var(--text-1);">{p.direction}</p>
+        </div>
+        <div>
+          <p class="text-xs font-bold mb-1.5" style="color:var(--text-3);">🔢 Số may mắn</p>
+          <div class="flex gap-1.5">
+            {p.luckyNums.map(n => (
+              <span class="w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold"
+                style={`background:${p.color};color:white;`}>{n}</span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Tương sinh tương khắc -->
+  <section class="mb-5">
+    <h2 class="section-label mb-2">⚖️ Tương sinh tương khắc</h2>
+    <div class="card p-4 grid grid-cols-2 gap-4">
+      <div>
+        <p class="text-xs font-bold mb-2" style="color:var(--green);">✅ Tương sinh (hợp)</p>
+        <div class="flex flex-col gap-1">
+          {p.compatible.map(c => <span class="badge-green text-xs">{c}</span>)}
+        </div>
+      </div>
+      <div>
+        <p class="text-xs font-bold mb-2" style="color:var(--red);">❌ Tương khắc</p>
+        <div class="flex flex-col gap-1">
+          {p.incompatible.map(c => <span class="badge-red text-xs">{c}</span>)}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. Ngày gần nhất có can chi này -->
+  {nextDays.length > 0 && (
+    <section class="mb-5">
+      <h2 class="section-label mb-2">📅 Ngày {p.name} gần nhất</h2>
+      <div class="flex flex-col gap-2">
+        {nextDays.map(d => (
+          <a href={solarToPath(d.day, d.month, d.year)}
+            class="card p-3 no-underline flex items-center justify-between hover:shadow-md transition-shadow">
+            <div>
+              <p class="font-bold text-sm" style="color:var(--text-1);">
+                {d.day}/{d.month}/{d.year}
+              </p>
+              <p class="text-xs mt-0.5" style="color:var(--text-3);">Ngày {p.name}</p>
+            </div>
+            <span class="badge-green text-xs">Xem chi tiết →</span>
+          </a>
+        ))}
+      </div>
+    </section>
+  )}
+
+  <!-- CTA -->
+  <div class="card p-4 mb-4" style={`background:${p.color}08;border-color:${p.color}30;`}>
+    <p class="font-bold text-sm mb-2" style="color:var(--text-1);">
+      🗓 Hôm nay có phải ngày {p.name} không?
+    </p>
+    <a href="/" class="btn-primary text-sm inline-flex">Xem lịch hôm nay →</a>
+  </div>
+
+  <!-- Back -->
+  <a href="/can-chi" class="btn-secondary text-sm w-full justify-center mb-4">
+    ← Xem tất cả 60 Can Chi
+  </a>
+
+</BaseLayout>

@@ -1,0 +1,114 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import { SITE }   from '../lib/constants';
+
+const canonical  = `${SITE.baseUrl}/gioi-thieu`;
+const title      = 'Về Lịch Vạn Niên AI — Phương pháp tính lịch âm chuẩn'.slice(0,60);
+const description = 'Lịch Vạn Niên AI dùng thuật toán Ho Ngoc Duc chuẩn quốc tế, múi giờ Việt Nam UTC+7, kiểm chứng với các mốc lịch Tết hàng năm. Thông tin minh bạch.'.slice(0,160);
+
+const orgSchema = {
+  '@context': 'https://schema.org',
+  '@type':    'Organization',
+  name:       'Lịch Vạn Niên AI',
+  url:        SITE.baseUrl,
+  logo:       `${SITE.baseUrl}/pwa-192x192.png`,
+  description: 'Ứng dụng lịch âm dương Việt Nam với AI tư vấn phong thủy',
+  contactPoint: {
+    '@type':       'ContactPoint',
+    contactType:   'customer support',
+    availableLanguage: 'Vietnamese',
+  },
+};
+---
+
+<BaseLayout {title} {description} canonicalUrl={canonical} jsonLd={[orgSchema]}>
+
+  <Breadcrumb items={[{ label:'Trang chủ', href:'/' }, { label:'Giới thiệu' }]} />
+
+  <h1 class="font-display font-bold text-2xl mb-4" style="color:var(--text-1);">
+    📖 Về Lịch Vạn Niên AI
+  </h1>
+
+  <!-- Giới thiệu -->
+  <div class="card p-4 mb-4">
+    <h2 class="font-bold text-sm mb-2" style="color:var(--text-1);">🎯 Mục tiêu</h2>
+    <p class="text-sm leading-relaxed" style="color:var(--text-2);">
+      Lịch Vạn Niên AI được xây dựng với mục tiêu cung cấp thông tin lịch âm dương Việt Nam
+      chính xác nhất, kết hợp công nghệ AI để tư vấn phong thủy thân thiện và dễ hiểu.
+      Ứng dụng miễn phí, không quảng cáo, không thu thập dữ liệu cá nhân.
+    </p>
+  </div>
+
+  <!-- Phương pháp tính -->
+  <div class="card p-4 mb-4">
+    <h2 class="font-bold text-sm mb-3" style="color:var(--text-1);">🔬 Phương pháp tính lịch âm</h2>
+    <div class="flex flex-col gap-2.5">
+      {[
+        { icon:'⚙️', title:'Thuật toán Ho Ngoc Duc', desc:'Thuật toán lịch âm chuẩn quốc tế được sử dụng rộng rãi nhất tại Việt Nam và cộng đồng lập trình.' },
+        { icon:'🌏', title:'Múi giờ Việt Nam (UTC+7)', desc:'Tất cả phép tính đều cố định múi giờ Asia/Ho_Chi_Minh để đảm bảo kết quả đúng cho người dùng Việt Nam.' },
+        { icon:'✅', title:'Kiểm chứng với mốc lịch sử', desc:'Xác minh với Tết Nguyên Đán nhiều năm, tháng nhuận âm lịch và các mốc lịch quan trọng.' },
+        { icon:'🌙', title:'Tính toán thiên văn', desc:'Trăng mới (New Moon) tính theo phương trình thiên văn từ bảng Astronomical Algorithms của Jean Meeus.' },
+      ].map(({ icon, title, desc }) => (
+        <div class="flex gap-3">
+          <span class="text-lg shrink-0">{icon}</span>
+          <div>
+            <p class="font-semibold text-sm" style="color:var(--text-1);">{title}</p>
+            <p class="text-xs mt-0.5 leading-relaxed" style="color:var(--text-3);">{desc}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+
+  <!-- Tính năng -->
+  <div class="card p-4 mb-4">
+    <h2 class="font-bold text-sm mb-3" style="color:var(--text-1);">✨ Tính năng</h2>
+    <div class="grid grid-cols-2 gap-2">
+      {[
+        '📅 1826 trang lịch ngày (2024–2028)',
+        '🌙 Chuyển đổi âm ↔ dương lịch',
+        '⭐ Nhị Thập Bát Tú sao trực',
+        '💑 Xem tuổi vợ chồng hợp',
+        '🤖 AI tư vấn phong thủy',
+        '📊 Báo cáo vận trình 2027',
+        '📲 Cài app PWA offline',
+        '🔌 REST API công khai',
+      ].map(f => (
+        <div class="text-xs py-1" style="color:var(--text-2);">{f}</div>
+      ))}
+    </div>
+  </div>
+
+  <!-- Nguồn tham khảo -->
+  <div class="card p-4 mb-4">
+    <h2 class="font-bold text-sm mb-3" style="color:var(--text-1);">📚 Nguồn tham khảo</h2>
+    <div class="flex flex-col gap-2 text-sm" style="color:var(--text-2);">
+      <p>• Thuật toán lịch âm: <a href="https://www.informatik.uni-leipzig.de/~duc/amlich/" target="_blank" rel="noopener" style="color:var(--red);">Ho Ngoc Duc (informatik.uni-leipzig.de)</a></p>
+      <p>• Astronomical Algorithms — Jean Meeus (1991)</p>
+      <p>• Can Chi: <a href="https://vi.wikipedia.org/wiki/Can_Chi" target="_blank" rel="noopener" style="color:var(--red);">Wikipedia Tiếng Việt</a></p>
+      <p>• Âm lịch: <a href="https://vi.wikipedia.org/wiki/%C3%82m_l%E1%BB%8Bch" target="_blank" rel="noopener" style="color:var(--red);">Wikipedia — Âm lịch</a></p>
+    </div>
+  </div>
+
+  <!-- Disclaimer -->
+  <div class="card p-4 mb-4" style="background:var(--gold-pale);border-color:rgba(241,196,15,0.4);">
+    <p class="font-bold text-sm mb-1" style="color:var(--text-1);">⚠️ Lưu ý quan trọng</p>
+    <p class="text-xs leading-relaxed" style="color:var(--text-2);">
+      Thông tin trên Lịch Vạn Niên AI mang tính <strong>tham khảo theo phong tục truyền thống Việt Nam</strong>.
+      Các quyết định quan trọng về hôn nhân, kinh doanh, xây dựng nên tham khảo thêm chuyên gia uy tín.
+      Ứng dụng không chịu trách nhiệm về các quyết định được thực hiện dựa trên thông tin cung cấp.
+    </p>
+  </div>
+
+  <!-- Liên hệ -->
+  <div class="card p-4 mb-4">
+    <h2 class="font-bold text-sm mb-2" style="color:var(--text-1);">📬 Liên hệ</h2>
+    <p class="text-sm" style="color:var(--text-2);">
+      Phát hiện lỗi tính toán hoặc góp ý: sử dụng tính năng
+      <a href="/tu-van" style="color:var(--red);">Tư vấn AI</a> hoặc
+      <a href="https://github.com/letinhclover/lich-van-nien/issues" target="_blank" rel="noopener" style="color:var(--red);">GitHub Issues</a>.
+    </p>
+  </div>
+
+</BaseLayout>

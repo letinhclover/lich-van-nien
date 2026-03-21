@@ -1,0 +1,52 @@
+---
+// src/pages/chuyen-doi-lich.astro
+import BaseLayout    from '../layouts/BaseLayout.astro';
+import LichConverter from '../components/LichConverter';
+import { SITE } from '../lib/constants';
+import Breadcrumb from '../components/Breadcrumb.astro';
+
+const title       = 'Chuyển đổi lịch âm dương — Tra cứu ngày âm dương lịch chính xác | Lịch Vạn Niên'.slice(0,60);
+const description = 'Công cụ chuyển đổi lịch âm dương trực tuyến miễn phí. Nhập ngày dương lịch để biết ngày âm lịch và ngược lại. Chính xác theo thuật toán Hồ Ngọc Đức, cập nhật tức thì.'.slice(0,160);
+const canonical   = `${SITE.baseUrl}/chuyen-doi-lich`;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type':    'FAQPage',
+  mainEntity: [
+    {
+      '@type':'Question',
+      name:'Cách chuyển đổi ngày dương lịch sang âm lịch?',
+      acceptedAnswer:{
+        '@type':'Answer',
+        text:'Nhập ngày, tháng, năm dương lịch vào công cụ bên trên. Kết quả hiển thị ngay lập tức: ngày âm lịch, can chi ngày và link xem chi tiết ngày đó.',
+      },
+    },
+    {
+      '@type':'Question',
+      name:'Tháng nhuận âm lịch là gì?',
+      acceptedAnswer:{
+        '@type':'Answer',
+        text:'Tháng nhuận âm lịch là tháng được thêm vào khoảng 2-3 năm một lần để đồng bộ lịch âm và dương. Ví dụ: năm 2023 có tháng 2 nhuận. Khi chuyển từ âm sang dương, tick ô "Tháng nhuận" nếu muốn tra tháng nhuận.',
+      },
+    },
+  ],
+};
+---
+<BaseLayout {title} {description} canonicalUrl={canonical} {jsonLd}>
+
+  <Breadcrumb items={[
+    { label: 'Trang chủ', href: '/' },
+    { label: 'Chuyển Đổi Lịch' },
+  ]} />
+
+  <h1 class="font-display font-bold text-2xl mb-2" style="color:var(--text-1);">
+    Công cụ chuyển đổi lịch âm dương
+  </h1>
+
+
+  <!-- React Island — hydrate ngay khi load -->
+  <LichConverter client:load />
+
+
+
+</BaseLayout>

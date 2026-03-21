@@ -1,0 +1,125 @@
+---
+// src/components/HoangDaoTable.astro — Bảng 12 giờ Hoàng Đạo
+import type { HourQuality } from '../lib/amlich';
+
+interface Props {
+  hours:    HourQuality[];
+  date:     string;       // "2026-03-14" để hiển thị
+  compact?: boolean;      // chỉ hiện giờ hiện tại + 3 giờ tới
+  currentGioIdx?: number; // từ server (build-time estimate)
+}
+const { hours, date, compact = false, currentGioIdx = 0 } = Astro.props;
+
+// Giờ bắt đầu/kết thúc cho từng giờ âm
+const GIO_TIME = [
+  '23:00–01:00','01:00–03:00','03:00–05:00','05:00–07:00',
+  '07:00–09:00','09:00–11:00','11:00–13:00','13:00–15:00',
+  '15:00–17:00','17:00–19:00','19:00–21:00','21:00–23:00',
+];
+
+const displayHours = compact
+  ? hours.slice(currentGioIdx, currentGioIdx + 4)
+  : hours;
+---
+
+<div class="card overflow-hidden" id="hoang-dao-table">
+  {!compact && (
+    <div class="px-4 py-3 border-b flex items-center justify-between" style="border-color:var(--border);">
+      <h3 class="font-bold text-sm" style="color:var(--text-1);">Giờ Hoàng Đạo · {date}</h3>
+      <div class="flex gap-3 text-[10px]" style="color:var(--text-3);">
+        <span>🟢 Hoàng Đạo</span>
+        <span>⚫ Hắc Đạo</span>
+      </div>
+    </div>
+  )}
+
+  <div class="flex flex-col divide-y" style="border-color:var(--border);">
+    {displayHours.map((h, localIdx) => {
+      const realIdx  = compact ? currentGioIdx + localIdx : h.index;
+      const isCurrent = realIdx === currentGioIdx;
+      const timeStr  = GIO_TIME[h.index] ?? '';
+      return (
+        <div
+          class="flex items-center gap-3 px-3 py-2.5"
+          data-gio-row={h.index}
+          style={isCurrent
+            ? 'background:rgba(241,196,15,0.1);border-left:3px solid var(--gold-dark);'
+            : h.isHoangDao
+              ? 'background:rgba(29,158,117,0.06);'
+              : ''}
+        >
+          <!-- Giờ tên -->
+          <div class="w-28 shrink-0">
+            <p class="text-sm font-semibold leading-none" style={`color:${h.isHoangDao ? 'var(--green)' : 'var(--text-1)'};`}>
+              {h.tenGio.split(' (')[0]}
+              {isCurrent && (
+                <span class="ml-1 text-[9px] px-1.5 py-0.5 rounded font-bold" id={`badge-${h.index}`}
+                  style="background:var(--gold);color:#fff;">Hiện tại</span>
+              )}
+            </p>
+            <p class="text-[10px] mt-0.5" style="color:var(--text-4);">{timeStr}</p>
+          </div>
+
+          <!-- Can chi -->
+          <div class="w-20 shrink-0">
+            <p class="text-xs" style="color:var(--text-3);">{h.canChi}</p>
+          </div>
+
+          <!-- Badge -->
+          <div class="flex-1 flex items-center justify-between">
+            {h.isHoangDao && h.goodFor[0] && (
+              <span class="text-[10px] hidden sm:block" style="color:var(--text-3);">{h.goodFor[0]}</span>
+            )}
+            <span class="ml-auto text-xs font-bold px-2 py-0.5 rounded-lg"
+              style={h.isHoangDao
+                ? 'color:var(--green);background:rgba(29,158,117,0.1);'
+                : 'color:var(--text-4);background:var(--bg-surface);'}>
+              {h.isHoangDao ? 'Hoàng Đạo' : 'Hắc Đạo'}
+            </span>
+          </div>
+        </div>
+      );
+    })}
+  </div>
+</div>
+
+<script is:inline>
+// Cập nhật badge "Hiện tại" mỗi 60 giây
+(function() {
+  function getVNHour() {
+    try {
+      var s = new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Ho_Chi_Minh' });
+      return parseInt(s.split(' ')[1].split(':')[0], 10);
+    } catch(e) { return new Date().getHours(); }
+  }
+  function getGioIdx(h) { return Math.floor(((h + 1) % 24) / 2); }
+
+  function updateActive() {
+    var cur = getGioIdx(getVNHour());
+    document.querySelectorAll('[data-gio-row]').forEach(function(row) {
+      var idx = parseInt(row.dataset.gioRow, 10);
+      var badge = row.querySelector('[id^="badge-"]');
+      // Reset
+      row.style.borderLeft = '';
+      if (badge) badge.remove();
+      if (idx === cur) {
+        row.style.background = 'rgba(241,196,15,0.1)';
+        row.style.borderLeft = '3px solid var(--gold-dark)';
+        var nameEl = row.querySelector('p');
+        if (nameEl && !nameEl.querySelector('[id^="badge-"]')) {
+          var b = document.createElement('span');
+          b.id = 'badge-' + idx;
+          b.textContent = 'Hiện tại';
+          b.style.cssText = 'margin-left:4px;font-size:9px;padding:1px 5px;border-radius:3px;background:var(--gold);color:#fff;font-weight:700;';
+          nameEl.appendChild(b);
+        }
+      } else {
+        var hd = row.querySelector('[class*="Hoàng Đạo"]') || (row.textContent || '').includes('Hoàng Đạo');
+        row.style.background = hd ? 'rgba(29,158,117,0.06)' : '';
+      }
+    });
+  }
+  updateActive();
+  setInterval(updateActive, 60000);
+})();
+</script>

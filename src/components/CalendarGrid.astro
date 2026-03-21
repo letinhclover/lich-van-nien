@@ -1,0 +1,150 @@
+---
+// src/components/CalendarGrid.astro — Lịch tháng dạng grid
+// Props: year, month, days (DayInfo[]), currentDay?
+import type { DayInfo } from '../lib/amlich';
+import { solarToPath } from '../lib/dateUtils';
+
+interface Props {
+  year:        number;
+  month:       number;
+  days:        DayInfo[];
+  currentDay?: number;   // ngày hôm nay (để highlight)
+}
+
+const _p = Astro.props;
+const year  = Number(_p.year);
+const month = Number(_p.month);
+const days  = _p.days;
+const currentDay = _p.currentDay;
+
+const THU_SHORT = ['CN','T2','T3','T4','T5','T6','T7'];
+const THANG_VI  = ['','Tháng Một','Tháng Hai','Tháng Ba','Tháng Tư','Tháng Năm','Tháng Sáu','Tháng Bảy','Tháng Tám','Tháng Chín','Tháng Mười','Tháng Mười Một','Tháng Mười Hai'];
+
+// Prev / next month paths
+const prevM = month === 1  ? `${year-1}/12` : `${year}/${String(month-1).padStart(2,'0')}`;
+const nextM = month === 12 ? `${year+1}/01` : `${year}/${String(month+1).padStart(2,'0')}`;
+
+// Build grid: firstDay of month = what weekday?
+const firstDow  = new Date(Date.UTC(year, month-1, 1)).getUTCDay();
+const totalDays = new Date(Date.UTC(year, month, 0)).getUTCDate();
+
+// Cells: null = empty, number = day
+const cells: (number | null)[] = Array(Math.max(0, firstDow || 0)).fill(null);
+for (let d = 1; d <= totalDays; d++) cells.push(d);
+while (cells.length % 7 !== 0) cells.push(null);
+
+// Map day → DayInfo for fast lookup
+const safeDays = Array.isArray(days) ? days.filter(d => d?.solar?.day) : [];
+const dayMap = new Map<number, DayInfo>(safeDays.map(d => [d.solar.day, d]));
+
+function cellStyle(d: number | null): string {
+  if (!d) return 'opacity:0.2;cursor:default;';
+  const info = dayMap.get(d);
+  if (!info) return '';
+  const score = info.quality.score;
+  if (score >= 4) return 'background:rgba(29,158,117,0.08);';
+  if (score <= 2) return 'background:rgba(192,57,43,0.06);';
+  return '';
+}
+
+function dotColor(d: number): string {
+  const info = dayMap.get(d);
+  if (!info) return 'transparent';
+  const s = info.quality.score;
+  return s >= 4 ? 'var(--green)' : s <= 2 ? 'var(--red)' : 'var(--gold-dark)';
+}
+---
+
+<div>
+  <!-- Header: tháng + nav -->
+  <div class="flex items-center justify-between mb-3">
+    <a href={`/lich/thang/${prevM}`}
+      class="btn-secondary py-2 px-3 text-sm no-underline" aria-label="Tháng trước">
+      ← T{month === 1 ? 12 : month-1}
+    </a>
+    <h2 class="font-display font-bold text-lg" style="color:var(--text-1);">
+      {THANG_VI[month]} · {year}
+    </h2>
+    <a href={`/lich/thang/${nextM}`}
+      class="btn-secondary py-2 px-3 text-sm no-underline" aria-label="Tháng sau">
+      T{month === 12 ? 1 : month+1} →
+    </a>
+  </div>
+
+  <!-- Legend -->
+  <div class="flex gap-3 mb-2 text-[10px]" style="color:var(--text-3);">
+    <span class="flex items-center gap-1">
+      <span class="w-2 h-2 rounded-full inline-block" style="background:var(--green);"></span>Tốt
+    </span>
+    <span class="flex items-center gap-1">
+      <span class="w-2 h-2 rounded-full inline-block" style="background:var(--gold-dark);"></span>Bình
+    </span>
+    <span class="flex items-center gap-1">
+      <span class="w-2 h-2 rounded-full inline-block" style="background:var(--red);"></span>Xấu
+    </span>
+  </div>
+
+  <!-- Grid -->
+  <div class="card overflow-hidden">
+    <!-- Row header thứ -->
+    <div class="grid grid-cols-7 border-b" style="background:var(--bg-surface);border-color:var(--border);">
+      {THU_SHORT.map((t, i) => (
+        <div class="py-2 text-center text-xs font-bold"
+          style={i===0 ? 'color:var(--red);' : i===6 ? 'color:var(--gold-dark);' : 'color:var(--text-3);'}>
+          {t}
+        </div>
+      ))}
+    </div>
+
+    <!-- Day rows -->
+    {Array.from({ length: cells.length / 7 }, (_, row) => (
+      <div class="grid grid-cols-7 border-b" style="border-color:var(--border);">
+        {cells.slice(row*7, row*7+7).map((d, col) => {
+          const isSun     = col === 0;
+          const isSat     = col === 6;
+          const isToday   = d !== null && d === currentDay;
+          const info      = d ? dayMap.get(d) : undefined;
+          const lunarDay  = info?.lunar.day;
+          const canChiStr = info ? info.canChi.ngay.display : '';
+
+          return d === null ? (
+            <div class="p-1.5 min-h-[52px]" style="background:var(--bg-surface);border-right:1px solid var(--border);opacity:0.3;"></div>
+          ) : (
+            <a
+              href={solarToPath(d, month, year)}
+              title={canChiStr}
+              aria-current={isToday ? 'date' : undefined}
+              class:list={[
+                'p-1.5 min-h-[52px] flex flex-col no-underline transition-all hover:brightness-95 relative',
+                isToday ? 'ring-2 ring-inset' : '',
+              ]}
+              style={`${cellStyle(d)} border-right:1px solid var(--border);${isToday ? 'ring-color:var(--red);' : ''}`}
+            >
+              <!-- Dot ngày tốt/xấu -->
+              <span class="absolute top-1 right-1 w-1.5 h-1.5 rounded-full"
+                style={`background:${dotColor(d)};`}></span>
+
+              <!-- Ngày dương -->
+              <span class="font-bold text-sm leading-none"
+                style={isToday
+                  ? 'color:var(--red);font-size:1rem;'
+                  : isSun ? 'color:var(--red);'
+                  : isSat ? 'color:var(--gold-dark);'
+                  : 'color:var(--text-1);'}>
+                {d}
+              </span>
+
+              <!-- Ngày âm nhỏ -->
+              {lunarDay && (
+                <span class="text-[9px] mt-0.5 leading-none"
+                  style={`color:${lunarDay === 1 ? 'var(--red)' : 'var(--text-3)'};`}>
+                  {lunarDay === 1 ? `M.${info!.lunar.month}` : lunarDay}
+                </span>
+              )}
+            </a>
+          );
+        })}
+      </div>
+    ))}
+  </div>
+</div>

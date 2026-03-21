@@ -1,0 +1,23 @@
+# ============================================================
+# wrangler.toml — Cloudflare Pages config
+# Lịch Vạn Niên AI (lichvannien.io.vn)
+# ============================================================
+
+name                   = "lich-van-nien"
+compatibility_date     = "2024-09-23"
+compatibility_flags    = ["nodejs_compat"]
+pages_build_output_dir = "dist"
+
+# ── Environment variables ─────────────────────────────────────
+[vars]
+ENVIRONMENT = "production"
+BASE_URL    = "https://lichvannien.io.vn"
+SITE_NAME   = "Lịch Vạn Niên AI"
+
+# ── Ghi chú cho sau này ───────────────────────────────────────
+# Khi cần cache AI responses → thêm lại:
+# [[kv_namespaces]]
+# binding    = "AI_CACHE"
+# id         = "..."  ← wrangler kv:namespace create AI_CACHE
+#
+# GROQ_API_KEY đã set trong Cloudflare Dashboard → không cần ở đây

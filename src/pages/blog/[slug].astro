@@ -1,0 +1,112 @@
+---
+// src/pages/blog/[slug].astro — Trang từng bài blog
+import BaseLayout  from '../../layouts/BaseLayout.astro';
+import Breadcrumb  from '../../components/Breadcrumb.astro';
+import { getCollection, getEntry } from 'astro:content';
+import { SITE }    from '../../lib/constants';
+import { createArticleSchema } from '../../lib/schema';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog', ({ data }) => !data.draft);
+  return posts.map(p => ({ params: { slug: p.slug } }));
+}
+
+const { slug }  = Astro.params;
+const entry     = await getEntry('blog', slug!);
+if (!entry) return Astro.redirect('/blog');
+
+const { Content }  = await entry.render();
+const { title, description, pubDate, author, keywords } = entry.data;
+const canonical = `${SITE.baseUrl}/blog/${slug}`;
+
+const jsonLd = createArticleSchema({
+  title, description, url: canonical,
+  datePublished: pubDate.toISOString(),
+  image: SITE.ogImage,
+  author,
+});
+
+// Related posts (same keywords)
+const allPosts = (await getCollection('blog', ({ data }) => !data.draft && data !== entry.data))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 3);
+---
+
+<BaseLayout {title} {description} canonicalUrl={canonical} jsonLd={jsonLd}>
+
+  <Breadcrumb items={[
+    { label: 'Trang chủ', href: '/' },
+    { label: 'Blog', href: '/blog' },
+    { label: title },
+  ]} />
+
+  <!-- Reading progress bar (CSS scroll-driven) -->
+  <div
+    id="reading-progress"
+    class="fixed top-0 left-0 h-1 z-50 transition-all"
+    style="background:var(--red);width:0%;"
+  ></div>
+
+  <article class="max-w-2xl mx-auto">
+    <!-- Header -->
+    <header class="mb-6">
+      <p class="text-xs mb-2" style="color:var(--text-4);">
+        {pubDate.toLocaleDateString('vi-VN', { day:'2-digit', month:'2-digit', year:'numeric' })}
+        · {author}
+      </p>
+      <h1 class="font-display font-bold text-2xl mb-3 leading-tight" style="color:var(--text-1);">
+        {title}
+      </h1>
+      <div class="flex gap-1.5 flex-wrap">
+        {keywords.slice(0, 5).map(kw => (
+          <span class="text-xs px-2.5 py-1 rounded-full"
+            style="background:var(--red-pale);color:var(--red);">{kw}</span>
+        ))}
+      </div>
+    </header>
+
+    <!-- Content -->
+    <div class="prose-lvn">
+      <Content />
+    </div>
+
+    <!-- Related posts -->
+    {allPosts.length > 0 && (
+      <div class="mt-8 pt-6 border-t" style="border-color:var(--border);">
+        <h2 class="section-label mb-3">📚 Bài viết liên quan</h2>
+        <div class="flex flex-col gap-2">
+          {allPosts.map(p => (
+            <a href={`/blog/${p.slug}`}
+              class="card p-3 no-underline hover:shadow-md">
+              <p class="font-semibold text-sm" style="color:var(--text-1);">{p.data.title}</p>
+            </a>
+          ))}
+        </div>
+      </div>
+    )}
+  </article>
+
+</BaseLayout>
+
+<script is:inline>
+// Reading progress bar
+window.addEventListener('scroll', function() {
+  var el  = document.getElementById('reading-progress');
+  if (!el) return;
+  var scrolled = window.scrollY;
+  var total    = document.documentElement.scrollHeight - window.innerHeight;
+  el.style.width = (total > 0 ? (scrolled / total * 100) : 0) + '%';
+});
+</script>
+
+<style>
+.prose-lvn h2 { font-weight: 700; font-size: 1.1rem; margin: 1.5rem 0 0.75rem; color: var(--text-1); }
+.prose-lvn h3 { font-weight: 600; font-size: 1rem; margin: 1.25rem 0 0.5rem; color: var(--text-1); }
+.prose-lvn p  { font-size: 0.9rem; line-height: 1.8; margin-bottom: 1rem; color: var(--text-2); }
+.prose-lvn ul { padding-left: 1.25rem; margin-bottom: 1rem; }
+.prose-lvn li { font-size: 0.9rem; line-height: 1.7; color: var(--text-2); margin-bottom: 0.25rem; }
+.prose-lvn a  { color: var(--red); }
+.prose-lvn strong { color: var(--text-1); font-weight: 600; }
+.prose-lvn hr { border-color: var(--border); margin: 2rem 0; }
+.prose-lvn em { color: var(--text-3); }
+</style>

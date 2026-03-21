@@ -1,0 +1,45 @@
+# ============================================================
+# _redirects — Cloudflare Pages URL redirects
+# Format: <nguồn> <đích> <status>
+# Cloudflare xử lý theo thứ tự từ trên xuống, rule đầu tiên match thắng.
+# ============================================================
+
+# ── 301: Permanent — dùng khi URL cũ không dùng nữa vĩnh viễn ──
+# Browser và Google sẽ cập nhật bookmark/index sang URL mới.
+# Google chuyển PageRank (link juice) sang URL mới.
+
+# ── 302: Temporary — dùng khi redirect có thể thay đổi sau này ──
+# Browser không cache, Google giữ nguyên index URL cũ.
+# Dùng cho các route convenience/shortcut.
+
+# ── Redirect domain cũ → domain mới (SEO critical) ───────────
+# Toàn bộ traffic từ .pages.dev về domain chính thức.
+# 301 = Google hiểu đây là domain chính thức, chuyển toàn bộ authority.
+https://lich-van-nien.pages.dev/*  https://lichvannien.io.vn/:splat  301
+
+# www về non-www (canonical domain)
+https://www.lichvannien.io.vn/*  https://lichvannien.io.vn/:splat  301
+
+# ── Legacy URL paths (từ version cũ của app) ─────────────────
+# /lich-am/* → /lich/* (đổi tên route cũ sang mới)
+# 301 vì đây là thay đổi vĩnh viễn trong cấu trúc URL
+/lich-am/*   /lich/:splat  301
+
+# /calendar/* → /lich/* (URL tiếng Anh cũ → tiếng Việt mới)
+# 301 vì tất cả inbound links cần được chuyển sang cấu trúc mới
+/calendar/*  /lich/:splat  301
+
+# /today → / (shortcut URL tiện lợi cho internal links)
+# 302 vì đây là shortcut tạm thời — URL đích (/) có thể thay đổi
+# thành /lich/YYYY/MM/DD trong tương lai nếu cần
+/today       /             302
+
+# ── Legacy SPA routes (từ React/Vite version trước) ──────────
+# /thang → /lich/thang (tab Tháng trong SPA cũ)
+/thang  /lich/thang  301
+
+# /ai → /tu-van (tab AI đổi tên thành Tư Vấn)
+/ai     /tu-van      301
+
+# /chuyen-doi → /chuyen-doi-lich (thêm suffix cho rõ nghĩa)
+/chuyen-doi  /chuyen-doi-lich  301

@@ -1,0 +1,37 @@
+---
+// src/components/BottomNav.astro — iOS-style bottom navigation
+import { todayVN, solarToPath } from '../lib/dateUtils';
+
+const { day, month, year } = todayVN();
+const todayPath = solarToPath(day, month, year);
+
+const TABS = [
+  { href: '/',              icon: '🗓', label: 'Hôm nay',  id: 'home'     },
+  { href: `/lich/thang/${year}/${String(month).padStart(2,'0')}`,
+                            icon: '📅', label: 'Tháng',    id: 'thang'    },
+  { href: '/chuyen-doi-lich', icon: '🔄', label: 'Đổi lịch', id: 'doi'   },
+  { href: '/tu-van',        icon: '🤖', label: 'AI',        id: 'ai'      },
+  { href: '/cai-dat',       icon: '⚙️', label: 'Cài đặt',  id: 'caidat'  },
+];
+
+const path = Astro.url.pathname;
+
+function isActive(href: string): boolean {
+  if (href === '/') return path === '/';
+  return path.startsWith(href);
+}
+---
+
+<nav class="bottom-nav" role="navigation" aria-label="Điều hướng chính">
+  {TABS.map(tab => (
+    <a
+      href={tab.href}
+      class:list={['nav-tab', isActive(tab.href) ? 'active' : '']}
+      aria-label={tab.label}
+      aria-current={isActive(tab.href) ? 'page' : undefined}
+    >
+      <span class="nav-tab-icon" aria-hidden="true">{tab.icon}</span>
+      <span class="nav-tab-label">{tab.label}</span>
+    </a>
+  ))}
+</nav>

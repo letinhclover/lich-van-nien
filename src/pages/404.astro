@@ -1,0 +1,41 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { SITE }   from '../lib/constants';
+import { todayVN, solarToPath } from '../lib/dateUtils';
+
+const today     = todayVN();
+const todayPath = solarToPath(today.day, today.month, today.year);
+const title     = 'Trang không tìm thấy — Lịch Vạn Niên AI';
+const description = 'Trang bạn tìm không tồn tại. Quay về trang chủ Lịch Vạn Niên AI.';
+---
+
+<BaseLayout {title} {description} noindex={true}>
+  <div class="flex flex-col items-center justify-center text-center" style="min-height:60vh;padding:2rem 1rem;">
+
+    <div class="text-7xl mb-4" style="line-height:1;">🗓</div>
+
+    <p class="section-label mb-2">404</p>
+    <h1 class="font-display font-bold text-2xl mb-3" style="color:var(--text-1);">
+      Trang không tìm thấy
+    </h1>
+    <p class="text-sm mb-6 max-w-xs" style="color:var(--text-3);">
+      URL này không tồn tại hoặc đã bị đổi. Hãy thử tra cứu ngày hôm nay hoặc dùng thanh tìm kiếm.
+    </p>
+
+    <div class="flex flex-col gap-2 w-full max-w-xs">
+      <a href={todayPath} class="btn-primary justify-center py-3">
+        📅 Xem lịch âm hôm nay →
+      </a>
+      <a href="/" class="btn-secondary justify-center py-3">
+        🏠 Về trang chủ
+      </a>
+      <a href="/chuyen-doi-lich" class="btn-secondary justify-center py-3">
+        🔄 Chuyển đổi lịch âm ↔ dương
+      </a>
+    </div>
+
+    <p class="text-xs mt-8" style="color:var(--text-4);">
+      lichvannien.io.vn — Lịch Âm Dương Việt Nam
+    </p>
+  </div>
+</BaseLayout>
