@@ -19,16 +19,17 @@ import { buildUserProfile, UserProfile } from "./utils/astrology";
 import { ErrorBoundary }  from "./components/ErrorBoundary";
 import { StreakBadge }    from "./components/StreakBadge";
 import { TuViDailyTab }  from "./tabs/TuViDailyTab";
+import { XemNgayTab }    from "./tabs/XemNgayTab";
 import { tryDailyNotification, tryEventReminders, requestNotificationPermission, getNotificationPermission } from "./utils/notifications";
 
-type TabId = "calendar" | "tuvi" | "thay" | "events" | "tienich" | "profile";
+type TabId = "calendar" | "tuvi" | "xemngay" | "thay" | "events" | "tienich" | "profile";
 
 const TABS: { id: TabId; icon: string; label: string }[] = [
-  { id:"calendar", icon:"📅", label:"Lịch"      },
-  { id:"tuvi",     icon:"🌟", label:"Tử Vi"     },
-  { id:"thay",     icon:"🔮", label:"Hỏi Thầy"  },
-  { id:"events",   icon:"🎉", label:"Sự Kiện"   },
-  { id:"tienich",  icon:"🧭", label:"Tiện Ích"  },
+  { id:"calendar", icon:"📅", label:"Lịch"     },
+  { id:"xemngay",  icon:"📆", label:"Tìm Ngày" },
+  { id:"thay",     icon:"🔮", label:"Hỏi Thầy" },
+  { id:"events",   icon:"🎉", label:"Sự Kiện"  },
+  { id:"tienich",  icon:"🧭", label:"Tiện Ích" },
 ];
 const TAB_ORDER = TABS.map(t => t.id);
 
@@ -132,16 +133,32 @@ export default function App() {
 
             {tab === "calendar" && (
               <div className="flex flex-col pb-4">
-                <CalendarBoard currentDate={viewDate} onDateChange={handleDateChange} />
+                <ErrorBoundary name="Lịch">
+                  <CalendarBoard currentDate={viewDate} onDateChange={handleDateChange} />
+                </ErrorBoundary>
                 <div className="px-4 mt-4">
                   <SectionLabel label="Năng Lượng Cá Nhân" />
                 </div>
-                <PersonalEnergy
-                  userProfile={profile}
-                  currentDate={viewDate}
-                  onSetupProfile={() => changeTab("profile")}
-                />
+                <ErrorBoundary name="Năng Lượng">
+                  <PersonalEnergy
+                    userProfile={profile}
+                    currentDate={viewDate}
+                    onSetupProfile={() => changeTab("profile")}
+                  />
+                </ErrorBoundary>
               </div>
+            )}
+
+            {tab === "tuvi" && (
+              <ErrorBoundary name="Tử Vi Hàng Ngày">
+                <TuViDailyTab birthYear={profile?.birthYear} currentDate={viewDate} />
+              </ErrorBoundary>
+            )}
+
+            {tab === "xemngay" && (
+              <ErrorBoundary name="Tìm Ngày">
+                <XemNgayTab />
+              </ErrorBoundary>
             )}
 
             {tab === "thay" && (
@@ -307,20 +324,26 @@ function Background({ isDark }: { isDark: boolean }) {
 // ─── Header ───────────────────────────────────────────────────
 function AppHeader({ isDark, onToggleTheme }: { isDark:boolean; onToggleTheme:()=>void }) {
   return (
-    <header className="relative z-20 px-4 pt-4 pb-3 border-b"
-      style={{ background:"var(--header-bg)", backdropFilter:"blur(16px)", borderColor:"var(--border-subtle)" }}>
+    <header className="relative z-20 px-4 pt-safe-or-4 pb-3"
+      style={{ background:"var(--header-bg)", backdropFilter:"blur(20px) saturate(180%)", borderBottom:"1px solid var(--border-subtle)" }}>
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="font-display font-bold leading-tight"
-            style={{ color:"var(--text-primary)", fontSize:"1.15rem" }}>
-            Lịch Vạn Niên AI 2026
-          </h1>
-          <p className="text-xs tracking-widest uppercase mt-0.5" style={{ color:"var(--text-muted)" }}>
-            Lịch Âm · Phong Thủy · AI
-          </p>
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl flex items-center justify-center text-lg shrink-0"
+            style={{background:"linear-gradient(135deg,var(--gold),var(--gold-light))"}}>
+            🗓
+          </div>
+          <div>
+            <h1 className="font-display font-bold leading-none text-base"
+              style={{ color:"var(--text-primary)" }}>
+              Lịch Vạn Niên AI
+            </h1>
+            <p className="text-[10px] tracking-widest uppercase" style={{ color:"var(--text-muted)" }}>
+              Lịch Âm · Phong Thủy · AI
+            </p>
+          </div>
         </div>
         <motion.button whileTap={{ scale:0.9 }} onClick={onToggleTheme}
-          className="w-10 h-10 rounded-xl flex items-center justify-center text-xl"
+          className="w-9 h-9 rounded-xl flex items-center justify-center text-lg"
           style={{ background:"var(--bg-elevated)", border:"1px solid var(--border-subtle)" }}
           aria-label={isDark ? "Chế độ sáng" : "Chế độ tối"}>
           {isDark ? "☀️" : "🌙"}

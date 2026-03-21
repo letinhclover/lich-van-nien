@@ -1,5 +1,10 @@
 // src/utils/sounds.ts — Web Audio API (no external files)
 let ctx: AudioContext | null = null;
+async function getCtxAsync(): Promise<AudioContext> {
+  if (!ctx) ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+  if (ctx.state === 'suspended') await ctx.resume();
+  return ctx;
+}
 function getCtx(): AudioContext {
   if (!ctx) ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
   return ctx;
@@ -37,9 +42,9 @@ export function playGieoQue() {
 }
 
 // 🔔 Chuông thiền — âm thanh trong sáng, vang xa
-export function playBell(volume = 0.4) {
+export async function playBell(volume = 0.4) {
   try {
-    const c = getCtx();
+    const c = await getCtxAsync();
     // Fundamental + harmonics cho âm chuông tự nhiên
     const freqs = [440, 880, 1320, 1760];
     const gains = [1, 0.5, 0.25, 0.125];
@@ -74,9 +79,9 @@ export function playCheckIn() {
 }
 
 // 🧘 Tiếng om thiền — cho meditation
-export function playOm(duration = 3) {
+export async function playOm(duration = 3) {
   try {
-    const c = getCtx();
+    const c = await getCtxAsync();
     const osc = c.createOscillator(), gain = c.createGain();
     osc.type = 'sine';
     osc.frequency.setValueAtTime(136.1, c.currentTime); // sacred "Om" freq
