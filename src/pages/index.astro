@@ -117,6 +117,22 @@ const jsonLd = [
     ],
   },
 ];
+
+// Badge cho status ngày
+const badgeStyle = quality.score >= 4
+  ? 'background:var(--green-pale);color:var(--green);'
+  : quality.score === 3
+    ? 'background:var(--gold-pale);color:var(--gold-dark);'
+    : 'background:var(--red-pale);color:var(--red);';
+const badgeText = quality.score >= 4 ? 'Ngày Tốt'
+  : quality.score === 3 ? 'Bình Thường' : 'Ngày Xấu';
+const badgeExtra = [
+  quality.isTamNuong ? 'Tam Nương' : '',
+  quality.isNguyetKy  ? 'Nguyệt Kỵ'  : '',
+  ramMungBadge ?? '',
+].filter(Boolean).join(' · ');
+const badgeFull = badgeExtra ? `${badgeText} · ${badgeExtra}` : badgeText;
+
 ---
 
 <BaseLayout
@@ -158,25 +174,9 @@ const jsonLd = [
       </div>
 
       <!-- Status badge -->
-      {(() => {
-        const badgeStyle = quality.score >= 4
-          ? 'background:var(--green-pale);color:var(--green);'
-          : quality.score <= 2
-            ? 'background:var(--red-pale);color:var(--red);'
-            : 'background:var(--gold-pale);color:var(--gold-dark);';
-        const badgeText = quality.score >= 4 ? 'Ngày Tốt'
-          : quality.score <= 2 ? 'Ngày Xấu' : 'Bình Thường';
-        const extra = [
-          quality.isTamNuong ? 'Tam Nương' : '',
-          quality.isNguyetKy  ? 'Nguyệt Kỵ' : '',
-          ramMungBadge ?? '',
-        ].filter(Boolean).join(' · ');
-        return (
-          <span class="px-4 py-1.5 rounded-full text-sm font-bold mb-4" style={badgeStyle}>
-            {badgeText}{extra ? ` · ${extra}` : ''}
-          </span>
-        );
-      })()}
+      <span class="px-4 py-1.5 rounded-full text-sm font-bold mb-4" style={badgeStyle}>
+        {badgeFull}
+      </span>
 
       <!-- 3-col can chi strip -->
       <div class="flex w-full rounded-2xl overflow-hidden" style="background:var(--bg-surface);">
