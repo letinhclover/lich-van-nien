@@ -40,6 +40,7 @@ const lunarLabel = `${lunar.leap ? 'Nhuận ' : ''}${lunar.day} tháng ${lunar.m
 // Score hiển thị
 const scoreDots = Array.from({ length: 5 }, (_, i) => i < quality.score);
 const scoreLabel = quality.score >= 4 ? 'NGÀY TỐT' : quality.score === 3 ? 'BÌNH THƯỜNG' : 'NGÀY XẤU';
+const ramMungBadge: string | null = lunar.day === 15 ? '🌕 Ngày Rằm' : lunar.day === 1 ? '🌑 Mùng Một' : null;
 const scoreBadgeStyle = quality.score >= 4
   ? 'background:var(--green-pale);color:var(--green);border:1px solid rgba(29,158,117,0.3);'
   : quality.score === 3
