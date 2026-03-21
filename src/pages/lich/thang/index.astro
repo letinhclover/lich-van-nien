@@ -1,5 +1,0 @@
----
-import { todayVN } from '../../../lib/dateUtils';
-const { year, month } = todayVN();
-return Astro.redirect(`/lich/thang/${year}/${String(month).padStart(2,'0')}`, 302);
----
