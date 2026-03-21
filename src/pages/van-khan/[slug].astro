@@ -1,0 +1,98 @@
+---
+// src/pages/van-khan/[slug].astro
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { SITE }   from '../../lib/constants';
+import { VAN_KHAN_DATA, getVanKhanBySlug } from '../../lib/vanKhan';
+
+export function getStaticPaths() {
+  return VAN_KHAN_DATA.map(v => ({ params: { slug: v.slug } }));
+}
+
+const { slug } = Astro.params;
+const vk = getVanKhanBySlug(slug!);
+if (!vk) return Astro.redirect('/van-khan');
+
+const canonical  = `${SITE.baseUrl}/van-khan/${slug}`;
+const title      = `${vk.ten} — Văn Khấn Chuẩn | Lịch Vạn Niên`.slice(0,60);
+const description = vk.tomTat.slice(0,160);
+---
+
+<BaseLayout {title} {description} canonicalUrl={canonical}>
+
+  <nav class="flex items-center gap-1.5 text-xs mb-4" style="color:var(--text-3);">
+    <a href="/" style="color:var(--text-3);">🏠</a>
+    <span>›</span>
+    <a href="/van-khan" style="color:var(--text-3);">Văn Khấn</a>
+    <span>›</span>
+    <span style="color:var(--text-1);">{vk.ten}</span>
+  </nav>
+
+  <div class="text-center mb-4">
+    <div class="text-4xl mb-2">{vk.icon}</div>
+    <h1 class="font-display font-bold text-xl mb-1" style="color:var(--text-1);">{vk.ten}</h1>
+    <p class="text-sm" style="color:var(--text-3);">📅 {vk.dip}</p>
+  </div>
+
+  <!-- Nội dung văn khấn -->
+  <div class="card p-4 mb-4">
+    <div class="flex items-center justify-between mb-3">
+      <p class="section-label">📜 Nội dung văn khấn</p>
+      <button id="copy-btn" class="text-xs font-semibold px-3 py-1.5 rounded-lg"
+        style="background:var(--gold-pale);color:var(--gold-dark);">
+        📋 Sao chép
+      </button>
+    </div>
+    <div id="vk-content" class="text-sm leading-relaxed whitespace-pre-wrap"
+      style="color:var(--text-2);font-family:'DM Sans',sans-serif;line-height:1.9;">
+{vk.noiDung}
+    </div>
+  </div>
+
+  <!-- Lưu ý -->
+  <div class="card p-4 mb-4" style="background:var(--gold-pale);">
+    <p class="font-bold text-sm mb-1.5" style="color:var(--gold-dark);">💡 Lưu ý khi đọc văn khấn</p>
+    <div class="text-sm flex flex-col gap-1" style="color:var(--text-2);">
+      <p>• Thay dấu ... bằng ngày tháng năm và tên thực tế</p>
+      <p>• Đọc rõ ràng, thành tâm, không cần thuộc lòng</p>
+      <p>• Hướng mặt về bàn thờ, tư thế nghiêm trang</p>
+      <p>• Thông tin mang tính tham khảo theo phong tục dân gian</p>
+    </div>
+  </div>
+
+  <!-- Related -->
+  <div class="mb-4">
+    <p class="section-label mb-2">📿 Xem thêm</p>
+    <div class="card">
+      {VAN_KHAN_DATA.filter(v => v.slug !== slug).slice(0,4).map((v, i, arr) => (
+        <a href={`/van-khan/${v.slug}`}
+          class="flex items-center gap-3 px-4 py-3 no-underline"
+          style={`border-bottom:${i < arr.length-1 ? '1px solid var(--border)' : 'none'};`}>
+          <span class="text-xl">{v.icon}</span>
+          <span class="text-sm font-medium" style="color:var(--text-1);">{v.ten}</span>
+          <span class="ml-auto" style="color:var(--text-4);">›</span>
+        </a>
+      ))}
+    </div>
+  </div>
+
+  <a href="/van-khan" class="btn-secondary w-full justify-center py-3">← Tất cả văn khấn</a>
+
+</BaseLayout>
+
+<script is:inline>
+document.getElementById('copy-btn')?.addEventListener('click', function() {
+  var text = document.getElementById('vk-content')?.innerText || '';
+  navigator.clipboard.writeText(text).then(function() {
+    var btn = document.getElementById('copy-btn');
+    if (btn) { btn.textContent = '✓ Đã sao chép'; setTimeout(function(){ btn.textContent = '📋 Sao chép'; }, 2000); }
+  }).catch(function() {
+    // fallback
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  });
+});
+</script>
